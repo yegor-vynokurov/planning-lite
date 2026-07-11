@@ -40,6 +40,10 @@ uv run planning-lite release major
 
 The release command runs checks, finalizes the changelog, creates a release commit, and creates an annotated PEP 440-compatible tag. It never pushes automatically.
 
+## Official template source
+
+The built-in fallback source is `https://github.com/yegor-vynokurov/planning-lite`. Keep source resolution ordered from explicit overrides to the official fallback, and update the source-precedence tests whenever that behavior changes.
+
 ## Verification
 
 Before declaring a framework change complete:
