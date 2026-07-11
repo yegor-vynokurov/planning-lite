@@ -1,3 +1,6 @@
+README_planning_lite_updated.md
+
+
 # Planning Lite
 
 Planning Lite is a centrally versioned planning and control framework for coding agents.
@@ -46,6 +49,100 @@ planning-lite/
 └── pyproject.toml
 ```
 
+
+## Prerequisites and installing `uv`
+
+Planning Lite is a Python CLI project. The recommended development workflow uses [`uv`](https://docs.astral.sh/uv/), a fast Python project and package manager that can:
+
+- create and synchronize the local `.venv` environment;
+- install the versions declared by `pyproject.toml` and `uv.lock`;
+- run project commands without manually activating the environment;
+- install `planning-lite` globally as an isolated CLI tool without adding it to another project's dependencies.
+
+Check whether `uv` is already available:
+
+```text
+uv --version
+```
+
+If the command is not recognized, install `uv` using one of the methods below.
+
+### Windows
+
+The simplest option on current Windows systems is WinGet:
+
+```powershell
+winget install --id=astral-sh.uv -e
+```
+
+Alternatively, use the official standalone installer:
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+After installation, close all VS Code terminals, reopen the terminal, and verify:
+
+```powershell
+uv --version
+```
+
+If the standalone installer completed but PowerShell still cannot find `uv`, temporarily add its default user installation directory to the current session:
+
+```powershell
+$env:Path = "$HOME\.local\bin;$env:Path"
+Get-Command uv
+uv --version
+```
+
+Then restart VS Code. If necessary, add `$HOME\.local\bin` permanently to the user `PATH`.
+
+### Linux
+
+Install `uv` with the official standalone installer:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+If `curl` is unavailable:
+
+```bash
+wget -qO- https://astral.sh/uv/install.sh | sh
+```
+
+Open a new shell and verify:
+
+```bash
+uv --version
+```
+
+If the command is still unavailable, add the default installation directory to the current shell:
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+uv --version
+```
+
+To make the change persistent for Bash:
+
+```bash
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+For another shell, add the same directory to that shell's profile file.
+
+### Updating `uv`
+
+When `uv` was installed with the standalone installer:
+
+```text
+uv self update
+```
+
+When it was installed with WinGet or another package manager, use that package manager's update command instead.
+
 ## First-time setup of this central repository
 
 ```powershell
@@ -69,22 +166,96 @@ Copier chooses released Git tags for updates, so framework releases should be ta
 
 ## Running the CLI while developing this repository
 
-```powershell
+### Recommended workflow with `uv`
+
+From the repository root:
+
+```text
 uv sync
 uv run planning-lite --version
 ```
 
-Configure the template source once:
+`uv sync` creates or updates `.venv` and synchronizes it with the dependencies declared by the project. `uv run` executes the command inside that environment, so manual activation is not required.
+
+Configure the template source once.
+
+Windows:
 
 ```powershell
 uv run planning-lite configure --template-source D:\path\to\planning-lite
 ```
 
+Linux:
+
+```bash
+uv run planning-lite configure --template-source /path/to/planning-lite
+```
+
 After the repository is pushed, configure the Git URL instead:
 
-```powershell
+```text
 uv run planning-lite configure --template-source git@github.com:YOUR_ACCOUNT/planning-lite.git
 ```
+
+### Alternative workflow without `uv`
+
+`uv` is recommended but not required. You can use the standard Python `venv` module and `pip` instead. This requires a supported Python installation with `pip` available.
+
+#### Windows PowerShell
+
+```powershell
+cd D:\path\to\planning-lite
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -e .
+planning-lite --version
+```
+
+Configure the template source:
+
+```powershell
+planning-lite configure --template-source D:\path\to\planning-lite
+```
+
+If PowerShell blocks environment activation, either adjust the execution policy for the current process:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+```
+
+or run the environment's executables directly without activation:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -e .
+.\.venv\Scripts\planning-lite.exe --version
+```
+
+#### Linux
+
+```bash
+cd /path/to/planning-lite
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e .
+planning-lite --version
+```
+
+Configure the template source:
+
+```bash
+planning-lite configure --template-source /path/to/planning-lite
+```
+
+To leave the environment later:
+
+```text
+deactivate
+```
+
+The `venv + pip` workflow is fully usable, but it requires manual environment activation and dependency maintenance. `uv` is more convenient for this repository because one command synchronizes the environment, `uv run` avoids activation mistakes, and `uv tool install` provides an isolated global CLI installation.
 
 ## Installing the CLI globally
 
@@ -102,6 +273,29 @@ uv tool install git+https://github.com/YOUR_ACCOUNT/planning-lite.git@v3.0.0
 ```
 
 `uv tool install` installs the CLI in an isolated tool environment, so it does not become a dependency of the target Python, R, or mixed-language project.
+
+
+Without `uv`, install the CLI into a dedicated virtual environment rather than into the system Python.
+
+Windows PowerShell:
+
+```powershell
+py -m venv $HOME\.venvs\planning-lite
+& "$HOME\.venvs\planning-lite\Scripts\python.exe" -m pip install --upgrade pip
+& "$HOME\.venvs\planning-lite\Scripts\python.exe" -m pip install "git+ssh://git@github.com/YOUR_ACCOUNT/planning-lite.git@v3.0.0"
+& "$HOME\.venvs\planning-lite\Scripts\planning-lite.exe" --version
+```
+
+Linux:
+
+```bash
+python3 -m venv "$HOME/.venvs/planning-lite"
+"$HOME/.venvs/planning-lite/bin/python" -m pip install --upgrade pip
+"$HOME/.venvs/planning-lite/bin/python" -m pip install "git+ssh://git@github.com/YOUR_ACCOUNT/planning-lite.git@v3.0.0"
+"$HOME/.venvs/planning-lite/bin/planning-lite" --version
+```
+
+This fallback keeps Planning Lite isolated, but you must either call the executable by its full path or add that environment's executable directory to `PATH`. For frequent use across many projects, `uv tool install` is simpler.
 
 ## Adopting Planning Lite in an existing project
 
