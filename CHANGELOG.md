@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 3.0.2 - 2026-07-11
+
 - Derive package versions from Git tags through `hatch-vcs`.
 - Add `planning-lite release` for checked patch, minor, major, and explicit releases.
 - Read installed template versions from Copier metadata instead of `.planning/VERSION`.
