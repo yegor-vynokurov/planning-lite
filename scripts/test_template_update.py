@@ -1,8 +1,8 @@
 """Manual end-to-end smoke test for maintainers.
 
-This script creates temporary Git repositories, adopts the current tagged
-Planning Lite template, and verifies the installation. Run it from a clean,
-Git-versioned central repository after creating a release tag.
+This script creates a temporary Git repository, adopts the current central
+repository HEAD, and verifies the installation. Run it from a clean,
+Git-versioned central repository before creating a release tag.
 """
 
 from __future__ import annotations
@@ -38,6 +38,8 @@ def main() -> None:
             str(target),
             "--template-source",
             str(central),
+            "--vcs-ref",
+            "HEAD",
         )
         run("uv", "run", "planning-lite", "doctor", str(target), cwd=central)
         print("Planning Lite smoke test passed.")

@@ -164,6 +164,53 @@ git push origin v3.0.0
 
 Copier chooses released Git tags for updates, so framework releases should be tagged with PEP 440-compatible versions such as `v3.0.0` and `v3.1.0`.
 
+## Single-source versioning
+
+Planning Lite uses the Git tag as the only source of a release version. Do not manually synchronize version strings in several files.
+
+- `hatch-vcs` derives Python package metadata from the nearest Git tag;
+- `planning_lite.__version__` reads the installed package metadata;
+- Copier stores the installed template tag in `.copier-answers.planning-lite.yml`;
+- `template/.planning/VERSION` is intentionally absent.
+
+On commits after the latest tag, development builds receive a version such as `3.0.1.dev2+g<commit>`. A tagged commit such as `v3.0.1` produces the release version `3.0.1`.
+
+Prepare release notes under `## Unreleased` in `CHANGELOG.md`, commit the framework changes, and use the release command:
+
+```powershell
+uv run planning-lite release patch
+```
+
+The positional argument may be `patch`, `minor`, `major`, or an explicit version such as `3.2.0`. The command:
+
+1. requires a clean Git working tree and, by default, the `main` branch;
+2. reads the latest stable version tag;
+3. validates `CHANGELOG.md` and checks that `uv.lock` does not contain the known environment-specific internal index;
+4. runs the test suite and the template update smoke test;
+5. moves the `Unreleased` entries into a dated release section;
+6. creates a release commit and an annotated Git tag;
+7. prints the push commands but does not push automatically.
+
+Preview without changing Git:
+
+```powershell
+uv run planning-lite release patch --dry-run
+```
+
+After reviewing the local release:
+
+```powershell
+git push origin main
+git push origin v3.0.1
+```
+
+If dependencies or build-system requirements changed, regenerate and commit `uv.lock` before the release command:
+
+```powershell
+uv lock --default-index https://pypi.org/simple
+uv sync --default-index https://pypi.org/simple
+```
+
 ## Running the CLI while developing this repository
 
 ### Recommended workflow with `uv`
@@ -315,14 +362,17 @@ The `adopt` command appends a small marked bridge to an existing `AGENTS.md` ins
 
 ## Updating target projects
 
-Create a new central release:
+Create a new central release. Add notes to `CHANGELOG.md` under `## Unreleased`, commit the framework changes, then choose the appropriate release increment:
 
 ```powershell
 # In the Planning Lite repository
 git add .
 git commit -m "Improve planning checkpoint workflow"
-git tag v3.1.0
-git push origin main v3.1.0
+uv run planning-lite release minor
+
+# The release command prints these; push only after review.
+git push origin main
+git push origin v3.1.0
 ```
 
 Preview the update in a target project:
@@ -368,6 +418,7 @@ planning-lite check [TARGET]
 planning-lite update [TARGET]
 planning-lite doctor [TARGET]
 planning-lite ownership [TARGET]
+planning-lite release patch|minor|major|MAJOR.MINOR.PATCH
 ```
 
 See `docs/ARCHITECTURE.ru.md` and `docs/OPERATOR_WORKFLOW.ru.md` for the detailed maintenance procedure.

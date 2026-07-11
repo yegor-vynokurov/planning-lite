@@ -2,13 +2,17 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
+import shutil
 import subprocess
 import sys
 import tomllib
+from datetime import date
 from pathlib import Path
 from typing import Iterable
 
 import yaml
+from packaging.version import InvalidVersion, Version
 
 from . import __version__
 
@@ -208,6 +212,203 @@ def command_update(args: argparse.Namespace) -> int:
     return _run(command, cwd=target)
 
 
+def _version_from_tag(tag: str) -> Version:
+    raw = tag.strip()
+    if raw.startswith("v"):
+        raw = raw[1:]
+    try:
+        parsed = Version(raw)
+    except InvalidVersion as exc:
+        raise PlanningLiteError(f"Invalid PEP 440 version tag: {tag}") from exc
+    return parsed
+
+
+def _is_stable_release(version: Version) -> bool:
+    return (
+        version.epoch == 0
+        and len(version.release) == 3
+        and not version.is_prerelease
+        and not version.is_devrelease
+        and not version.is_postrelease
+        and version.local is None
+    )
+
+
+def _latest_release_version(target: Path) -> Version:
+    output = _git_output(target, "tag", "--list")
+    if output is None:
+        raise PlanningLiteError("Cannot read Git tags.")
+
+    versions: list[Version] = []
+    for tag in output.splitlines():
+        try:
+            parsed = _version_from_tag(tag)
+        except PlanningLiteError:
+            continue
+        if _is_stable_release(parsed):
+            versions.append(parsed)
+
+    if not versions:
+        raise PlanningLiteError(
+            "No stable release tag was found. Create an initial tag such as v3.0.0 first."
+        )
+    return max(versions)
+
+
+def _next_release_version(current: Version, requested: str) -> Version:
+    normalized = requested.strip().lower()
+    major, minor, patch = current.release
+    if normalized == "patch":
+        candidate = Version(f"{major}.{minor}.{patch + 1}")
+    elif normalized == "minor":
+        candidate = Version(f"{major}.{minor + 1}.0")
+    elif normalized == "major":
+        candidate = Version(f"{major + 1}.0.0")
+    else:
+        candidate = _version_from_tag(requested)
+
+    if not _is_stable_release(candidate):
+        raise PlanningLiteError(
+            "Release versions must contain exactly MAJOR.MINOR.PATCH and must not be "
+            "pre-, dev-, post-, local-, or epoch versions."
+        )
+    if candidate <= current:
+        raise PlanningLiteError(
+            f"Requested version {candidate} must be greater than the latest release {current}."
+        )
+    return candidate
+
+
+def _render_released_changelog(text: str, version: Version, *, released_on: date) -> str:
+    marker = "## Unreleased"
+    marker_index = text.find(marker)
+    if marker_index < 0:
+        raise PlanningLiteError("CHANGELOG.md must contain a `## Unreleased` section.")
+
+    content_start = marker_index + len(marker)
+    next_heading = re.search(r"(?m)^##\s+", text[content_start:])
+    content_end = content_start + next_heading.start() if next_heading else len(text)
+    unreleased = text[content_start:content_end].strip()
+    if not re.search(r"(?m)^-\s+\S", unreleased):
+        raise PlanningLiteError(
+            "The `## Unreleased` section must contain at least one bullet before release."
+        )
+
+    before = text[:marker_index]
+    after = text[content_end:].lstrip("\n")
+    released = (
+        f"## Unreleased\n\n"
+        f"## {version} - {released_on.isoformat()}\n\n"
+        f"{unreleased}\n"
+    )
+    if after:
+        released += f"\n{after}"
+    return before + released
+
+
+def _validate_release_lockfile(target: Path) -> None:
+    lockfile = target / "uv.lock"
+    if not lockfile.exists():
+        raise PlanningLiteError(
+            "uv.lock is missing. Run `uv lock --default-index https://pypi.org/simple` "
+            "and commit the lockfile before releasing."
+        )
+    text = lockfile.read_text(encoding="utf-8")
+    forbidden = (
+        "packages.applied-caas-gateway1.internal.api.openai.org",
+        "applied-caas-gateway",
+    )
+    found = [value for value in forbidden if value in text]
+    if found:
+        raise PlanningLiteError(
+            "uv.lock contains an environment-specific package index. Regenerate it from "
+            "the intended index before releasing."
+        )
+
+
+def command_release(args: argparse.Namespace) -> int:
+    target = Path(args.target).resolve()
+    if not _looks_like_template_repo(target):
+        raise PlanningLiteError(
+            f"{target} does not look like the central Planning Lite template repository."
+        )
+    _require_clean_git(target, allow_dirty=False)
+
+    branch = _git_output(target, "branch", "--show-current")
+    if not branch:
+        raise PlanningLiteError("Release cannot run from a detached HEAD.")
+    if branch != args.branch and not args.allow_other_branch:
+        raise PlanningLiteError(
+            f"Release must run from `{args.branch}`; current branch is `{branch}`. "
+            "Pass --allow-other-branch only when this is intentional."
+        )
+
+    current = _latest_release_version(target)
+    version = _next_release_version(current, args.version)
+    tag = f"v{version}"
+    if _git_output(target, "tag", "--list", tag):
+        raise PlanningLiteError(f"Tag already exists: {tag}")
+
+    changelog_path = target / "CHANGELOG.md"
+    if not changelog_path.exists():
+        raise PlanningLiteError("CHANGELOG.md is missing.")
+    changelog = _render_released_changelog(
+        changelog_path.read_text(encoding="utf-8"),
+        version,
+        released_on=date.today(),
+    )
+    _validate_release_lockfile(target)
+
+    print(f"Latest release: v{current}")
+    print(f"Planned release: {tag}")
+    if args.dry_run:
+        print("Dry run: tests, changelog update, release commit, and tag creation were skipped.")
+        return 0
+
+    if not args.skip_tests:
+        if shutil.which("uv") is None:
+            raise PlanningLiteError(
+                "The release workflow requires `uv` for lock validation and the template smoke test."
+            )
+        checks = [
+            ["uv", "lock", "--check"],
+            [sys.executable, "-m", "pytest"],
+        ]
+        template_test = target / "scripts" / "test_template_update.py"
+        if template_test.exists():
+            checks.append([sys.executable, str(template_test)])
+        for command in checks:
+            if _run(command, cwd=target) != 0:
+                raise PlanningLiteError(
+                    f"Release check failed: {' '.join(command)}. No release tag was created."
+                )
+        if _is_dirty(target):
+            raise PlanningLiteError(
+                "Release checks modified the working tree. Review and commit or remove those "
+                "changes before retrying; no release tag was created."
+            )
+
+    changelog_path.write_text(changelog, encoding="utf-8")
+    if _run(["git", "add", "CHANGELOG.md"], cwd=target) != 0:
+        raise PlanningLiteError("Cannot stage CHANGELOG.md.")
+    message = args.message or f"Release {tag}"
+    if _run(["git", "commit", "-m", message], cwd=target) != 0:
+        _run(["git", "restore", "--staged", "CHANGELOG.md"], cwd=target)
+        _run(["git", "restore", "CHANGELOG.md"], cwd=target)
+        raise PlanningLiteError("Cannot create the release commit. CHANGELOG.md was restored.")
+    if _run(["git", "tag", "-a", tag, "-m", message], cwd=target) != 0:
+        raise PlanningLiteError(
+            "The release commit was created, but tag creation failed. Inspect Git state before retrying."
+        )
+
+    print(f"Created release commit and annotated tag {tag}.")
+    print("Nothing was pushed automatically.")
+    print("Next:")
+    print(f"  git push origin {branch}")
+    print(f"  git push origin {tag}")
+    return 0
+
+
 def _load_yaml(path: Path) -> object:
     with path.open("r", encoding="utf-8") as handle:
         return yaml.safe_load(handle)
@@ -244,11 +445,14 @@ def command_doctor(args: argparse.Namespace) -> int:
         failures.append("AGENTS.md does not contain the Planning Lite bridge block")
 
     answers = target / ANSWERS_FILE
+    answers_data: dict[str, object] | None = None
     if answers.exists():
         try:
             data = _load_yaml(answers)
             if not isinstance(data, dict) or "_src_path" not in data:
                 failures.append(f"{ANSWERS_FILE} is not a valid Copier answers file")
+            else:
+                answers_data = data
         except (OSError, yaml.YAMLError) as exc:
             failures.append(f"cannot parse {ANSWERS_FILE}: {exc}")
 
@@ -261,9 +465,12 @@ def command_doctor(args: argparse.Namespace) -> int:
     elif _is_dirty(target):
         warnings.append("working tree is not clean")
 
-    version_path = target / ".planning" / "VERSION"
-    version = version_path.read_text(encoding="utf-8").strip() if version_path.exists() else "unknown"
-    print(f"Planning Lite framework version: {version}")
+    installed_ref = "unknown"
+    if answers_data is not None:
+        raw_ref = answers_data.get("_commit") or answers_data.get("_vcs_ref")
+        if isinstance(raw_ref, str) and raw_ref.strip():
+            installed_ref = raw_ref.strip()
+    print(f"Planning Lite framework version: {installed_ref}")
 
     for warning in warnings:
         print(f"WARNING: {warning}")
@@ -330,6 +537,22 @@ def build_parser() -> argparse.ArgumentParser:
     ownership = subparsers.add_parser("ownership", help="Show managed and project-owned path policies.")
     ownership.add_argument("target", nargs="?", default=".")
     ownership.set_defaults(func=command_ownership)
+
+    release = subparsers.add_parser(
+        "release",
+        help="Run release checks, finalize CHANGELOG.md, commit, and create a version tag.",
+    )
+    release.add_argument(
+        "version",
+        help="One of patch, minor, major, or an explicit MAJOR.MINOR.PATCH version.",
+    )
+    release.add_argument("--target", default=".", help="Central Planning Lite repository root.")
+    release.add_argument("--branch", default="main", help="Expected release branch.")
+    release.add_argument("--allow-other-branch", action="store_true")
+    release.add_argument("--skip-tests", action="store_true")
+    release.add_argument("--dry-run", action="store_true")
+    release.add_argument("--message", help="Release commit and annotated tag message.")
+    release.set_defaults(func=command_release)
 
     return parser
 
