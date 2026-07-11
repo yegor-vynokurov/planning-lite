@@ -19,6 +19,7 @@ from . import __version__
 ANSWERS_FILE = ".copier-answers.planning-lite.yml"
 CONFIG_ENV = "PLANNING_LITE_TEMPLATE"
 CONFIG_PATH = Path.home() / ".config" / "planning-lite" / "config.toml"
+DEFAULT_TEMPLATE_SOURCE = "https://github.com/yegor-vynokurov/planning-lite"
 BRIDGE_START = "<!-- planning-lite:start -->"
 BRIDGE_END = "<!-- planning-lite:end -->"
 BRIDGE_BLOCK = f"""{BRIDGE_START}
@@ -92,19 +93,16 @@ def _discover_template_source(explicit: str | None) -> str:
     if environment:
         return environment
 
-    configured = _load_user_config().get("template_source")
-    if isinstance(configured, str) and configured.strip():
-        return configured.strip()
-
     current = Path.cwd().resolve()
     for candidate in (current, *current.parents):
         if _looks_like_template_repo(candidate):
             return str(candidate)
 
-    raise PlanningLiteError(
-        "Template source is not configured. Pass --template-source, set "
-        f"{CONFIG_ENV}, or run `planning-lite configure --template-source <path-or-git-url>`."
-    )
+    configured = _load_user_config().get("template_source")
+    if isinstance(configured, str) and configured.strip():
+        return configured.strip()
+
+    return DEFAULT_TEMPLATE_SOURCE
 
 
 def _copier_command(*args: str) -> list[str]:
@@ -152,7 +150,7 @@ def _require_clean_git(target: Path, allow_dirty: bool) -> None:
 
 def command_configure(args: argparse.Namespace) -> int:
     _save_template_source(args.template_source)
-    print(f"Saved template source in {CONFIG_PATH}: {args.template_source}")
+    print(f"Saved template source override in {CONFIG_PATH}: {args.template_source}")
     return 0
 
 
@@ -500,7 +498,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--version", action="version", version=__version__)
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    configure = subparsers.add_parser("configure", help="Store the central template source.")
+    configure = subparsers.add_parser(
+        "configure",
+        help="Override the built-in central template source for this user.",
+    )
     configure.add_argument("--template-source", required=True)
     configure.set_defaults(func=command_configure)
 

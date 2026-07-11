@@ -1,6 +1,3 @@
-README_planning_lite_updated.md
-
-
 # Planning Lite
 
 Planning Lite is a centrally versioned planning and control framework for coding agents.
@@ -8,17 +5,205 @@ It is maintained in one Git repository and installed into many existing projects
 
 The central repository contains:
 
-- the canonical prompts, modes, controls, templates, and agent skills;
+- canonical prompts, modes, controls, templates, and agent skills;
 - a Copier template used for safe project updates;
-- a small `planning-lite` CLI that wraps adoption, updates, and validation.
+- a small `planning-lite` CLI that wraps adoption, updates, validation, and releases.
 
-Each target project receives ordinary tracked files. Copier records the source repository and installed Git tag in `.copier-answers.planning-lite.yml`, then performs smart updates from newer tags. Copier recommends a Git-versioned template, a tracked answers file, and a Git-versioned target project for reliable updates.
+Each target project receives ordinary tracked files. Copier records the source repository and installed Git tag in `.copier-answers.planning-lite.yml`, then performs smart updates from newer tags.
+
+## Quick start on a new computer
+
+The central repository does not need to be cloned to use Planning Lite in other projects.
+The normal workflow is:
+
+```text
+install uv
+    ↓
+install the planning-lite CLI once
+    ↓
+adopt Planning Lite in any Git project
+    ↓
+update that project when a newer template tag is released
+```
+
+### 1. Install `uv`
+
+Check whether `uv` is already available:
+
+```text
+uv --version
+```
+
+If it is missing, see [Installing `uv`](#installing-uv) below.
+
+### 2. Install the Planning Lite CLI
+
+Install a released version as a user-wide isolated tool:
+
+```powershell
+uv tool install "git+https://github.com/yegor-vynokurov/planning-lite.git@v3.0.2"
+```
+
+Verify the command:
+
+```powershell
+planning-lite --version
+```
+
+If `uv` reports that the tool directory is not on `PATH`, run:
+
+```powershell
+uv tool update-shell
+```
+
+Then reopen the terminal.
+
+This installs the CLI and its Python dependencies in an isolated `uv` tool environment. It does not clone the central repository into your documents and does not add Planning Lite as a dependency of the target project.
+
+### 3. Adopt Planning Lite in a project
+
+The target must already be a Git repository. Start with a clean working tree:
+
+```powershell
+cd D:\documents\my-project
+git status
+
+planning-lite adopt . --agent codex --vcs-ref v3.0.2
+planning-lite doctor .
+
+git diff --stat
+git add AGENTS.md .agents .planning .copier-answers.planning-lite.yml
+git commit -m "Adopt Planning Lite v3.0.2"
+```
+
+The `adopt` command creates ordinary project files such as:
+
+```text
+my-project/
+├── AGENTS.md
+├── .agents/
+├── .planning/
+└── .copier-answers.planning-lite.yml
+```
+
+The root `AGENTS.md` remains project-owned. Planning Lite appends a small marked bridge instead of replacing existing project instructions.
+
+### Why `configure` is not required
+
+The CLI contains this official template source as its built-in default:
+
+```text
+https://github.com/yegor-vynokurov/planning-lite
+```
+
+Therefore, after `uv tool install`, this works immediately from any target project:
+
+```powershell
+planning-lite adopt . --agent codex --vcs-ref v3.0.2
+```
+
+`planning-lite configure` is now optional. Use it only to override the official source with a fork, another repository, or a local development copy.
+
+## Template source selection
+
+Planning Lite resolves the template source in this order:
+
+1. `--template-source` passed to the current command;
+2. the `PLANNING_LITE_TEMPLATE` environment variable;
+3. a local central repository found from the current directory or one of its parents;
+4. a user override saved by `planning-lite configure`;
+5. the built-in official repository: `https://github.com/yegor-vynokurov/planning-lite`.
+
+### Override the source for all future adoptions
+
+For a fork:
+
+```powershell
+planning-lite configure `
+  --template-source https://github.com/OTHER_ACCOUNT/planning-lite
+```
+
+For a local development copy:
+
+```powershell
+planning-lite configure `
+  --template-source D:\documents\planning-lite
+```
+
+The override is stored in the current user's Planning Lite configuration. Existing adopted projects keep their own source metadata in `.copier-answers.planning-lite.yml`.
+
+### Override the source for one command only
+
+```powershell
+planning-lite adopt . `
+  --template-source D:\documents\planning-lite `
+  --vcs-ref HEAD `
+  --agent codex
+```
+
+This is useful for testing an unreleased local template without changing the user-wide default.
+
+## Updating an adopted project
+
+After a newer template tag is released, enter the target project and preview the update:
+
+```powershell
+cd D:\documents\my-project
+planning-lite check .
+```
+
+Apply it in a dedicated branch:
+
+```powershell
+git switch -c chore/update-planning-lite
+planning-lite update .
+planning-lite doctor .
+git status
+git diff --stat
+```
+
+Resolve any Copier conflicts, run the project's checks, and commit the framework update separately from product code.
+
+The update command reads the source and currently installed tag from:
+
+```text
+.copier-answers.planning-lite.yml
+```
+
+It normally does not need `configure` or `--template-source` again.
+
+## Updating the globally installed CLI
+
+The installed CLI and the template files inside a target project are related but separate:
+
+```text
+uv tool install ...
+    updates the executable used on the computer
+
+planning-lite update .
+    updates managed Planning Lite files in one target project
+```
+
+To install a newer released CLI, repeat `uv tool install` with the new tag:
+
+```powershell
+uv tool install "git+https://github.com/yegor-vynokurov/planning-lite.git@v3.0.3"
+planning-lite --version
+```
+
+Then update each adopted project separately:
+
+```powershell
+planning-lite check .
+planning-lite update .
+planning-lite doctor .
+```
 
 ## Ownership model
 
 ### Centrally managed
 
-These files evolve in this repository and are updated into target projects:
+These files evolve in the central repository and are updated into target projects:
 
 - `.planning/control/`, `.planning/modes/`, `.planning/prompts/`;
 - canonical skills and agent adapters;
@@ -49,9 +234,9 @@ planning-lite/
 └── pyproject.toml
 ```
 
+## Installing `uv`
 
-## Prerequisites and installing `uv`
-
+Planning Lite uses [`uv`](https://docs.astral.sh/uv/) for the recommended workflow. It can create and synchronize virtual environments, run project commands without manual activation, and install CLI tools in isolated user-wide environments.
 Planning Lite is a Python CLI project. The recommended development workflow uses [`uv`](https://docs.astral.sh/uv/), a fast Python project and package manager that can:
 
 - create and synchronize the local `.venv` environment;
@@ -66,7 +251,6 @@ uv --version
 ```
 
 If the command is not recognized, install `uv` using one of the methods below.
-
 ### Windows
 
 The simplest option on current Windows systems is WinGet:
@@ -81,13 +265,13 @@ Alternatively, use the official standalone installer:
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-After installation, close all VS Code terminals, reopen the terminal, and verify:
+Close all VS Code terminals, reopen the terminal, and verify:
 
 ```powershell
 uv --version
 ```
 
-If the standalone installer completed but PowerShell still cannot find `uv`, temporarily add its default user installation directory to the current session:
+If the standalone installer completed but PowerShell still cannot find `uv`, temporarily add its default user installation directory:
 
 ```powershell
 $env:Path = "$HOME\.local\bin;$env:Path"
@@ -117,65 +301,106 @@ Open a new shell and verify:
 uv --version
 ```
 
-If the command is still unavailable, add the default installation directory to the current shell:
+If the command is still unavailable:
 
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
 uv --version
 ```
 
-To make the change persistent for Bash:
+For Bash, make the path persistent:
 
 ```bash
 echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-For another shell, add the same directory to that shell's profile file.
-
 ### Updating `uv`
 
-When `uv` was installed with the standalone installer:
+When installed with the standalone installer:
 
 ```text
 uv self update
 ```
 
-When it was installed with WinGet or another package manager, use that package manager's update command instead.
+When installed with WinGet or another package manager, use that package manager's update command.
 
-## First-time setup of this central repository
+## Alternative installation without `uv`
 
-```powershell
-cd D:\path\to\planning-lite
-git init
-git add .
-git commit -m "Create Planning Lite template repository"
-git branch -M main
-git tag v3.0.0
-```
+`uv` is recommended but not required. A standard Python virtual environment and `pip` can also install the CLI.
 
-Create a remote repository and add it:
+### Windows PowerShell
 
 ```powershell
-git remote add origin git@github.com:YOUR_ACCOUNT/planning-lite.git
-git push -u origin main
-git push origin v3.0.0
+py -m venv $HOME\.venvs\planning-lite
+& "$HOME\.venvs\planning-lite\Scripts\python.exe" -m pip install --upgrade pip
+& "$HOME\.venvs\planning-lite\Scripts\python.exe" -m pip install `
+  "git+https://github.com/yegor-vynokurov/planning-lite.git@v3.0.2"
+& "$HOME\.venvs\planning-lite\Scripts\planning-lite.exe" --version
 ```
 
-Copier chooses released Git tags for updates, so framework releases should be tagged with PEP 440-compatible versions such as `v3.0.0` and `v3.1.0`.
+Run it by full path, or add the environment's `Scripts` directory to `PATH`:
 
-## Single-source versioning
+```powershell
+& "$HOME\.venvs\planning-lite\Scripts\planning-lite.exe" adopt . `
+  --agent codex `
+  --vcs-ref v3.0.2
+```
+
+### Linux
+
+```bash
+python3 -m venv "$HOME/.venvs/planning-lite"
+"$HOME/.venvs/planning-lite/bin/python" -m pip install --upgrade pip
+"$HOME/.venvs/planning-lite/bin/python" -m pip install \
+  "git+https://github.com/yegor-vynokurov/planning-lite.git@v3.0.2"
+"$HOME/.venvs/planning-lite/bin/planning-lite" --version
+```
+
+The `venv + pip` workflow is fully usable. `uv` is more convenient because it installs the command user-wide, keeps it isolated, manages its environment, and avoids calling the executable by a long path.
+
+## Developing the central repository
+
+Clone the central repository only when you intend to modify Planning Lite itself:
+
+```powershell
+git clone https://github.com/yegor-vynokurov/planning-lite.git
+cd planning-lite
+uv sync
+uv run planning-lite --version
+uv run pytest
+uv run python scripts/test_template_update.py
+```
+
+No `planning-lite configure` command is needed for central development. When commands run inside the central repository, the CLI recognizes the local `copier.yml` and `template/` directory.
+
+To test the local unreleased template against another repository:
+
+```powershell
+uv run planning-lite adopt D:\documents\test-project `
+  --template-source D:\documents\planning-lite `
+  --vcs-ref HEAD `
+  --agent codex
+```
+
+## Single-source versioning and releases
 
 Planning Lite uses the Git tag as the only source of a release version. Do not manually synchronize version strings in several files.
 
 - `hatch-vcs` derives Python package metadata from the nearest Git tag;
-- `planning_lite.__version__` reads the installed package metadata;
+- `planning_lite.__version__` reads installed package metadata;
 - Copier stores the installed template tag in `.copier-answers.planning-lite.yml`;
 - `template/.planning/VERSION` is intentionally absent.
 
-On commits after the latest tag, development builds receive a version such as `3.0.1.dev2+g<commit>`. A tagged commit such as `v3.0.1` produces the release version `3.0.1`.
+On commits after the latest tag, development builds receive a version such as `3.0.3.dev2+g<commit>`. A tagged commit such as `v3.0.3` produces the release version `3.0.3`.
 
-Prepare release notes under `## Unreleased` in `CHANGELOG.md`, commit the framework changes, and use the release command:
+Prepare notes under `## Unreleased` in `CHANGELOG.md`, commit the framework changes, and preview the next release:
+
+```powershell
+uv run planning-lite release patch --dry-run
+```
+
+Create the release:
 
 ```powershell
 uv run planning-lite release patch
@@ -185,215 +410,27 @@ The positional argument may be `patch`, `minor`, `major`, or an explicit version
 
 1. requires a clean Git working tree and, by default, the `main` branch;
 2. reads the latest stable version tag;
-3. validates `CHANGELOG.md` and checks that `uv.lock` does not contain the known environment-specific internal index;
-4. runs the test suite and the template update smoke test;
-5. moves the `Unreleased` entries into a dated release section;
-6. creates a release commit and an annotated Git tag;
-7. prints the push commands but does not push automatically.
-
-Preview without changing Git:
-
-```powershell
-uv run planning-lite release patch --dry-run
-```
+3. validates `CHANGELOG.md` and `uv.lock`;
+4. runs the test suite and template smoke test;
+5. moves `Unreleased` entries into a dated release section;
+6. creates a release commit and annotated Git tag;
+7. prints push commands but does not push automatically.
 
 After reviewing the local release:
 
 ```powershell
 git push origin main
-git push origin v3.0.1
+git push origin v3.0.3
 ```
 
-If dependencies or build-system requirements changed, regenerate and commit `uv.lock` before the release command:
+If dependencies or build-system requirements changed, regenerate and commit `uv.lock` first:
 
 ```powershell
 uv lock --default-index https://pypi.org/simple
 uv sync --default-index https://pypi.org/simple
 ```
 
-## Running the CLI while developing this repository
-
-### Recommended workflow with `uv`
-
-From the repository root:
-
-```text
-uv sync
-uv run planning-lite --version
-```
-
-`uv sync` creates or updates `.venv` and synchronizes it with the dependencies declared by the project. `uv run` executes the command inside that environment, so manual activation is not required.
-
-Configure the template source once.
-
-Windows:
-
-```powershell
-uv run planning-lite configure --template-source D:\path\to\planning-lite
-```
-
-Linux:
-
-```bash
-uv run planning-lite configure --template-source /path/to/planning-lite
-```
-
-After the repository is pushed, configure the Git URL instead:
-
-```text
-uv run planning-lite configure --template-source git@github.com:YOUR_ACCOUNT/planning-lite.git
-```
-
-### Alternative workflow without `uv`
-
-`uv` is recommended but not required. You can use the standard Python `venv` module and `pip` instead. This requires a supported Python installation with `pip` available.
-
-#### Windows PowerShell
-
-```powershell
-cd D:\path\to\planning-lite
-py -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-python -m pip install -e .
-planning-lite --version
-```
-
-Configure the template source:
-
-```powershell
-planning-lite configure --template-source D:\path\to\planning-lite
-```
-
-If PowerShell blocks environment activation, either adjust the execution policy for the current process:
-
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-.\.venv\Scripts\Activate.ps1
-```
-
-or run the environment's executables directly without activation:
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install -e .
-.\.venv\Scripts\planning-lite.exe --version
-```
-
-#### Linux
-
-```bash
-cd /path/to/planning-lite
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install -e .
-planning-lite --version
-```
-
-Configure the template source:
-
-```bash
-planning-lite configure --template-source /path/to/planning-lite
-```
-
-To leave the environment later:
-
-```text
-deactivate
-```
-
-The `venv + pip` workflow is fully usable, but it requires manual environment activation and dependency maintenance. `uv` is more convenient for this repository because one command synchronizes the environment, `uv run` avoids activation mistakes, and `uv tool install` provides an isolated global CLI installation.
-
-## Installing the CLI globally
-
-From a Git remote:
-
-```powershell
-uv tool install git+ssh://git@github.com/YOUR_ACCOUNT/planning-lite.git@v3.0.0
-planning-lite configure --template-source git@github.com:YOUR_ACCOUNT/planning-lite.git
-```
-
-For a public HTTPS repository:
-
-```powershell
-uv tool install git+https://github.com/YOUR_ACCOUNT/planning-lite.git@v3.0.0
-```
-
-`uv tool install` installs the CLI in an isolated tool environment, so it does not become a dependency of the target Python, R, or mixed-language project.
-
-
-Without `uv`, install the CLI into a dedicated virtual environment rather than into the system Python.
-
-Windows PowerShell:
-
-```powershell
-py -m venv $HOME\.venvs\planning-lite
-& "$HOME\.venvs\planning-lite\Scripts\python.exe" -m pip install --upgrade pip
-& "$HOME\.venvs\planning-lite\Scripts\python.exe" -m pip install "git+ssh://git@github.com/YOUR_ACCOUNT/planning-lite.git@v3.0.0"
-& "$HOME\.venvs\planning-lite\Scripts\planning-lite.exe" --version
-```
-
-Linux:
-
-```bash
-python3 -m venv "$HOME/.venvs/planning-lite"
-"$HOME/.venvs/planning-lite/bin/python" -m pip install --upgrade pip
-"$HOME/.venvs/planning-lite/bin/python" -m pip install "git+ssh://git@github.com/YOUR_ACCOUNT/planning-lite.git@v3.0.0"
-"$HOME/.venvs/planning-lite/bin/planning-lite" --version
-```
-
-This fallback keeps Planning Lite isolated, but you must either call the executable by its full path or add that environment's executable directory to `PATH`. For frequent use across many projects, `uv tool install` is simpler.
-
-## Adopting Planning Lite in an existing project
-
-Start with a clean Git working tree:
-
-```powershell
-cd D:\projects\my-project
-git status
-planning-lite adopt . --agent codex --vcs-ref v3.0.0
-planning-lite doctor .
-git diff --stat
-git add AGENTS.md .agents .planning .copier-answers.planning-lite.yml
-git commit -m "Adopt Planning Lite v3.0.0"
-```
-
-The `adopt` command appends a small marked bridge to an existing `AGENTS.md` instead of replacing the file.
-
-## Updating target projects
-
-Create a new central release. Add notes to `CHANGELOG.md` under `## Unreleased`, commit the framework changes, then choose the appropriate release increment:
-
-```powershell
-# In the Planning Lite repository
-git add .
-git commit -m "Improve planning checkpoint workflow"
-uv run planning-lite release minor
-
-# The release command prints these; push only after review.
-git push origin main
-git push origin v3.1.0
-```
-
-Preview the update in a target project:
-
-```powershell
-planning-lite check .
-```
-
-Apply it in a dedicated branch:
-
-```powershell
-git switch -c chore/update-planning-lite-3.1
-planning-lite update .
-planning-lite doctor .
-git status
-git diff --stat
-```
-
-Resolve any Copier conflict markers, run project checks, and commit the framework update separately.
-
-## Local configuration
+## Local project configuration
 
 Centrally managed defaults live in:
 
@@ -412,23 +449,25 @@ Keep the override file small. Do not copy all defaults into it, or the project w
 ## Commands
 
 ```text
-planning-lite configure --template-source SOURCE
 planning-lite adopt [TARGET]
 planning-lite check [TARGET]
 planning-lite update [TARGET]
 planning-lite doctor [TARGET]
 planning-lite ownership [TARGET]
 planning-lite release patch|minor|major|MAJOR.MINOR.PATCH
+planning-lite configure --template-source SOURCE   # optional override
 ```
 
 See `docs/ARCHITECTURE.ru.md` and `docs/OPERATOR_WORKFLOW.ru.md` for the detailed maintenance procedure.
 
 ## Windows bootstrap helper
 
-From the central repository root:
+For a new central repository checkout that has not yet been initialized with Git:
 
 ```powershell
-.\scripts\bootstrap_repo.ps1 -RemoteUrl git@github.com:YOUR_ACCOUNT/planning-lite.git -Tag v3.0.0
+.\scripts\bootstrap_repo.ps1 `
+  -RemoteUrl https://github.com/yegor-vynokurov/planning-lite.git `
+  -Tag v3.0.0
 ```
 
 The script initializes Git when needed, creates the initial commit and tag, and configures `origin`. It does not push automatically.

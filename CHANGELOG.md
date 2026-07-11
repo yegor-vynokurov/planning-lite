@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Use the official GitHub repository as the built-in template source so new computers can run `adopt` immediately after installing the CLI.
+- Keep `planning-lite configure` as an optional override for forks and local development copies.
+- Add regression tests for template-source precedence and fallback behavior.
+
 ## 3.0.2 - 2026-07-11
 
 - Derive package versions from Git tags through `hatch-vcs`.
