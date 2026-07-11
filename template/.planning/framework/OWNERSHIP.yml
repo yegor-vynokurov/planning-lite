@@ -6,7 +6,6 @@ managed:
   - .agents/skills/**
   - .planning/README.md
   - .planning/REFERENCES.md
-  - .planning/VERSION
   - .planning/WORKFLOW.md
   - .planning/adapters/**
   - .planning/assessments/README.md

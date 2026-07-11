@@ -21,16 +21,24 @@ Framework updates must not overwrite project-owned goals, plans, recommendations
 
 `template/AGENTS.md` is a one-time project-owned bridge. The centrally managed routing logic belongs in `template/.planning/control/ROOT_ROUTER.md`.
 
-## Version changes
+## Version and release changes
 
-For every release, update together:
+Git tags are the single source of release versions. Do not add hard-coded package or template versions.
 
-- `pyproject.toml` project version;
-- `src/planning_lite/__init__.py`;
-- `template/.planning/VERSION`;
-- `CHANGELOG.md`.
+- `hatch-vcs` derives Python package metadata from Git tags.
+- `planning_lite.__version__` reads installed package metadata.
+- target projects read the installed template ref from `.copier-answers.planning-lite.yml`.
+- `template/.planning/VERSION` must not exist.
 
-Use PEP 440-compatible Git tags such as `v3.0.0` or `v3.1.0`.
+Prepare release notes under `## Unreleased` in `CHANGELOG.md`, commit framework changes, then run:
+
+```text
+uv run planning-lite release patch
+uv run planning-lite release minor
+uv run planning-lite release major
+```
+
+The release command runs checks, finalizes the changelog, creates a release commit, and creates an annotated PEP 440-compatible tag. It never pushes automatically.
 
 ## Verification
 

@@ -34,3 +34,10 @@ def test_ownership_manifest_has_distinct_classes() -> None:
     assert ".planning/control/**" in ownership["managed"]
     assert ".planning/project/**" in ownership["project_owned"]
     assert ".copier-answers.planning-lite.yml" in ownership["installer_metadata"]
+
+
+def test_release_command_accepts_short_bump() -> None:
+    parser = build_parser()
+    args = parser.parse_args(["release", "patch", "--dry-run"])
+    assert args.version == "patch"
+    assert args.dry_run is True
