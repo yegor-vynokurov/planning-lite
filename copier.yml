@@ -1,0 +1,57 @@
+_min_copier_version: "9.3.0"
+_subdirectory: template
+_answers_file: .copier-answers.planning-lite.yml
+_templates_suffix: .jinja
+
+_message_before_copy: |
+  Planning Lite will add centrally managed workflow files and create project-owned state files only when missing.
+  Existing source code is not modified.
+
+_message_after_copy: |
+  Planning Lite was adopted.
+  Review `git status`, then run `planning-lite doctor .`.
+  Adapt `.planning/project/` and `.planning/CONFIG.yml` through the bootstrap workflow.
+
+_message_before_update: |
+  Planning Lite is preparing a template update.
+  Use a clean Git working tree and review all Copier conflicts before committing.
+
+_message_after_update: |
+  Planning Lite update finished.
+  Run `planning-lite doctor .`, inspect `git diff`, resolve any Copier conflicts, and commit the update separately.
+
+_skip_if_exists:
+  # One-time bridge and local configuration/state.
+  - AGENTS.md
+  - .planning/ACTIVE.md
+  - .planning/AGENT_PROFILE.yml
+  - .planning/CONFIG.yml
+
+  # Project intent and architecture are local to each repository.
+  - .planning/project/**
+
+  # Runtime records are never replaced by framework updates.
+  - .planning/assessments/current/**
+  - .planning/assessments/archive/**
+  - .planning/changes/active/**
+  - .planning/changes/completed/**
+  - .planning/decisions/INDEX.md
+  - .planning/drift/QUICK_CHANGES.md
+  - .planning/drift/reviews/*.md
+  - .planning/recommendations/INDEX.md
+  - .planning/recommendations/items/**
+
+project_name:
+  type: str
+  default: existing-project
+  help: Human-readable project name, stored only in Copier metadata for future updates.
+
+agent_adapter:
+  type: str
+  default: codex
+  help: Primary coding-agent adapter to enable initially.
+  choices:
+    Codex: codex
+    Claude Code (architecture-ready): claude-code
+    Hermes (architecture-ready): hermes
+    Generic agent: generic

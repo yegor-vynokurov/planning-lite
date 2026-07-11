@@ -1,0 +1,39 @@
+schema_version: 1
+core:
+  instruction_entrypoint: AGENTS.md
+  canonical_skills_dir: .planning/skills
+  checkpoint_workflow: .planning/control/SESSION_CHECKPOINT.md
+  git_review_workflow: .planning/control/GIT_CHANGE_REVIEW.md
+
+adapters:
+  generic:
+    status: supported-fallback
+    project_instruction_files: [AGENTS.md]
+    skill_exposure: direct-read-or-natural-language
+    explicit_skill_prefix: null
+    operator_commands: client-defined
+
+  codex:
+    status: active
+    project_instruction_files: [AGENTS.md]
+    skill_exposure: .agents/skills
+    explicit_skill_prefix: "$"
+    operator_guide: .planning/adapters/codex/OPERATOR_GUIDE.ru.md
+    notes: Thin wrappers point to canonical skills.
+
+  claude-code:
+    status: architecture-ready
+    project_instruction_files: [CLAUDE.md]
+    instruction_bridge: "CLAUDE.md imports @AGENTS.md"
+    skill_exposure: .claude/skills
+    explicit_skill_prefix: "/"
+    adapter_guide: .planning/adapters/claude-code/README.md
+    notes: Materialize templates only when Claude Code is enabled.
+
+  hermes:
+    status: architecture-ready
+    project_instruction_files: [AGENTS.md]
+    skill_exposure: external-directory-or-profile-copy
+    explicit_skill_prefix: "/"
+    adapter_guide: .planning/adapters/hermes/README.md
+    notes: Prefer registering .planning/skills as an external skill directory.

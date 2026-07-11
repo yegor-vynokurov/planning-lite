@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "planning-lite"
+version = "3.0.0"
+description = "Install and update a repository-local planning workflow for coding agents."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+  { name = "Planning Lite maintainers" }
+]
+dependencies = [
+  "copier>=9.3,<10",
+  "PyYAML>=6.0,<7",
+]
+
+[project.scripts]
+planning-lite = "planning_lite.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/planning_lite"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[dependency-groups]
+dev = ["pytest>=8.0"]

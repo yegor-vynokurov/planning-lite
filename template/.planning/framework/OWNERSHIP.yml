@@ -1,0 +1,49 @@
+version: 1
+
+# Files maintained centrally by the Planning Lite template. Local edits are possible,
+# but a future template update may produce a Copier merge conflict that must be reviewed.
+managed:
+  - .agents/skills/**
+  - .planning/README.md
+  - .planning/REFERENCES.md
+  - .planning/VERSION
+  - .planning/WORKFLOW.md
+  - .planning/adapters/**
+  - .planning/assessments/README.md
+  - .planning/assessments/TEMPLATE.md
+  - .planning/changes/README.md
+  - .planning/changes/templates/**
+  - .planning/control/**
+  - .planning/decisions/README.md
+  - .planning/decisions/TEMPLATE.md
+  - .planning/docs/**
+  - .planning/drift/README.md
+  - .planning/drift/reviews/TEMPLATE.md
+  - .planning/framework/**
+  - .planning/modes/**
+  - .planning/prompts/**
+  - .planning/recommendations/README.md
+  - .planning/recommendations/TEMPLATE.md
+  - .planning/skills/**
+
+# Created on first adoption and then owned by the target project. Copier skips these
+# paths when they already exist, preserving local state and decisions.
+project_owned:
+  - AGENTS.md
+  - .planning/ACTIVE.md
+  - .planning/AGENT_PROFILE.yml
+  - .planning/CONFIG.yml
+  - .planning/project/**
+  - .planning/assessments/current/**
+  - .planning/assessments/archive/**
+  - .planning/changes/active/**
+  - .planning/changes/completed/**
+  - .planning/decisions/INDEX.md
+  - .planning/drift/QUICK_CHANGES.md
+  - .planning/drift/reviews/*.md
+  - .planning/recommendations/INDEX.md
+  - .planning/recommendations/items/**
+
+# Metadata produced by Copier. Track it in Git, but never edit it manually.
+installer_metadata:
+  - .copier-answers.planning-lite.yml

@@ -1,0 +1,4 @@
+# Project-specific overrides for `.planning/framework/defaults.yml`.
+# Keep this file small. Add only values that differ for this repository.
+# Nested mappings override the corresponding defaults.
+{}

@@ -1,0 +1,80 @@
+version: "2.3.0"
+
+portability:
+  canonical_skills_dir: .planning/skills
+  adapters_dir: .planning/adapters
+  require_checkpoint_before_agent_or_model_switch: true
+  require_fresh_session_after_agent_shell_switch: true
+  require_git_state_verification_after_switch: true
+  require_sanity_check_before_execution_after_switch: true
+  keep_client_commands_out_of_neutral_core: true
+
+mode:
+  default: auto
+  ambiguous_write_request: planning
+  persist_across_turns: false
+
+context:
+  initial_file_soft_limit: 6
+  active_change_context_max_lines: 160
+  repository_map_max_lines: 240
+  full_repository_rescan_requires_reason: true
+  operator_checkpoint_context_usage_percent: 60
+  operator_new_session_after_manual_compactions: 2
+  load_archives_by_default: false
+  load_all_prompts_by_default: false
+  load_all_recommendations_by_default: false
+
+session_checkpoint:
+  collect_git_summary: true
+  record_checkpoint_commit_range: true
+  full_raw_diff_by_default: false
+  stop_production_code_edits: true
+
+git_review:
+  strategy: summary_then_targeted_patches
+  trigger_after_changed_files: 8
+  trigger_after_changed_lines: 300
+  trigger_after_commits_since_review: 6
+  trigger_on_public_api_change: true
+  trigger_on_persisted_schema_or_format_change: true
+  trigger_on_migration_change: true
+  trigger_on_dependency_or_lockfile_change: true
+  trigger_on_security_privacy_or_permission_change: true
+  trigger_on_architecture_boundary_change: true
+  trigger_on_acceptance_or_scope_change: true
+  trigger_on_unexpected_file: true
+  trigger_on_drift_or_recovery: true
+  require_before_nontrivial_change_closure: true
+  skip_deep_review_for_verified_atomic_quick_fix: true
+  include_full_raw_diff_by_default: false
+
+quick_fix:
+  max_files_per_fix: 3
+  max_changed_lines_per_fix: 80
+  sync_after_count: 8
+  sync_after_days: 14
+  sync_after_cumulative_files: 12
+  sync_after_cumulative_changed_lines: 200
+  repeated_pattern_trigger: 3
+  prohibited_impacts:
+    - public_api
+    - persisted_schema_or_format
+    - migration
+    - security_or_privacy
+    - architecture_boundary
+    - production_dependency
+    - acceptance_criteria
+    - destructive_data_operation
+    - external_service_or_billing
+
+planning:
+  require_dialogue_for_material_unknowns: true
+  allow_documented_minor_assumptions: true
+  require_user_approval_for_scope_amendment: true
+
+notes:
+  - These are safe defaults, not universal laws. Adapt them to repository size and risk.
+  - Generated files and vendored code do not count toward changed-line thresholds unless the change affects their source or contract.
+  - Context-usage and compaction values are operator guidance; an agent may not be able to observe or execute platform controls.
+  - Git-review thresholds are escalation heuristics. Semantic risk triggers override the numeric thresholds.
