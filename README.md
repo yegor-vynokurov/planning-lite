@@ -41,7 +41,7 @@ If it is missing, see [Installing `uv`](#installing-uv) below.
 Install a released version as a user-wide isolated tool:
 
 ```powershell
-uv tool install "git+https://github.com/yegor-vynokurov/planning-lite.git@v3.0.2"
+uv tool install "git+https://github.com/yegor-vynokurov/planning-lite.git@v3.0.3"
 ```
 
 Verify the command:
@@ -56,9 +56,62 @@ If `uv` reports that the tool directory is not on `PATH`, run:
 uv tool update-shell
 ```
 
-Then reopen the terminal.
+`uv tool update-shell` adds the `uv` tool executable directory to the shell configuration. A terminal that was already open may still have the old `PATH`.
+
+On Windows with VS Code:
+
+1. close all integrated terminals;
+2. if `planning-lite` is still not recognized, close **every VS Code window**;
+3. start VS Code again and open a new terminal;
+4. verify:
+
+```powershell
+planning-lite --version
+```
+
+Closing only one terminal tab may be insufficient because new integrated terminals inherit their environment from the already-running VS Code process.
+
+For the current PowerShell session, the usual temporary fix is:
+
+```powershell
+$env:Path = "$HOME\.local\bin;$env:Path"
+planning-lite --version
+```
+
+You can inspect the executable directory with:
+
+```powershell
+uv tool dir --bin
+```
 
 This installs the CLI and its Python dependencies in an isolated `uv` tool environment. It does not clone the central repository into your documents and does not add Planning Lite as a dependency of the target project.
+
+#### Fixed release tags and later CLI upgrades
+
+The suffix:
+
+```text
+@v3.0.3
+```
+
+pins the installed CLI to that exact Git tag. This is useful because the installation is reproducible, but it also means the CLI does not automatically move to `v3.0.4` when a newer release appears.
+
+`uv tool upgrade planning-lite` respects the original installation constraint. When the tool was installed from an exact tag, use `uv tool install` again with the new tag:
+
+```powershell
+uv tool install "git+https://github.com/yegor-vynokurov/planning-lite.git@v3.0.4"
+planning-lite --version
+```
+
+A later `uv tool install` recreates or updates the tool environment and replaces the installed executable. Normally, you do **not** need to run `uv tool update-shell` again and do **not** need to restart VS Code, because the executable remains in the same directory that is already on `PATH`.
+
+If `planning-lite --version` still shows the old version, first open a new terminal. Restart all VS Code windows only as a fallback.
+
+Inspect the installed source and constraints with:
+
+```powershell
+uv tool list --show-version-specifiers --show-paths
+```
 
 ### 3. Adopt Planning Lite in a project
 
@@ -68,12 +121,12 @@ The target must already be a Git repository. Start with a clean working tree:
 cd D:\documents\my-project
 git status
 
-planning-lite adopt . --agent codex --vcs-ref v3.0.2
+planning-lite adopt . --agent codex --vcs-ref v3.0.3
 planning-lite doctor .
 
 git diff --stat
 git add AGENTS.md .agents .planning .copier-answers.planning-lite.yml
-git commit -m "Adopt Planning Lite v3.0.2"
+git commit -m "Adopt Planning Lite v3.0.3"
 ```
 
 The `adopt` command creates ordinary project files such as:
@@ -99,7 +152,7 @@ https://github.com/yegor-vynokurov/planning-lite
 Therefore, after `uv tool install`, this works immediately from any target project:
 
 ```powershell
-planning-lite adopt . --agent codex --vcs-ref v3.0.2
+planning-lite adopt . --agent codex --vcs-ref v3.0.3
 ```
 
 `planning-lite configure` is now optional. Use it only to override the official source with a fork, another repository, or a local development copy.
@@ -172,32 +225,80 @@ The update command reads the source and currently installed tag from:
 
 It normally does not need `configure` or `--template-source` again.
 
-## Updating the globally installed CLI
+## Updating the CLI and an adopted project
 
-The installed CLI and the template files inside a target project are related but separate:
+The installed CLI and the managed template files inside a target project are two separate layers:
 
 ```text
 uv tool install ...
-    updates the executable used on the computer
+    updates the planning-lite executable on this computer
 
 planning-lite update .
-    updates managed Planning Lite files in one target project
+    updates managed Planning Lite files inside one adopted project
 ```
 
-To install a newer released CLI, repeat `uv tool install` with the new tag:
+### Update the globally installed CLI
+
+If the CLI was installed from an exact Git tag, it stays pinned to that tag. Installing `v3.0.3` does not make it follow later releases automatically.
+
+To move from `v3.0.3` to `v3.0.4`, install the tool again with the new tag:
 
 ```powershell
-uv tool install "git+https://github.com/yegor-vynokurov/planning-lite.git@v3.0.3"
+uv tool install "git+https://github.com/yegor-vynokurov/planning-lite.git@v3.0.4"
 planning-lite --version
 ```
 
-Then update each adopted project separately:
+Normally this does not require another:
 
 ```powershell
+uv tool update-shell
+```
+
+and does not require restarting VS Code. The executable path is unchanged; only the installed tool environment and executable contents are replaced.
+
+Run `uv tool update-shell` only when the `uv` tool executable directory is not on `PATH`. Restart all VS Code windows only when a newly added `PATH` is not visible to the existing VS Code process.
+
+### Update Planning Lite files in a project
+
+After the CLI is available, update each already-adopted project separately:
+
+```powershell
+cd D:\documents\my-project
+git status
+
 planning-lite check .
 planning-lite update .
 planning-lite doctor .
+
+git status
+git diff --stat
 ```
+
+`planning-lite update .` does **not** update the globally installed CLI. It updates files such as `.planning/`, `.agents/`, and other centrally managed framework files in the current project.
+
+Conversely, reinstalling the CLI with `uv tool install` does **not** modify any adopted project.
+
+### Recommended sequence for a new release
+
+When a new Planning Lite release contains both CLI changes and template changes:
+
+```powershell
+# 1. Update the computer-wide CLI.
+uv tool install "git+https://github.com/yegor-vynokurov/planning-lite.git@v3.0.4"
+planning-lite --version
+
+# 2. Update one adopted project.
+cd D:\documents\my-project
+git status
+planning-lite check .
+planning-lite update .
+planning-lite doctor .
+git diff --stat
+```
+
+Repeat the project-update block for each adopted repository.
+
+If a release contains only template changes and the already-installed CLI remains compatible, `planning-lite update .` may still work. Updating the CLI first is the clearest default because it keeps the executable and template release line aligned.
 
 ## Ownership model
 
@@ -236,7 +337,6 @@ planning-lite/
 
 ## Installing `uv`
 
-Planning Lite uses [`uv`](https://docs.astral.sh/uv/) for the recommended workflow. It can create and synchronize virtual environments, run project commands without manual activation, and install CLI tools in isolated user-wide environments.
 Planning Lite is a Python CLI project. The recommended development workflow uses [`uv`](https://docs.astral.sh/uv/), a fast Python project and package manager that can:
 
 - create and synchronize the local `.venv` environment;
@@ -335,7 +435,7 @@ When installed with WinGet or another package manager, use that package manager'
 py -m venv $HOME\.venvs\planning-lite
 & "$HOME\.venvs\planning-lite\Scripts\python.exe" -m pip install --upgrade pip
 & "$HOME\.venvs\planning-lite\Scripts\python.exe" -m pip install `
-  "git+https://github.com/yegor-vynokurov/planning-lite.git@v3.0.2"
+  "git+https://github.com/yegor-vynokurov/planning-lite.git@v3.0.3"
 & "$HOME\.venvs\planning-lite\Scripts\planning-lite.exe" --version
 ```
 
@@ -344,7 +444,7 @@ Run it by full path, or add the environment's `Scripts` directory to `PATH`:
 ```powershell
 & "$HOME\.venvs\planning-lite\Scripts\planning-lite.exe" adopt . `
   --agent codex `
-  --vcs-ref v3.0.2
+  --vcs-ref v3.0.3
 ```
 
 ### Linux
@@ -353,7 +453,7 @@ Run it by full path, or add the environment's `Scripts` directory to `PATH`:
 python3 -m venv "$HOME/.venvs/planning-lite"
 "$HOME/.venvs/planning-lite/bin/python" -m pip install --upgrade pip
 "$HOME/.venvs/planning-lite/bin/python" -m pip install \
-  "git+https://github.com/yegor-vynokurov/planning-lite.git@v3.0.2"
+  "git+https://github.com/yegor-vynokurov/planning-lite.git@v3.0.3"
 "$HOME/.venvs/planning-lite/bin/planning-lite" --version
 ```
 
