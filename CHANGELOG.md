@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 3.1.0 - 2026-07-13
+
 - Add a simple one-command installation mode using `uvx`.
 - Add `planning-lite install` for users who only need repository-local agent prompts.
 - Move persistent CLI installation and template updates to `docs/UPDATABLE_INSTALLATION.ru.md`.
