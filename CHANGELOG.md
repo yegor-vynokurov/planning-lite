@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add a simple one-command installation mode using `uvx`.
+- Add `planning-lite install` for users who only need repository-local agent prompts.
+- Move persistent CLI installation and template updates to `docs/UPDATABLE_INSTALLATION.ru.md`.
+
 ## 3.0.3 - 2026-07-11
 
 - Use the official GitHub repository as the built-in template source so new computers can run `adopt` immediately after installing the CLI.

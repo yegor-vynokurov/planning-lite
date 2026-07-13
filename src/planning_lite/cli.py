@@ -154,6 +154,70 @@ def command_configure(args: argparse.Namespace) -> int:
     return 0
 
 
+def _copy_template(
+    *,
+    target: Path,
+    source: str,
+    project_name: str,
+    agent: str,
+    vcs_ref: str | None,
+    quiet: bool,
+) -> int:
+    command = _copier_command("copy")
+    if quiet:
+        command.append("--quiet")
+    command.extend(
+        [
+            "--defaults",
+            "--answers-file",
+            ANSWERS_FILE,
+            "--data",
+            f"project_name={project_name}",
+            "--data",
+            f"agent_adapter={agent}",
+        ]
+    )
+    if vcs_ref:
+        command.extend(["--vcs-ref", vcs_ref])
+    command.extend([source, str(target)])
+    return _run(command)
+
+
+def _validate_install_target(target: Path) -> None:
+    if not target.exists() or not target.is_dir():
+        raise PlanningLiteError(f"Target directory does not exist: {target}")
+    if (target / ANSWERS_FILE).exists():
+        raise PlanningLiteError(
+            "Planning Lite already appears to be installed in this project. "
+            "Do not run the simple installer twice. See "
+            "docs/UPDATABLE_INSTALLATION.ru.md for the update-enabled workflow."
+        )
+
+
+def command_install(args: argparse.Namespace) -> int:
+    target = Path(args.target).resolve()
+    _validate_install_target(target)
+    source = _discover_template_source(args.template_source)
+    project_name = args.project_name or target.name
+
+    code = _copy_template(
+        target=target,
+        source=source,
+        project_name=project_name,
+        agent=args.agent,
+        vcs_ref=args.vcs_ref,
+        quiet=True,
+    )
+    if code != 0:
+        return code
+
+    bridge_result = _ensure_agents_bridge(target)
+    print(f"Planning Lite installed in: {target}")
+    print(f"AGENTS.md bridge: {bridge_result}")
+    print("Done. Open or restart your coding agent in this project.")
+    return 0
+
+
 def command_adopt(args: argparse.Namespace) -> int:
     target = Path(args.target).resolve()
     if not target.exists() or not target.is_dir():
@@ -163,21 +227,14 @@ def command_adopt(args: argparse.Namespace) -> int:
     source = _discover_template_source(args.template_source)
     project_name = args.project_name or target.name
 
-    command = _copier_command(
-        "copy",
-        "--defaults",
-        "--answers-file",
-        ANSWERS_FILE,
-        "--data",
-        f"project_name={project_name}",
-        "--data",
-        f"agent_adapter={args.agent}",
+    code = _copy_template(
+        target=target,
+        source=source,
+        project_name=project_name,
+        agent=args.agent,
+        vcs_ref=args.vcs_ref,
+        quiet=False,
     )
-    if args.vcs_ref:
-        command.extend(["--vcs-ref", args.vcs_ref])
-    command.extend([source, str(target)])
-
-    code = _run(command)
     if code != 0:
         return code
 
@@ -493,10 +550,25 @@ def command_ownership(args: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="planning-lite",
-        description="Adopt and update the Planning Lite repository workflow.",
+        description="Install Planning Lite prompts or manage an update-enabled installation.",
     )
     parser.add_argument("--version", action="version", version=__version__)
     subparsers = parser.add_subparsers(dest="command", required=True)
+
+    install = subparsers.add_parser(
+        "install",
+        help="One-command prompt installation; no global Planning Lite CLI is required.",
+    )
+    install.add_argument("target", nargs="?", default=".")
+    install.add_argument("--template-source")
+    install.add_argument("--vcs-ref", help="Optional Git tag, branch, or commit of the template.")
+    install.add_argument("--project-name")
+    install.add_argument(
+        "--agent",
+        default="codex",
+        choices=("codex", "claude-code", "hermes", "generic"),
+    )
+    install.set_defaults(func=command_install)
 
     configure = subparsers.add_parser(
         "configure",
