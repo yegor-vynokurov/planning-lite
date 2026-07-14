@@ -109,3 +109,19 @@ Before switching agent shell or model, run a checkpoint and follow `.planning/co
 ## 10. Recovery
 
 If planning or code started in the wrong mode, stop. Do not silently delete or revert work. Follow `.planning/control/RECOVERY.md`, mark artifacts honestly, show the diff or affected files, and let the user decide whether to adopt, convert, revise, or revert.
+
+## 11. Response economy
+
+- Default to concise, decision-useful responses.
+- Omit greetings, filler, praise, and unnecessary task restatement.
+- Do not narrate routine tool calls or obvious intermediate steps.
+- Preserve code, commands, paths, identifiers, and error messages exactly.
+- Prefer structured findings over long prose.
+- For routine execution, report only:
+  1. result;
+  2. files changed;
+  3. checks performed;
+  4. unresolved issues or next step.
+- Never compress away assumptions, uncertainty, failed checks, risks, or reasons for non-obvious decisions.
+- Expand when planning, critique, architecture, debugging, safety, or competing alternatives require explanation.
+- Ask before destructive, irreversible, security-sensitive, or scope-expanding actions.
