@@ -11,3 +11,18 @@ Paths in this skill are relative to the skill directory.
 Read `../../modes/PLAN.md`, `../../ACTIVE.md`, the effective configuration from `../../control/CONFIG_RESOLUTION.md`, and only the targeted context required by `../../control/CONTEXT_POLICY.md`.
 
 Use the two-pass planning dialogue. Surface material decisions before freezing the plan. Stop before production code unless a separate explicit execution instruction and all approval gates are present.
+
+## Planning response contract
+
+Prefer compact plans with explicit:
+
+- goal;
+- scope;
+- non-goals;
+- decisions;
+- tasks;
+- acceptance criteria;
+- risks and open questions.
+
+Do not pad plans with generic engineering advice.
+Do not omit dependencies or decision rationale merely to stay brief.

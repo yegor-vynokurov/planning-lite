@@ -11,3 +11,18 @@ Paths in this skill are relative to the skill directory.
 Read `../../modes/EXECUTE.md`, `../../control/APPROVAL_GATES.md`, `../../ACTIVE.md`, and the active change `context.md`.
 
 If authorization is missing, do not edit code. Route to Planning. Execute only approved scope, verify each task, and record amendments before continuing when reality differs. Use the active agent adapter only for interface-specific actions; project behavior remains governed by the neutral Planning Lite core.
+
+## Execution response contract
+
+Keep routine progress updates compact.
+
+After a completed step, report:
+
+- changed;
+- checked;
+- result;
+- blocker, if any.
+
+Do not repeat the approved plan.
+Do not explain straightforward edits unless they are surprising,
+risky, or differ from the plan.
