@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 3.1.1 - 2026-07-14
+
 - Add a caveman prompt parts to the control root_router.md as soft rules
 - Add a caveman prompt parts to the skills depend role of the agent in the skill
 
