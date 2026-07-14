@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add a caveman prompt parts to the control root_router.md as soft rules
+- Add a caveman prompt parts to the skills depend role of the agent in the skill
+
 ## 3.1.0 - 2026-07-13
 
 - Add a simple one-command installation mode using `uvx`.
