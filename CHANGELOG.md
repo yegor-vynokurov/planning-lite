@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 3.1.2 - 2026-07-15
+
 - change cirillic symbols to eng descriptions
 
 ## 3.1.1 - 2026-07-14
