@@ -88,7 +88,7 @@ Run a drift sync when a threshold or immediate trigger in `.planning/control/DRI
 
 ## 7. Session checkpoint
 
-When the user says `Выполни чекпоинт`, asks to prepare for context compaction, asks to prepare for a new session, or invokes the logical skill `planning-checkpoint`, stop changing production code and follow `.planning/control/SESSION_CHECKPOINT.md`.
+When the user requests a session checkpoint in any language, asks to prepare for context compaction, asks to prepare for a new session, or invokes the logical skill `planning-checkpoint`, stop changing production code and follow `.planning/control/SESSION_CHECKPOINT.md`.
 
 The checkpoint updates `tasks.md`, `progress.md`, the active `context.md`, and `.planning/ACTIVE.md`, and records a compact Git summary. It does not load a full raw diff by default.
 
