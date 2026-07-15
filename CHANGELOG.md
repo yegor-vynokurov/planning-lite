@@ -2,7 +2,7 @@
 
 ## Unreleased
 
--change cirillic symbols to eng descriptions
+- change cirillic symbols to eng descriptions
 
 ## 3.1.1 - 2026-07-14
 
