@@ -1,10 +1,10 @@
 # Session checkpoint
 
-Use this workflow when the user says any equivalent of:
+Use this workflow when the user says any equivalent on any language of:
 
-- `Выполни чекпоинт.`
-- `Выполни чекпоинт перед сжатием контекста.`
-- `Выполни чекпоинт перед новой сессией.`
+- `Make checkpoint.`
+- `Make checkpoint before compacting of the context.`
+- `Make checkpoint before new session.`
 - `Prepare a session checkpoint.`
 - invokes the logical skill `planning-checkpoint` through the active adapter.
 

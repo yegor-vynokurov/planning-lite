@@ -84,7 +84,7 @@ Do not read the whole `.planning/` tree by default. Start from `ACTIVE.md`, one 
 
 ## Session control
 
-Say `Выполни чекпоинт` or invoke the logical skill `planning-checkpoint` to freeze code edits, update durable state, and prepare for context compaction or a new session. Client-specific interface actions remain operator actions.
+Say `make checkpoint` or invoke the logical skill `planning-checkpoint` to freeze code edits, update durable state, and prepare for context compaction or a new session. Client-specific interface actions remain operator actions.
 
 Use `planning-git-review` only when requested, triggered by semantic risk or thresholds, or before closing a non-trivial change. Git review starts with summaries and bounded ranges, then opens targeted patches.
 

@@ -86,7 +86,7 @@ Do not rewrite history to make unapproved work look approved.
 
 ## Cross-stage control: Session checkpoint
 
-Trigger: `Выполни чекпоинт`, the logical skill `planning-checkpoint`, or preparation for context compaction or a new session.
+Trigger: `make checkpoint`, the logical skill `planning-checkpoint`, or preparation for context compaction or a new session.
 
 Stop production-code edits. Update tasks, progress, active context, and `ACTIVE.md`; collect a compact Git summary; report readiness. The operator executes client-interface commands through the active adapter.
 

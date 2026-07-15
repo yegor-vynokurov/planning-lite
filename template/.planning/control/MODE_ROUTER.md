@@ -7,14 +7,14 @@ Modes are selected per user turn, not permanently. This prevents a stale executi
 
 The user may write an equivalent natural-language instruction or invoke the logical skill name through the active adapter:
 
-- `Режим: диалог` / `planning-dialogue`
-- `Режим: планирование` / `planning-plan`
-- `Режим: исполнение` / `planning-execute`
-- `Режим: быстрая правка` / `planning-quick-fix`
-- `Режим: аудит` / `planning-audit`
-- `Режим: восстановление` / `planning-recover`
-- `Выполни чекпоинт` / `planning-checkpoint`
-- `Проведи Git review` / `planning-git-review`
+- `Mode: dialogue` / `planning-dialogue`
+- `Mode: plan` / `planning-plan`
+- `Mode: execute` / `planning-execute`
+- `Mode: quick fix` / `planning-quick-fix`
+- `Mode: audit` / `planning-audit`
+- `Mode: recover` / `planning-recover`
+- `Make checkpoint` / `planning-checkpoint`
+- `Make Git review` / `planning-git-review`
 
 The adapter determines whether a logical skill is invoked with `$name`, `/name`, a menu, an external skill directory, or a direct file read. An explicit mode applies to the current request. It does not authorize actions forbidden by approval gates.
 
