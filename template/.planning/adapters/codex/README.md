@@ -1,10 +1,5 @@
 # Codex adapter
 
-This adapter is active in the scaffold.
+Codex discovers thin wrappers under `.agents/skills/`. Explicit skill invocation uses `$planning-plan`, `$planning-execute`, and the other canonical names. Wrappers must point to `.planning/skills/<name>/SKILL.md` and must not duplicate workflow logic.
 
-- Codex reads the repository `AGENTS.md`.
-- Thin project skill wrappers live in `.agents/skills/`.
-- Each wrapper points to the canonical skill under `.planning/skills/`.
-- Codex-specific interface commands belong in `OPERATOR_GUIDE.ru.md`, not in the neutral core.
-
-When canonical skills change, refresh the wrappers only if their metadata or routing changes. The workflow body remains centralized.
+Client commands such as context compaction, new conversations, model selection, and permission controls remain operator actions.

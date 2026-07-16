@@ -1,17 +1,12 @@
-# Effective configuration
+# Configuration resolution
 
-Planning Lite configuration has two layers:
+Effective configuration is the recursive merge of:
 
-1. `.planning/framework/defaults.yml` is centrally managed and updated with the framework.
-2. `.planning/CONFIG.yml` belongs to the project and contains only local overrides.
+1. `.planning/framework/defaults.yml`;
+2. `.planning/CONFIG.yml` project overrides.
 
-Resolve configuration as a recursive mapping merge:
+Project overrides win. Missing keys inherit defaults.
 
-```text
-effective configuration = framework defaults + project overrides
-```
+Do not copy all defaults into `CONFIG.yml`. Keep overrides small so centrally improved defaults remain effective.
 
-A value from `CONFIG.yml` replaces the matching default. Unmentioned defaults remain active.
-Do not copy all defaults into `CONFIG.yml`; that would freeze the project on old framework values.
-
-When a workflow says “read the effective configuration”, read `defaults.yml` first and then the relevant override keys from `CONFIG.yml`.
+Configuration does not override explicit user instructions, hard approval boundaries, or repository safety rules.

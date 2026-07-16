@@ -1,12 +1,3 @@
-# Canonical Planning Lite skills
+# Canonical skills
 
-This directory is the source of truth for reusable Planning Lite workflows. Skills follow the open Agent Skills `SKILL.md` format and avoid client-specific invocation syntax.
-
-Agent adapters may expose these skills in different ways:
-
-- Codex: thin wrappers under `.agents/skills/` and explicit invocation such as `$planning-plan`.
-- Claude Code: wrappers or copies under `.claude/skills/`, invoked as `/planning-plan`.
-- Hermes: this directory can be registered as an external skills directory, or skills can be copied into the Hermes profile.
-- Generic agents: read the named canonical `SKILL.md` directly or use the equivalent natural-language trigger.
-
-Do not edit adapter copies as the canonical source. Update files here, then regenerate or refresh the adapter layer.
+Skills expose Planning Lite routes to compatible agents. They remain thin: each selects a mode or functional workflow and adds a response contract. Canonical behavior lives under `.planning/control/` and `.planning/modes/`.

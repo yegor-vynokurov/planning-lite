@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- big update to avoide duplications in the control prompts 
+- to clarify functional procedures for agents such as closure.
+
+
 ## 3.1.2 - 2026-07-15
 
 - change cirillic symbols to eng descriptions

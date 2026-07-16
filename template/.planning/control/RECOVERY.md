@@ -1,49 +1,22 @@
-# Recovery from the wrong mode or missing approval
+# Recovery from the wrong mode
 
-Use this when an agent generated a plan, changed planning state, or edited code beyond the current authorization.
+Use when planning artifacts or production edits were created without the required mode or approval.
 
-## Immediate actions
+## Hard boundary
 
-1. Stop the affected work.
-2. Do not silently continue merely to “finish cleanly”.
-3. Do not automatically delete, reset, or revert user-visible work.
-4. Identify exactly what was created or changed.
-5. Mark unauthorized planning artifacts `Draft - not approved`.
-6. Keep proposal status unchanged unless approval was explicit.
-7. Create a drift review when code or durable project state changed.
+Stop affected work. Do not silently delete, revert, adopt, or legitimize it.
 
-## Report to the user
+## Procedure
 
-Provide:
+1. Inventory changed files, Git state, commands run, and user authority that actually existed.
+2. Separate planning artifacts, production edits, generated files, and unrelated work.
+3. Mark evidence and uncertainty honestly.
+4. Present bounded options:
+   - adopt through the proper workflow;
+   - keep as an unapproved draft;
+   - revise or split;
+   - revert with explicit user permission;
+   - discard generated artifacts with explicit permission.
+5. Record the user decision and restore a valid active state.
 
-- intended mode and actual mode;
-- files changed;
-- commands and side effects already executed;
-- whether data, dependencies, APIs, or external systems were affected;
-- tests or checks run;
-- safest options.
-
-## User options
-
-Offer concrete paths without choosing on the user’s behalf:
-
-- `Adopt`: convert the work into an approved change and review it.
-- `Keep as draft`: preserve planning artifacts but authorize nothing.
-- `Revise`: negotiate scope or plan before further work.
-- `Revert`: revert selected edits after explicit approval.
-- `Split`: keep a safe subset and move the rest to recommendations or another change.
-
-## If only a plan was generated too early
-
-- retain it as a draft unless the user asks to discard it;
-- do not create executable authorization from the draft;
-- return to Dialogue / critic or Planning dialogue;
-- revise after decisions are made.
-
-## If code was written too early
-
-- preserve the diff for review;
-- stop further edits;
-- run only non-destructive checks needed to understand its state;
-- log it in `QUICK_CHANGES.md` or a drift report as out-of-band work;
-- do not mark planned tasks complete until the user adopts the work and it passes the proper review.
+Unauthorized code is not automatically wrong code, but it has no implementation authority until adopted through the required gates.

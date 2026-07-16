@@ -1,97 +1,21 @@
-# Workflow and approval gates
+# Planning Lite workflow
 
-## Stage 0: Bootstrap an existing project
+Use one entry point for one operation. Numbered prompts are optional human-facing shortcuts; control files are authoritative.
 
-Mode: Audit.
-Prompt: `00-bootstrap-existing-project.md`.
+| Stage | Mode | Entry point | Authoritative workflow |
+|---|---|---|---|
+| Bootstrap an existing repository | Audit | `prompts/00-bootstrap-existing-project.md` | prompt itself |
+| Assess current state | Audit | `prompts/01-assess-current-state-and-recommend-next-steps.md` | prompt itself |
+| Refine project goal | Planning | `prompts/02-refine-project-goal-and-completion-criteria.md` | prompt itself |
+| Capture or triage ideas | Dialogue / Planning | `prompts/03-capture-or-triage-recommendations.md` | `control/RECOMMENDATION_LIFECYCLE.md` |
+| Define an approved change | Planning | `prompts/04-create-approved-change.md` | `control/CHANGE_DEFINITION.md` |
+| Plan the change | Planning | `prompts/05-plan-approved-change.md` | `control/CHANGE_PLANNING.md` |
+| Audit readiness | Audit | `prompts/06-audit-before-implementation.md` | `control/CHANGE_READINESS.md` |
+| Implement | Execution | `prompts/07-implement-approved-change.md` | `control/CHANGE_EXECUTION.md` |
+| Review and close | Audit | `prompts/08-review-and-close-change.md` | `control/CHANGE_CLOSURE.md` |
+| Refresh durable project state | Audit | `prompts/09-refresh-project-state.md` | `control/PROJECT_STATE_REFRESH.md` |
+| Quick fix or drift sync | Quick fix / Audit | `prompts/10-quick-fix.md`, `11-drift-sync.md` | `control/DRIFT_POLICY.md` |
+| Amend an active change | Planning | `prompts/12-amend-active-change.md` | `control/CHANGE_AMENDMENT.md` |
+| Recover from wrong mode | Recovery | `prompts/13-recover-from-wrong-mode.md` | `control/RECOVERY.md` |
 
-Outputs:
-
-- project charter and completion criteria;
-- durable project rules;
-- architecture and current-state summary;
-- dated assessment;
-- recommendations and index.
-
-Gate: no production code and no executable change is implied.
-
-## Stage 1: Dialogue and assessment
-
-Modes: Dialogue / critic or Audit.
-
-Use discussion to challenge goals and assumptions. Use assessment to record evidence. Recommendations may be created, but remain non-executable.
-
-## Stage 2: Recommendation triage
-
-Prompt: `03-capture-or-triage-recommendations.md`.
-
-A recommendation can be accepted, deferred, rejected, related to other recommendations, or converted into one or more changes. Acceptance of direction is not implementation authorization.
-
-## Stage 3: Create bounded change
-
-Mode: Planning.
-Prompt: `04-create-approved-change.md`.
-
-One change may list several source recommendations. One recommendation may list several converted changes.
-
-First freeze outcome, scope, non-goals, requirements, acceptance criteria, and user decisions. Plan and tasks may remain unprepared.
-
-## Stage 4: Interactive planning
-
-Mode: Planning.
-Prompt: `05-plan-approved-change.md`.
-
-Pass A: planning dialogue, unknowns, options, trade-offs, decisions.
-
-Pass B: plan, tasks, traceability, context packet, and pre-implementation audit.
-
-Gate: unresolved critical gaps block implementation.
-
-## Stage 5: Execute
-
-Mode: Execution.
-Prompt: `07-implement-approved-change.md`.
-
-Requires direct user implementation command. Work through verified tasks. Record amendments before continuing when reality differs.
-
-## Side path: Quick fix
-
-Mode: Quick fix.
-Prompt: `10-quick-fix.md`.
-
-Use only for explicit tiny low-risk requests. Log each edit. Run drift sync at configured thresholds or immediate triggers.
-
-## Stage 6: Drift sync and amendments
-
-Modes: Audit or Planning.
-
-- `11-drift-sync.md` compares quick changes and code with approved work.
-- `12-amend-active-change.md` records plan or scope amendments.
-
-Scope amendments require user approval before affected execution continues.
-
-## Stage 7: Review and close
-
-Mode: Audit.
-Prompt: `08-review-and-close-change.md`.
-
-Compare implementation with every acceptance criterion and Definition of Done. Review recommendation coverage individually before changing recommendation statuses.
-
-## Stage 8: Recovery and out-of-band work
-
-- `09-refresh-project-state.md` reconciles legitimate out-of-band changes.
-- `13-recover-from-wrong-mode.md` handles work begun without the right approval.
-
-Do not rewrite history to make unapproved work look approved.
-
-## Cross-stage control: Session checkpoint
-
-Trigger: `make checkpoint`, the logical skill `planning-checkpoint`, or preparation for context compaction or a new session.
-
-Stop production-code edits. Update tasks, progress, active context, and `ACTIVE.md`; collect a compact Git summary; report readiness. The operator executes client-interface commands through the active adapter.
-
-## Cross-stage control: Git change review
-
-Trigger: direct request, configured semantic or quantitative risk, drift or recovery, or closure of a non-trivial change.
-
-Start with Git metadata and a bounded commit range. Inspect only selected high-risk patches unless broader closure evidence is required. Record a verdict and route corrections to the appropriate mode.
+A recommendation is not a change. An approved plan is not implementation authorization. Completed implementation is not closure.

@@ -1,19 +1,18 @@
 # Changes
 
-Each active change is a self-contained unit of approved work.
+An approved change is the only normal container for non-trivial implementation.
 
-Required files:
+Each active change contains:
 
-- `proposal.md`
-- `specification.md`
-- `requirements-checklist.md`
-- `plan.md`
-- `tasks.md`
-- `context.md`
-- `amendments.md`
-- `progress.md`
-- `review.md`
+- `proposal.md`: authority, scope, non-goals, source recommendations;
+- `specification.md`: requirements and acceptance criteria;
+- `requirements-checklist.md`: traceability;
+- `plan.md`: executable design;
+- `tasks.md`: authoritative task status;
+- `readiness.md`: pre-implementation audit;
+- `amendments.md`: controlled deviations;
+- `progress.md`: append-only evidence;
+- `context.md`: compact handoff packet;
+- `review.md`: completion and closure record.
 
-One change may list several source recommendations. One recommendation may list several converted changes.
-
-Use `context.md` as the small session entry point. Use `amendments.md` to preserve the distinction between implementation-detail changes and scope changes requiring approval.
+A checked task list does not close a change. Follow `.planning/control/CHANGE_CLOSURE.md`.

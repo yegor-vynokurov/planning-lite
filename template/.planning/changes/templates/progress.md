@@ -1,39 +1,12 @@
-# CHG-NNNN: <change title> - Progress log
+# Progress evidence
 
-## Current status
+Append meaningful implementation and verification events. Do not redefine task status here.
 
-- Status: `Not started`
-- Current task: `None`
-- Last verified checkpoint: `None`
-- Checkpoint commit / range: `None`
-- Git review status: `Not required / Required / Completed`
-- Next action: `Await approval / planning`
-- Blocked by: `None`
+## YYYY-MM-DD
 
-## Checkpoints
-
-### YYYY-MM-DD - <checkpoint>
-
-- Completed:
-- Files changed:
-- Verification run:
-- Git summary / range:
-- Git review verdict:
+- Task:
+- Changed:
+- Checked:
 - Result:
-- Decisions or deviations:
-- Plan amendments:
-- Quick fixes linked:
-- New recommendations created:
-- Next:
-
-## Deviations from plan
-
-| Date | Deviation | Reason | Type | Scope impact | Amendment / approval link |
-|---|---|---|---|---|---|
-| | | | `Plan / Scope / Quick fix` | | |
-
-## Test and command log
-
-| Date | Command | Result | Notes |
-|---|---|---|---|
-| | | | |
+- Commit or working-tree reference:
+- Blocker or follow-up:
