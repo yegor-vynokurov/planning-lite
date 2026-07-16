@@ -1,78 +1,41 @@
-# CHG-NNNN: <change title> - Final review
+# Completion and closure review
 
-Review date: `YYYY-MM-DD`
-Reviewer: `Agent / user`
-Completion decision: `Not reviewed / Completed / Completed with accepted limitations / Not complete`
+- Completion verdict: `Not reviewed / Completed / Completed with accepted limitations / Not complete`
+- Closure status: `Not proposed / Proposed / Authorized / Completed / Blocked`
+- Reviewed by:
+- Review date:
 
 ## Delivered outcome
 
-Describe what changed in observable terms.
+## Acceptance-criteria evidence
 
-## Acceptance criteria evidence
-
-| AC | Status | Evidence | Notes |
+| Criterion | Result | Evidence | Notes |
 |---|---|---|---|
-| AC-001 | `Pass / Fail / Partial` | `test, output, path` | |
 
-## Git change review
+## Git and Definition of Done review
 
-- Review target / commit range:
-- Inventory summary:
-- Targeted patches inspected:
-- Verdict:
-- Unexpected or generated changes:
-
-## Verification performed
-
-| Command or inspection | Result | Evidence / notes |
-|---|---|---|
-| | | |
-
-## Definition of Done review
-
-- Scope and behavior:
-- Code and architecture:
-- Verification:
-- Data, migration, and recovery:
-- Documentation and operations:
-- Project bookkeeping:
-
-Record exceptions explicitly.
-
-## Amendments and drift
-
-- Plan amendments reviewed:
-- Scope amendments approved:
-- Quick fixes reviewed:
-- Latest drift report:
-
-## Deviations and decisions
-
-- `What changed from the approved plan and why.`
-
-## Residual limitations and risks
-
-- `Limitation, impact, and whether accepted.`
+## Amendments, drift, limitations, and residual risk
 
 ## Recommendation outcomes
 
-| Recommendation | Coverage | New status | Notes |
-|---|---|---|---|
-| `REC-...` | `Full / Partial / None` | `Completed / Converted / Accepted / Deferred` | |
+| Recommendation | Coverage | Previous status | New status | Item updated | Index updated | Notes |
+|---|---|---|---|---|---|---|
 
 ## Follow-up recommendations
 
-- `REC-...`
+- `None`
 
-## Project impact
+## Closure authorization
 
-- Completion criteria updated:
-- Current state updated:
-- Architecture updated:
-- Roadmap updated:
-
-## Closure
-
-- Approved by:
+- Requested or approved by:
+- Authorization evidence:
+- Limitations accepted by:
 - Date:
-- Archive path:
+
+## Final bookkeeping
+
+- Final location:
+- `.planning/ACTIVE.md` reset: `No`
+- Recommendation cross-references checked: `No`
+- Project-memory consistency checked: `No`
+- Final Git status checked: `No`

@@ -1,15 +1,11 @@
 ---
 name: planning-checkpoint
-description: Use when the user asks to perform a checkpoint, prepare a durable handoff, compact the current conversation, or start a new session without losing project state.
-compatibility: Requires repository file access. Git access is optional but recommended.
-metadata:
-  planning-lite-version: "2.3.0"
+description: Use to prepare durable state before compaction, a new conversation, or an agent switch.
+compatibility: Requires repository and Git inspection.
 ---
 
-Paths in this skill are relative to the skill directory.
+Paths are relative to this skill directory.
 
-Read `../../control/SESSION_CHECKPOINT.md`, `../../ACTIVE.md`, and the effective configuration defined by `../../control/CONFIG_RESOLUTION.md`.
+Read and follow `../../control/SESSION_CHECKPOINT.md`. Stop production-code edits while checkpointing. Do not claim to run client UI actions.
 
-Stop changing production code. Update only the active state files required by the checkpoint workflow. Collect a compact Git summary, not a full raw diff. If a Git review trigger is reached, report it and route to the `planning-git-review` skill rather than silently loading the whole patch.
-
-Prepare durable state and report readiness. Never claim to execute a client-interface action such as context compaction, starting a new session, forking, or clearing a conversation. Those remain operator actions defined by the active agent adapter.
+Report files updated, compact Git state, blockers, next permitted action, and readiness.

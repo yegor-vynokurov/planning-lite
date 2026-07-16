@@ -1,42 +1,15 @@
-# DRIFT-YYYY-MM-DD: <review title>
+# Drift review
 
-| Field | Value |
-|---|---|
-| Period | `from ... to ...` |
-| Active change | `CHG-... / None` |
-| Quick fixes reviewed | `QF-...` |
-| Reviewer | `Agent / user` |
-| Verdict | `Aligned / Documentation sync / Plan amendment / Scope amendment / New change / Critical mismatch` |
+- Date:
+- Ledger range:
+- Git range:
+- Verdict: `Continue / Amend plan / Request scope approval / Recover / Stop`
 
-## Quantitative snapshot
+## Findings
 
-- Unsynced fixes:
-- Distinct files:
-- Approximate changed lines:
-- Repeated patterns:
-- Thresholds reached:
-
-## Comparison with approved work
-
-| Item | Evidence | Alignment | Severity | Required action |
+| Entry | Classification | Evidence | Durable update | Action |
 |---|---|---|---|---|
-| | | `Aligned / Drift` | `Critical / Material / Minor` | |
 
-## Documentation and state updates
+## State synchronized
 
-- `Files to update or None`
-
-## Recommendations created or updated
-
-- `REC-...`
-
-## Change amendments required
-
-- Plan amendment:
-- Scope amendment requiring approval:
-
-## Decision and next permitted action
-
-- Execution may continue: `Yes / No / Partially`
-- Reason:
-- Next action:
+## Unresolved decisions

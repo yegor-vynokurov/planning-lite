@@ -1,84 +1,38 @@
 # Approval gates
 
-## Gate A: idea or recommendation
+Use the narrowest gate that matches the action.
 
-Allowed:
+## Gate A: durable recommendation
 
-- discussion, criticism, investigation;
-- assessment and recommendation files;
-- priority and sequencing proposals.
+The agent may create a `Proposed` recommendation when the user asks to record an idea or when durable follow-up is explicitly requested. A recommendation never authorizes code changes.
 
-Not allowed:
+## Gate B: approved change definition
 
-- production code;
-- executable tasks presented as approved work;
-- marking a recommendation `Accepted` without the user’s decision.
+A change may be drafted after the user accepts a direction or explicitly asks to define it. The change becomes `Approved` only after the user confirms scope, non-goals, acceptance criteria, and material decisions.
 
-## Gate B: accepted direction
+## Gate C: implementation readiness
 
-The user accepts one or more recommendations or directly requests a bounded change.
-
-Allowed:
-
-- create a draft or approved `CHG-*` folder according to the user’s wording;
-- define outcome, scope, non-goals, requirements, and acceptance criteria.
-
-Not allowed:
-
-- implementation merely because the direction was accepted.
-
-## Gate C: approved change and planning
-
-The proposal records approval and material product decisions are resolved or explicitly delegated as assumptions.
-
-Allowed:
-
-- interactive planning;
-- plan, tasks, ADRs, and verification design;
-- planning-document amendments.
-
-Not allowed:
-
-- production code unless the user directly authorizes implementation.
+Execution requires a completed plan and a readiness verdict of `Ready`. Missing decisions, traceability, migration, recovery, tests, or compatibility work block readiness.
 
 ## Gate D: execution authorization
 
-Required conditions:
+Production-code edits require both:
 
-- proposal is `Approved`;
-- pre-implementation audit has no unresolved critical blocker;
-- `.planning/ACTIVE.md` points to the change;
-- the user uses a direct implementation instruction.
+1. an approved and ready active change selected in `.planning/ACTIVE.md`; and
+2. a direct user command to implement the change or named tasks.
 
-Allowed:
+Statements such as `looks good`, `I agree`, `the plan is fine`, or acceptance of a recommendation do not authorize execution.
 
-- approved tasks and verification;
-- implementation-detail amendments that do not change scope or acceptance criteria;
-- creation of follow-up recommendations.
+An explicitly requested quick fix may use the controlled side path in `DRIFT_POLICY.md`.
 
-## Gate Q: quick fix
+## Gate E: scope amendment
 
-A full change folder may be skipped only when all Quick fix criteria pass and the user directly requests the edit. The edit must be logged and verified.
+Any change to approved scope, acceptance criteria, public contract, persisted data, migration, security, compatibility, architecture boundary, or production dependency requires explicit user approval and a renewed readiness audit.
 
-## Approval language examples
+## Gate F: closure
 
-Direction only:
+Review authorization is not closure authorization. Closure requires an explicit request to close or user approval of the proposed completion verdict. Accepted limitations require explicit acceptance.
 
-- “Рекомендацию принимаю.”
-- “Этим стоит заняться.”
+## Destructive actions
 
-Planning authorization:
-
-- “Создай change и подготовь спецификацию и план. Код не меняй.”
-- “Уточни scope и разбей на задачи.”
-
-Execution authorization:
-
-- “План согласован, выполняй.”
-- “Реализуй задачи T003–T006.”
-- “Пиши код по утверждённому плану.”
-
-Quick-fix authorization:
-
-- “Это маленькая правка: исправь регистр и проверь тест.”
-- “Сделай быструю правку без отдельного change, если она проходит критерии quick fix.”
+Ask before destructive, irreversible, externally billed, security-sensitive, or data-loss-prone actions even when another gate is open.

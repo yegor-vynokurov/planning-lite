@@ -1,7 +1,5 @@
-version: 1
+schema_version: 1
 
-# Files maintained centrally by the Planning Lite template. Local edits are possible,
-# but a future template update may produce a Copier merge conflict that must be reviewed.
 managed:
   - .agents/skills/**
   - .planning/README.md
@@ -25,8 +23,6 @@ managed:
   - .planning/recommendations/TEMPLATE.md
   - .planning/skills/**
 
-# Created on first adoption and then owned by the target project. Copier skips these
-# paths when they already exist, preserving local state and decisions.
 project_owned:
   - AGENTS.md
   - .planning/ACTIVE.md
@@ -43,6 +39,5 @@ project_owned:
   - .planning/recommendations/INDEX.md
   - .planning/recommendations/items/**
 
-# Metadata produced by Copier. Track it in Git, but never edit it manually.
 installer_metadata:
   - .copier-answers.planning-lite.yml

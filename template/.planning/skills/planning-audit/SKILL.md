@@ -1,28 +1,13 @@
 ---
 name: planning-audit
-description: Use for current-state assessment, plan review, requirements completeness, implementation review, Git or plan-drift analysis without production-code edits.
-compatibility: Requires repository file access. Git and test command access are optional but recommended.
-metadata:
-  planning-lite-version: "2.3.0"
+description: Use for evidence-based assessment, readiness, drift, completion review, closure, or project-state refresh.
+compatibility: Requires repository access; command execution may be read-only or verification-only.
 ---
 
-Paths in this skill are relative to the skill directory.
+Paths are relative to this skill directory.
 
-Read `../../modes/AUDIT.md`, `../../ACTIVE.md`, and the single audit prompt or control workflow relevant to the request.
+Read `../../modes/AUDIT.md`, `../../ACTIVE.md`, and the single audit workflow matching the request. For closure always read `../../control/CHANGE_CLOSURE.md`; for non-trivial closure also read `../../control/GIT_CHANGE_REVIEW.md`.
 
-Write assessments, reviews, drift reports, or recommendations, but do not implement fixes. Use evidence from the smallest relevant set of files, commands, and commit ranges. Distinguish verified fact, inference, assumption, and recommendation.
+## Audit response contract
 
-## Planning response contract
-
-Prefer compact plans with explicit:
-
-- goal;
-- scope;
-- non-goals;
-- decisions;
-- tasks;
-- acceptance criteria;
-- risks and open questions.
-
-Do not pad plans with generic engineering advice.
-Do not omit dependencies or decision rationale merely to stay brief.
+Report finding, evidence, severity or completion impact, required next action, verdict when applicable, and unresolved uncertainty. Do not omit failed checks, contradictions, coverage gaps, or blockers merely to stay brief.

@@ -1,4 +1,3 @@
-# Merge into the active Hermes profile config after replacing the path.
 skills:
-  external_dirs:
-    - /absolute/path/to/project/.planning/skills
+  external_directories:
+    - .planning/skills

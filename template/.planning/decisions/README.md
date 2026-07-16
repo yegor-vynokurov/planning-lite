@@ -1,13 +1,3 @@
-# Decision log
+# Decisions
 
-Use a decision record for choices that materially shape architecture, data contracts, compatibility, operations, or future constraints.
-
-A decision record captures:
-
-- context;
-- the decision;
-- alternatives;
-- consequences;
-- status.
-
-Do not delete old decisions when they change. Mark them deprecated or superseded and link the replacement.
+Use decision records for choices with durable architectural, product, data, compatibility, security, or operational consequences. Do not use them as task logs.

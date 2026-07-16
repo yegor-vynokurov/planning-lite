@@ -1,42 +1,22 @@
-# Active work
+# Active state
 
-Keep this file concise. It is part of the minimum context for every mode.
+This file is the small global pointer for current work. Detailed task history belongs in the active change folder.
 
 ## Active change
 
 - Change: `None`
 - Status: `No approved change`
-- Current stage: `Bootstrap / assessment`
+- Current stage: `No active change`
 - Current task: `None`
 - Last verified checkpoint: `None`
-- Next permitted action: `Review project documents and recommendations`
+- Next permitted action: `Inspect project state or define a change`
 - Implementation authorized: `No`
 - Active context packet: `None`
 
-## Agent environment
+## Blocking decision
 
-- Active adapter: `codex`
-- Canonical skills: `.planning/skills/`
-- Adapter profile: `.planning/AGENT_PROFILE.yml`
-- Agent or model switch pending: `No`
+- `None`
 
-## Approval boundary
+## State ownership
 
-No implementation is currently authorized.
-
-## Blockers and decisions needed
-
-- None recorded yet.
-
-## Latest alignment state
-
-- Latest project assessment: `Not created yet`
-- Latest drift review: `Not run`
-- Unsynced quick fixes: `0`
-- Repository revision: `Unknown`
-- Git checkpoint range: `None`
-- Git review: `Not required / Required / Completed`
-
-## Notes for the next agent session
-
-Select one mode. Read its mode file and minimum context only. Detailed history belongs in change progress logs, dated assessments, and drift reports.
+Follow `.planning/control/STATE_OWNERSHIP.md`. Do not copy progress history or full plans into this file.
