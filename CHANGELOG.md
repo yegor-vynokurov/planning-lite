@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 4.1.0 - 2026-07-20
+
 - ready templates for all main actions.
 - now agents may do not overwrite task.md or like document but go to templates and fill the template
 
