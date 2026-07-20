@@ -1,6 +1,6 @@
-# Planning Lite 4.0 template `.planning` manifest
+# Planning Lite 4.x template `.planning` manifest
 
-Files: **109**.
+Files: **125**.
 
 ## Files
 
@@ -48,11 +48,13 @@ Files: **109**.
 - `.planning/control/CHANGE_EXECUTION.md`
 - `.planning/control/CHANGE_PLANNING.md`
 - `.planning/control/CHANGE_READINESS.md`
+- `.planning/control/CHANGE_SCAFFOLD.md`
 - `.planning/control/CONFIG_RESOLUTION.md`
 - `.planning/control/CONTEXT_POLICY.md`
 - `.planning/control/DRIFT_POLICY.md`
 - `.planning/control/GIT_CHANGE_REVIEW.md`
 - `.planning/control/MODE_ROUTER.md`
+- `.planning/control/PROJECT_BOOTSTRAP.md`
 - `.planning/control/PROJECT_STATE_REFRESH.md`
 - `.planning/control/RECOMMENDATION_LIFECYCLE.md`
 - `.planning/control/RECOVERY.md`
@@ -63,7 +65,9 @@ Files: **109**.
 - `.planning/decisions/README.md`
 - `.planning/decisions/TEMPLATE.md`
 - `.planning/docs/ARCHITECTURE.md`
+- `.planning/docs/MANIFEST_V4.md`
 - `.planning/docs/MIGRATION_V4.ru.md`
+- `.planning/docs/REPAIR_EXISTING_ACTIVE_CHANGES.ru.md`
 - `.planning/docs/STATE_MODEL.md`
 - `.planning/drift/QUICK_CHANGES.md`
 - `.planning/drift/README.md`
@@ -82,6 +86,7 @@ Files: **109**.
 - `.planning/project/GLOSSARY.md`
 - `.planning/project/PROJECT_CHARTER.md`
 - `.planning/project/PROJECT_COMPLETION_CRITERIA.md`
+- `.planning/project/PROJECT_INSTRUCTIONS.md`
 - `.planning/project/PROJECT_RULES.md`
 - `.planning/project/REPOSITORY_MAP.md`
 - `.planning/project/ROADMAP.md`
@@ -113,3 +118,14 @@ Files: **109**.
 - `.planning/skills/planning-plan/SKILL.md`
 - `.planning/skills/planning-quick-fix/SKILL.md`
 - `.planning/skills/planning-recover/SKILL.md`
+- `.planning/templates/project/ARCHITECTURE_OVERVIEW.md`
+- `.planning/templates/project/CURRENT_STATE.md`
+- `.planning/templates/project/DEFINITION_OF_DONE.md`
+- `.planning/templates/project/GLOSSARY.md`
+- `.planning/templates/project/PROJECT_CHARTER.md`
+- `.planning/templates/project/PROJECT_COMPLETION_CRITERIA.md`
+- `.planning/templates/project/PROJECT_INSTRUCTIONS.md`
+- `.planning/templates/project/PROJECT_RULES.md`
+- `.planning/templates/project/REPOSITORY_MAP.md`
+- `.planning/templates/project/ROADMAP.md`
+- `.planning/framework/SHA256SUMS.txt`

@@ -18,7 +18,9 @@ Apply `.planning/control/APPROVAL_GATES.md` before creating a change, implementi
 
 Use these authoritative workflows when triggered:
 
+- project bootstrap: `PROJECT_BOOTSTRAP.md`;
 - recommendation lifecycle: `RECOMMENDATION_LIFECYCLE.md`;
+- change scaffold: `CHANGE_SCAFFOLD.md`;
 - change definition, planning, readiness, execution, amendment, and closure: the matching `CHANGE_*.md` file;
 - quick fix and drift: `DRIFT_POLICY.md`;
 - recovery: `RECOVERY.md`;

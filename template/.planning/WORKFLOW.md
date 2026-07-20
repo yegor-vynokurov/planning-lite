@@ -4,11 +4,11 @@ Use one entry point for one operation. Numbered prompts are optional human-facin
 
 | Stage | Mode | Entry point | Authoritative workflow |
 |---|---|---|---|
-| Bootstrap an existing repository | Audit | `prompts/00-bootstrap-existing-project.md` | prompt itself |
+| Bootstrap an existing repository | Audit | `prompts/00-bootstrap-existing-project.md` | `control/PROJECT_BOOTSTRAP.md` |
 | Assess current state | Audit | `prompts/01-assess-current-state-and-recommend-next-steps.md` | prompt itself |
 | Refine project goal | Planning | `prompts/02-refine-project-goal-and-completion-criteria.md` | prompt itself |
 | Capture or triage ideas | Dialogue / Planning | `prompts/03-capture-or-triage-recommendations.md` | `control/RECOMMENDATION_LIFECYCLE.md` |
-| Define an approved change | Planning | `prompts/04-create-approved-change.md` | `control/CHANGE_DEFINITION.md` |
+| Define an approved change | Planning | `prompts/04-create-approved-change.md` | `control/CHANGE_DEFINITION.md` + `control/CHANGE_SCAFFOLD.md` |
 | Plan the change | Planning | `prompts/05-plan-approved-change.md` | `control/CHANGE_PLANNING.md` |
 | Audit readiness | Audit | `prompts/06-audit-before-implementation.md` | `control/CHANGE_READINESS.md` |
 | Implement | Execution | `prompts/07-implement-approved-change.md` | `control/CHANGE_EXECUTION.md` |

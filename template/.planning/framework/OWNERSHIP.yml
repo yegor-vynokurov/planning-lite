@@ -22,6 +22,7 @@ managed:
   - .planning/recommendations/README.md
   - .planning/recommendations/TEMPLATE.md
   - .planning/skills/**
+  - .planning/templates/**
 
 project_owned:
   - AGENTS.md
