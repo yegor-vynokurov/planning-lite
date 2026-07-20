@@ -6,12 +6,17 @@ Use in Planning mode to turn an accepted direction into a bounded proposed chang
 
 1. Confirm the source recommendation or direct user request.
 2. Check active work and IDs to avoid duplicate or competing changes.
-3. Create `.planning/changes/active/CHG-NNNN-short-name/` from the templates.
-4. Draft `proposal.md`, `specification.md`, and `requirements-checklist.md`.
-5. State goal, scope, non-goals, affected contracts, constraints, risks, migration or recovery needs, and measurable acceptance criteria.
-6. Surface material unknowns and alternatives before freezing the definition.
-7. Link every source recommendation in both directions under `RECOMMENDATION_LIFECYCLE.md`.
-8. Ask the user to approve, revise, defer, or reject the proposed definition.
+3. Initialize `.planning/changes/active/CHG-NNNN-short-name/` through `CHANGE_SCAFFOLD.md`.
+4. During definition, draft only:
+   - `proposal.md`;
+   - `specification.md`;
+   - `requirements-checklist.md`.
+5. Leave `plan.md`, `tasks.md`, `readiness.md`, `amendments.md`, `progress.md`, `context.md`, and `review.md` in their initialized template state until the matching workflow authorizes their use.
+6. State goal, scope, non-goals, affected contracts, constraints, risks, migration or recovery needs, and measurable acceptance criteria.
+7. Surface material unknowns and alternatives before freezing the definition.
+8. Link every source recommendation in both directions under `RECOMMENDATION_LIFECYCLE.md`.
+9. Verify scaffold integrity and confirm that the change folder contains no nested `.gitkeep` or unexpected scaffold artifact.
+10. Ask the user to approve, revise, defer, or reject the proposed definition.
 
 ## Approval
 

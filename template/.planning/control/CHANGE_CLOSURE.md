@@ -14,7 +14,7 @@ Closure is authorized only when the user explicitly asks to close the change or 
 
 Read:
 
-1. `.planning/ACTIVE.md` and Audit mode;
+1. `.planning/ACTIVE.md`, Audit mode, and `CHANGE_SCAFFOLD.md`;
 2. this workflow and applicable Definition of Done sections;
 3. the active change proposal, specification, requirements checklist, plan, tasks, amendments, progress, context, readiness, and review;
 4. every source recommendation and the recommendation index;
@@ -34,13 +34,14 @@ A failed mandatory criterion is not an accepted limitation.
 
 ## Completion review
 
-1. Identify the change, branch, working-tree state, and bounded implementation commit range.
-2. Compare delivered behavior with approved scope, non-goals, criteria, plan, and amendments.
-3. Record `Pass`, `Fail`, or `Partial` and exact evidence for every acceptance criterion.
-4. Apply relevant Definition of Done categories.
-5. Separate blockers, accepted limitations, follow-up recommendations, and unrelated observations.
-6. Complete `review.md` with the proposed verdict.
-7. If closure is not already authorized, stop and request approval of the verdict.
+1. Verify scaffold integrity through `CHANGE_SCAFFOLD.md`; restore only missing initialized files and preserve populated records.
+2. Identify the change, branch, working-tree state, and bounded implementation commit range.
+3. Compare delivered behavior with approved scope, non-goals, criteria, plan, and amendments.
+4. Record `Pass`, `Fail`, or `Partial` and exact evidence for every acceptance criterion.
+5. Apply relevant Definition of Done categories.
+6. Separate blockers, accepted limitations, follow-up recommendations, and unrelated observations.
+7. Complete `review.md` with the proposed verdict.
+8. If closure is not already authorized, stop and request approval of the verdict.
 
 Checked task boxes are not completion evidence.
 

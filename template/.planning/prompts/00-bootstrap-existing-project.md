@@ -2,6 +2,6 @@
 
 Mode: Audit.
 
-Inspect the repository broadly enough to create evidence-based initial project documents and one current assessment. Read code, tests, configuration, data paths, and Git summaries with a stated scan scope. Update only `.planning/project/*`, `.planning/assessments/current/*`, and `.planning/ACTIVE.md`. Do not edit production code or create an approved change.
+Follow `.planning/control/PROJECT_BOOTSTRAP.md` as the authoritative workflow.
 
-Record unknowns instead of inventing facts. Finish by proposing recommendations, not implementation tasks.
+Materialize missing or pristine project templates as complete files. Preserve existing project-specific content through targeted merges. Do not edit production code or create an approved change.

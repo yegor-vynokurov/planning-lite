@@ -2,6 +2,8 @@
 
 Use in Audit mode as an independent check before execution. Do not edit production code.
 
+Before the audit, verify the complete active-change scaffold through `CHANGE_SCAFFOLD.md`. Restore only missing initialized files; preserve populated records.
+
 ## Audit
 
 Verify:

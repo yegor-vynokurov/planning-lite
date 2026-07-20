@@ -9,6 +9,7 @@ It keeps durable project state in files while loading only the instructions need
 - `modes/`: short behavioral contracts.
 - `skills/`: thin agent-discoverable entry points with response contracts.
 - `prompts/`: short human-facing entry points that route to one workflow.
+- `templates/`: managed canonical pristine copies and scaffolds used for safe materialization and repair.
 - `project/`, `changes/`, `recommendations/`, `decisions/`, `assessments/`, `drift/`: durable project-owned state.
 - `adapters/`: client-specific invocation and operator guidance.
 

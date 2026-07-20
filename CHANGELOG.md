@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- ready templates for all main actions.
+- now agents may do not overwrite task.md or like document but go to templates and fill the template
+
 ## 4.0.0 - 2026-07-16
 
 - big update to avoide duplications in the control prompts 

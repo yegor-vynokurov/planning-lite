@@ -1,12 +1,16 @@
 ---
 name: planning-audit
-description: Use for evidence-based assessment, readiness, drift, completion review, closure, or project-state refresh.
+description: Use for repository bootstrap, evidence-based assessment, readiness, drift, completion review, closure, or project-state refresh.
 compatibility: Requires repository access; command execution may be read-only or verification-only.
 ---
 
 Paths are relative to this skill directory.
 
-Read `../../modes/AUDIT.md`, `../../ACTIVE.md`, and the single audit workflow matching the request. For closure always read `../../control/CHANGE_CLOSURE.md`; for non-trivial closure also read `../../control/GIT_CHANGE_REVIEW.md`.
+Read `../../modes/AUDIT.md`, `../../ACTIVE.md`, and the single audit workflow matching the request.
+
+For repository bootstrap, read `../../control/PROJECT_BOOTSTRAP.md`.
+
+For closure, always read `../../control/CHANGE_CLOSURE.md`; for non-trivial closure also read `../../control/GIT_CHANGE_REVIEW.md`.
 
 ## Audit response contract
 

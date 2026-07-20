@@ -2,6 +2,8 @@
 
 Use when an approved change must differ from its approved definition or plan.
 
+Before recording an amendment, verify the active-change scaffold through `CHANGE_SCAFFOLD.md`. Restore only missing initialized files and preserve populated records.
+
 ## Classification
 
 ### Implementation-detail amendment
