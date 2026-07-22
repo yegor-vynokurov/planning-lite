@@ -2,6 +2,43 @@
 
 ## Unreleased
 
+- state machine:
+
+Discovery
+→ Definition
+→ Planning
+→ Readiness
+→ Execution
+→ Verification
+→ Closure
+
+- every stage has:
+
+Lifecycle stage
+Stage status
+Next gate
+Next permitted action
+
+- new chain of aproving:
+
+proposal approved
+→ plan drafted
+→ plan approved
+→ readiness audit
+→ direct execution authorization
+
+- also added 
+Facts vs Decisions в critic mode;
+WAYFINDING.md for big tasks;
+CODEBASE_DESIGN.md;
+DELIVERY_SLICES.md;
+DOMAIN_MODELING.md;
+CODE_REVIEW.md;
+tracer bullet, expand-contract, blocking edge, verification seam, blast radius;
+separate runnings spec conformance and standards conformance;
+prompt-quality checklist с completion criterion и no-op test;
+new version of project glossary for canonical terms of the project (autho filling).
+
 ## 4.1.0 - 2026-07-20
 
 - ready templates for all main actions.
