@@ -6,6 +6,4 @@ compatibility: Requires repository and Git inspection.
 
 Paths are relative to this skill directory.
 
-Read and follow `../../control/SESSION_CHECKPOINT.md`. Stop production-code edits while checkpointing. Do not claim to run client UI actions.
-
-Report files updated, compact Git state, blockers, next permitted action, and readiness.
+Read and follow `../../control/SESSION_CHECKPOINT.md`. Stop production-code edits. Do not claim to run client UI actions.

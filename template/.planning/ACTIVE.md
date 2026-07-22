@@ -1,15 +1,17 @@
 # Active state
 
-This file is the small global pointer for current work. Detailed task history belongs in the active change folder.
+This file is the small global pointer for current work. Detailed history belongs in the active change folder.
 
 ## Active change
 
 - Change: `None`
-- Status: `No approved change`
-- Current stage: `No active change`
+- Change status: `None`
+- Lifecycle stage: `Discovery`
+- Stage status: `Ready`
 - Current task: `None`
 - Last verified checkpoint: `None`
-- Next permitted action: `Inspect project state or define a change`
+- Next gate: `Select a direction or define a bounded change`
+- Next permitted action: `Inspect project state, discuss an idea, or define a change`
 - Implementation authorized: `No`
 - Active context packet: `None`
 
@@ -19,4 +21,4 @@ This file is the small global pointer for current work. Detailed task history be
 
 ## State ownership
 
-Follow `.planning/control/STATE_OWNERSHIP.md`. Do not copy progress history or full plans into this file.
+Follow `.planning/control/STATE_OWNERSHIP.md`. Do not copy plans or progress history into this file.

@@ -1,5 +1,7 @@
 # Completion and closure review
 
+- Spec-conformance verdict: `Not reviewed / Pass / Pass with findings / Block`
+- Standards-conformance verdict: `Not reviewed / Pass / Pass with findings / Block`
 - Completion verdict: `Not reviewed / Completed / Completed with accepted limitations / Not complete`
 - Closure status: `Not proposed / Proposed / Authorized / Completed / Blocked`
 - Reviewed by:
@@ -7,12 +9,15 @@
 
 ## Delivered outcome
 
-## Acceptance-criteria evidence
+## Pass 1: specification conformance
 
 | Criterion | Result | Evidence | Notes |
 |---|---|---|---|
 
-## Git and Definition of Done review
+## Pass 2: standards conformance
+
+| Standard or finding | Result | Evidence | Impact / action |
+|---|---|---|---|
 
 ## Amendments, drift, limitations, and residual risk
 

@@ -4,10 +4,12 @@ Keep this concise and resumable.
 
 - Approved outcome:
 - Exclusions:
-- Current stage:
+- Lifecycle stage:
+- Stage status:
 - Current task:
+- Next gate:
 - Key decisions and constraints:
-- Relevant files and symbols:
+- Relevant modules, seams, files, and symbols:
 - Verification commands:
 - Git reference:
 - Blockers or user decisions:

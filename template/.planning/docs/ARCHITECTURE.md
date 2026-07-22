@@ -1,14 +1,15 @@
 # Instruction architecture
 
-Planning Lite separates six concerns:
+Planning Lite separates seven concerns:
 
 1. router: select mode and workflow;
 2. mode: behavioral constraints;
-3. workflow or policy: authoritative operation;
-4. template: artifact schema or canonical pristine scaffold;
-5. state: current project truth;
-6. skill or prompt: thin discovery entry point.
+3. workflow or policy: authoritative operation and authority boundary;
+4. discipline: conditional engineering vocabulary and practice;
+5. template: artifact schema or canonical pristine scaffold;
+6. state: current project truth and lifecycle stage;
+7. skill or prompt: thin discovery entry point.
 
-Managed pristine copies under `.planning/templates/` support safe classification, full-file bootstrap materialization, and scaffold repair without overwriting live project-owned state.
+Managed pristine copies under `.planning/templates/` support safe classification, full-file bootstrap materialization, scaffold repair, and optional log initialization without overwriting live project-owned state.
 
-Typical runtime load is `ACTIVE + effective config + one mode + one workflow + targeted project/code context`.
+Typical runtime load is `ACTIVE + effective config + one mode + one workflow + targeted project/code context`, plus one discipline only when its terminology changes the operation.

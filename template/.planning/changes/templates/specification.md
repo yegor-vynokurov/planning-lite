@@ -4,6 +4,8 @@
 
 ## Required behavior
 
+## Domain language and invariants
+
 ## Interfaces and contracts
 
 ## Data, migration, and recovery

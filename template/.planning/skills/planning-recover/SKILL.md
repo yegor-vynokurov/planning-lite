@@ -7,5 +7,3 @@ compatibility: Requires repository and Git inspection; edits require a user-sele
 Paths are relative to this skill directory.
 
 Read and follow `../../control/RECOVERY.md`. Stop affected work and do not automatically delete, revert, or adopt it.
-
-Report inventory, authority gap, bounded options, and decision required.

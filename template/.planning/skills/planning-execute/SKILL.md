@@ -6,8 +6,4 @@ compatibility: Requires repository editing and command execution.
 
 Paths are relative to this skill directory.
 
-Read `../../modes/EXECUTE.md`, `../../control/CHANGE_EXECUTION.md`, `../../ACTIVE.md`, and the active `context.md`. Apply `../../control/APPROVAL_GATES.md`.
-
-## Execution response contract
-
-For routine progress report only: changed, checked, result, blocker. Do not repeat the approved plan or explain straightforward edits unless surprising, risky, or different from the plan.
+Read `../../modes/EXECUTE.md`, `../../control/CHANGE_EXECUTION.md`, `../../ACTIVE.md`, and active `context.md`. Apply `../../control/APPROVAL_GATES.md` and the mode output contract.

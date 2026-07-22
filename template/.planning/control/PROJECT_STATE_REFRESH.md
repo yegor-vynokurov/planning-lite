@@ -12,8 +12,9 @@ Use in Audit mode after bootstrap, significant implementation, closure, drift sy
    - `REPOSITORY_MAP.md`;
    - `ROADMAP.md`;
    - project completion criteria and evidence;
-   - relevant decisions or glossary entries.
+   - relevant decisions;
+   - `GLOSSARY.md` when canonical domain language or invariants changed.
 4. Preserve uncertainty and revision scope.
 5. Do not rewrite unrelated documents for stylistic consistency.
 
-A project-state refresh records facts. New opportunities belong in recommendations; new implementation belongs in an approved change or qualified quick fix.
+A project-state refresh records facts. New opportunities belong in recommendations; implementation belongs in an approved change or qualified quick fix.

@@ -1,6 +1,6 @@
 # Planning Lite 4.x template `.planning` manifest
 
-Files: **125**.
+Files: **136**.
 
 ## Files
 
@@ -46,6 +46,7 @@ Files: **125**.
 - `.planning/control/CHANGE_CLOSURE.md`
 - `.planning/control/CHANGE_DEFINITION.md`
 - `.planning/control/CHANGE_EXECUTION.md`
+- `.planning/control/CHANGE_LIFECYCLE.md`
 - `.planning/control/CHANGE_PLANNING.md`
 - `.planning/control/CHANGE_READINESS.md`
 - `.planning/control/CHANGE_SCAFFOLD.md`
@@ -60,13 +61,21 @@ Files: **125**.
 - `.planning/control/RECOVERY.md`
 - `.planning/control/ROOT_ROUTER.md`
 - `.planning/control/SESSION_CHECKPOINT.md`
+- `.planning/control/SKILL_USAGE_LOGGING.md`
 - `.planning/control/STATE_OWNERSHIP.md`
+- `.planning/control/WAYFINDING.md`
 - `.planning/decisions/INDEX.md`
 - `.planning/decisions/README.md`
 - `.planning/decisions/TEMPLATE.md`
+- `.planning/disciplines/CODEBASE_DESIGN.md`
+- `.planning/disciplines/CODE_REVIEW.md`
+- `.planning/disciplines/DELIVERY_SLICES.md`
+- `.planning/disciplines/DOMAIN_MODELING.md`
 - `.planning/docs/ARCHITECTURE.md`
 - `.planning/docs/MANIFEST_V4.md`
 - `.planning/docs/MIGRATION_V4.ru.md`
+- `.planning/docs/MIGRATION_V4_2.ru.md`
+- `.planning/docs/PROMPT_QUALITY_CHECKLIST.md`
 - `.planning/docs/REPAIR_EXISTING_ACTIVE_CHANGES.ru.md`
 - `.planning/docs/STATE_MODEL.md`
 - `.planning/drift/QUICK_CHANGES.md`
@@ -74,12 +83,14 @@ Files: **125**.
 - `.planning/drift/reviews/.gitkeep`
 - `.planning/drift/reviews/TEMPLATE.md`
 - `.planning/framework/OWNERSHIP.yml`
+- `.planning/framework/SHA256SUMS.txt`
 - `.planning/framework/defaults.yml`
 - `.planning/modes/AUDIT.md`
 - `.planning/modes/DIALOGUE_CRITIC.md`
 - `.planning/modes/EXECUTE.md`
 - `.planning/modes/PLAN.md`
 - `.planning/modes/QUICK_FIX.md`
+- `.planning/observability/SKILL_USAGE.csv`
 - `.planning/project/ARCHITECTURE_OVERVIEW.md`
 - `.planning/project/CURRENT_STATE.md`
 - `.planning/project/DEFINITION_OF_DONE.md`
@@ -118,6 +129,7 @@ Files: **125**.
 - `.planning/skills/planning-plan/SKILL.md`
 - `.planning/skills/planning-quick-fix/SKILL.md`
 - `.planning/skills/planning-recover/SKILL.md`
+- `.planning/templates/observability/SKILL_USAGE.csv`
 - `.planning/templates/project/ARCHITECTURE_OVERVIEW.md`
 - `.planning/templates/project/CURRENT_STATE.md`
 - `.planning/templates/project/DEFINITION_OF_DONE.md`
@@ -128,4 +140,3 @@ Files: **125**.
 - `.planning/templates/project/PROJECT_RULES.md`
 - `.planning/templates/project/REPOSITORY_MAP.md`
 - `.planning/templates/project/ROADMAP.md`
-- `.planning/framework/SHA256SUMS.txt`
