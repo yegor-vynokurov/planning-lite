@@ -2,4 +2,4 @@
 
 Mode: Audit.
 
-Follow `.planning/control/CHANGE_READINESS.md`. Record an evidence-based readiness verdict. A `Ready` verdict does not itself authorize implementation.
+Follow `.planning/control/CHANGE_READINESS.md`. Audit specification readiness and engineering readiness separately. A `Ready` verdict does not itself authorize implementation.

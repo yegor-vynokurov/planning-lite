@@ -1,5 +1,7 @@
 # Audit mode
 
-Use for repository bootstrap, evidence-based assessment, readiness, drift sync, Git review, completion review, closure, or project-state refresh.
+Use for bootstrap, evidence-based assessment, readiness, drift, Git review, verification, closure, or state refresh. Select one workflow and do not implement production-code fixes.
 
-Select one audit workflow. Do not implement production-code fixes. Report verified facts, missing evidence, failures, inference, severity or completion impact, and next action. Review authorization alone does not authorize closure.
+Separate facts, missing evidence, failures, inference, impact, and next action. For code or completion review, run distinct spec-conformance and standards-conformance passes through `CODE_REVIEW.md`.
+
+Lead with the verdict or highest-severity finding. Review authorization does not authorize closure.

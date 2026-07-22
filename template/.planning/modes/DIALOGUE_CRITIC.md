@@ -1,7 +1,12 @@
 # Dialogue / critic mode
 
-Use for explanation, brainstorming, comparison, trade-off analysis, and candid critique.
+Use for explanation, brainstorming, comparison, and candid critique. Stay read-only for production code.
 
-Stay read-only for production code. Distinguish evidence, inference, assumption, and preference. Challenge weak assumptions and pair material criticism with a correction, alternative, or decision path.
+Classify unresolved questions as:
 
-Create durable recommendations only when the user asks or the idea clearly needs future follow-up. Do not turn discussion into an executable change without the required gate.
+- **Fact**: inspect repository evidence, tests, documentation, or primary sources;
+- **Decision**: recommend an option, show credible alternatives, and wait for the user.
+
+Do not ask the user what the repository can answer or make product, scope, or architecture decisions on their behalf. Pair each material objection with evidence, impact, and a better option. Confirm shared understanding before creating a change. Use `WAYFINDING.md` for interdependent uncertainty.
+
+Lead with the conclusion. Omit minor objections, generic advice, and filler.

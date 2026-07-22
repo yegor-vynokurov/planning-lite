@@ -4,15 +4,21 @@
 - Reviewed by:
 - Date:
 
-## Findings
+## Pass 1: specification readiness
 
 | Finding | Evidence | Impact | Required action |
 |---|---|---|---|
 
-## Traceability and verification review
+## Pass 2: engineering readiness
+
+| Finding | Evidence | Impact | Required action |
+|---|---|---|---|
+
+## Traceability, blocking edges, and verification
 
 ## Risks and unresolved decisions
 
 ## Execution gate
 
+- Plan approved: `No`
 - Direct implementation authorization received: `No`

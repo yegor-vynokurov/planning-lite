@@ -1,10 +1,8 @@
 schema_version: 1
-
 mode:
   default: auto
   ambiguous_write_request: planning
   persist_across_turns: false
-
 context:
   initial_file_soft_limit: 6
   active_change_context_max_lines: 160
@@ -13,13 +11,11 @@ context:
   load_archives_by_default: false
   load_all_prompts_by_default: false
   load_all_recommendations_by_default: false
-
 planning:
   require_dialogue_for_material_unknowns: true
   allow_documented_minor_assumptions: true
   require_user_approval_for_scope_amendment: true
   require_readiness_before_execution: true
-
 quick_fix:
   max_files_per_fix: 3
   max_changed_lines_per_fix: 80
@@ -29,16 +25,15 @@ quick_fix:
   sync_after_cumulative_changed_lines: 200
   repeated_pattern_trigger: 3
   prohibited_impacts:
-    - public_api
-    - persisted_schema_or_format
-    - migration
-    - security_or_privacy
-    - architecture_boundary
-    - production_dependency
-    - acceptance_criteria
-    - destructive_data_operation
-    - external_service_or_billing
-
+  - public_api
+  - persisted_schema_or_format
+  - migration
+  - security_or_privacy
+  - architecture_boundary
+  - production_dependency
+  - acceptance_criteria
+  - destructive_data_operation
+  - external_service_or_billing
 git_review:
   strategy: summary_then_targeted_patches
   trigger_after_changed_files: 8
@@ -55,9 +50,18 @@ git_review:
   trigger_on_drift_or_recovery: true
   require_before_nontrivial_change_closure: true
   include_full_raw_diff_by_default: false
-
 session_checkpoint:
   collect_git_summary: true
   record_checkpoint_commit_range: true
   full_raw_diff_by_default: false
   stop_production_code_edits: true
+response:
+  style: compact
+  routine_progress_updates: milestone_or_blocker
+  omit_routine_tool_narration: true
+  repeat_approved_plan: false
+observability:
+  skill_usage:
+    enabled: false
+    path: .planning/observability/SKILL_USAGE.csv
+    log_implicit: false

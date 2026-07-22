@@ -1,39 +1,30 @@
 # Project agent router
 
-This repository uses `.planning/` for durable project intent, approved work, evidence, and handoff state.
+This repository uses `.planning/` for durable intent, approved work, evidence, and handoff state.
 
-## Route the current turn
+## Route the turn
 
 1. Read `.planning/ACTIVE.md`.
-2. Resolve effective configuration through `.planning/control/CONFIG_RESOLUTION.md`.
-3. Select one mode through `.planning/control/MODE_ROUTER.md`.
-4. Read only the minimum context allowed by `.planning/control/CONTEXT_POLICY.md`.
-5. Load one functional workflow when the selected operation requires it.
+2. Resolve effective configuration through `CONFIG_RESOLUTION.md`.
+3. Select one mode through `MODE_ROUTER.md`.
+4. Apply `CONTEXT_POLICY.md`.
+5. Load one functional workflow and, only when needed, one engineering discipline.
 
-Explicit user wording wins. A mode applies to the current turn; do not assume it persists.
+Explicit user wording wins. Modes apply to the current turn only.
 
-## Hard boundaries
+## Boundaries and routes
 
-Apply `.planning/control/APPROVAL_GATES.md` before creating a change, implementing code, changing approved scope, or closing work.
+Apply `APPROVAL_GATES.md` before approving plans, editing production code, changing approved scope, or closing work.
 
-Use these authoritative workflows when triggered:
+Use the matching authoritative workflow for bootstrap, wayfinding, recommendations, lifecycle, scaffold, definition, planning, readiness, execution, amendment, closure, drift, recovery, checkpoint, Git review, or agent portability. Do not duplicate those rules in the current prompt.
 
-- project bootstrap: `PROJECT_BOOTSTRAP.md`;
-- recommendation lifecycle: `RECOMMENDATION_LIFECYCLE.md`;
-- change scaffold: `CHANGE_SCAFFOLD.md`;
-- change definition, planning, readiness, execution, amendment, and closure: the matching `CHANGE_*.md` file;
-- quick fix and drift: `DRIFT_POLICY.md`;
-- recovery: `RECOVERY.md`;
-- checkpoint: `SESSION_CHECKPOINT.md`;
-- Git review: `GIT_CHANGE_REVIEW.md`;
-- agent switch: `AGENT_PORTABILITY.md`.
+If a repository skill is selected and effective configuration enables usage logging, follow `SKILL_USAGE_LOGGING.md` once for the turn. Logging is non-blocking.
 
 ## Response economy
 
-- Default to concise, decision-useful responses.
-- Omit greetings, filler, praise, and unnecessary task restatement.
-- Do not narrate routine tool calls or obvious intermediate steps.
-- Preserve code, commands, paths, identifiers, and errors exactly.
-- Never compress away assumptions, uncertainty, failed checks, risks, or reasons for non-obvious decisions.
-- Expand when critique, planning, architecture, debugging, safety, or competing alternatives require it.
-- Ask before destructive, irreversible, security-sensitive, or scope-expanding actions.
+- Lead with the result, decision, blocker, or question. Omit greetings, praise, filler, and task restatement.
+- Do not narrate routine reads, edits, searches, commands, or successful logs. Send interim updates only for blockers, decisions, material risks, or useful milestones.
+- For routine work report only: result, changed, checked, unresolved.
+- Do not repeat approved plans, unchanged facts, full diffs, or obvious next steps.
+- Preserve exact paths, commands, errors, evidence, assumptions, uncertainty, failed checks, and non-obvious rationale. Expand only when they affect a decision.
+- Ask before destructive, irreversible, security-sensitive, externally billed, or scope-expanding actions.

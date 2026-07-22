@@ -2,18 +2,26 @@
 
 Use in Audit mode as an independent check before execution. Do not edit production code.
 
-Before the audit, verify the complete active-change scaffold through `CHANGE_SCAFFOLD.md`. Restore only missing initialized files; preserve populated records.
+Follow `CHANGE_LIFECYCLE.md`. Verify the complete scaffold through `CHANGE_SCAFFOLD.md`; restore only missing initialized files and preserve populated records.
 
-## Audit
+Require an approved proposal and approved plan.
+
+## Pass 1: specification readiness
 
 Verify:
 
-- approved scope and non-goals are unambiguous;
+- scope and non-goals are unambiguous;
 - every requirement and acceptance criterion is traceable;
-- tasks are complete, ordered, and verifiable;
-- architecture, public contracts, data, migration, recovery, security, compatibility, dependencies, tests, and documentation are addressed where applicable;
-- unresolved decisions and assumptions are explicit;
-- planned verification can establish the promised outcome.
+- task outcomes and verification can establish the promised behavior;
+- facts are verified and remaining decisions are explicit.
+
+## Pass 2: engineering readiness
+
+Verify:
+
+- tasks are dependency-ordered and blocking edges are explicit;
+- architecture, seams, public contracts, data, migration, recovery, security, compatibility, dependencies, tests, documentation, blast radius, and rollback are addressed where applicable;
+- no execution detail still requires an unapproved architecture decision.
 
 Record evidence and one verdict in `readiness.md`:
 
@@ -21,4 +29,6 @@ Record evidence and one verdict in `readiness.md`:
 - `Needs revision`;
 - `Blocked`.
 
-`Ready` permits the user to authorize execution; it does not itself authorize execution. On `Needs revision` or `Blocked`, update `.planning/ACTIVE.md` with the next permitted action and route corrections to Planning.
+`Ready` sets lifecycle state to `Readiness / Ready` and permits the user to authorize execution. It does not itself authorize execution.
+
+On `Needs revision`, return to `Planning / In progress`. On `Blocked`, keep the narrowest defensible stage and record the blocking decision and next permitted action.

@@ -6,22 +6,26 @@ Use the narrowest gate that matches the action.
 
 The agent may create a `Proposed` recommendation when the user asks to record an idea or when durable follow-up is explicitly requested. A recommendation never authorizes code changes.
 
-## Gate B: approved change definition
+## Gate B: change definition
 
-A change may be drafted after the user accepts a direction or explicitly asks to define it. The change becomes `Approved` only after the user confirms scope, non-goals, acceptance criteria, and material decisions.
+Before drafting a change, confirm the selected direction when material alternatives remain. The agent may inspect repository facts; product, scope, and architecture decisions remain with the user.
 
-## Gate C: implementation readiness
+A change may be drafted after the user accepts a direction or explicitly asks to define it. The proposal becomes `Approved` only after the user confirms scope, non-goals, acceptance criteria, and material decisions.
 
-Execution requires a completed plan and a readiness verdict of `Ready`. Missing decisions, traceability, migration, recovery, tests, or compatibility work block readiness.
+## Gate C: plan approval and readiness
+
+A completed plan does not approve itself. Before readiness audit, the user must explicitly approve the plan, task decomposition, material dependencies, and verification strategy.
+
+Execution requires an approved plan and a readiness verdict of `Ready`. Missing decisions, traceability, migration, recovery, tests, compatibility work, or blocking edges prevent readiness.
 
 ## Gate D: execution authorization
 
 Production-code edits require both:
 
-1. an approved and ready active change selected in `.planning/ACTIVE.md`; and
+1. an approved plan and a `Ready` active change selected in `.planning/ACTIVE.md`; and
 2. a direct user command to implement the change or named tasks.
 
-Statements such as `looks good`, `I agree`, `the plan is fine`, or acceptance of a recommendation do not authorize execution.
+Statements such as `looks good`, `I agree`, acceptance of a recommendation, approval of a proposal, or approval of a plan do not authorize execution.
 
 An explicitly requested quick fix may use the controlled side path in `DRIFT_POLICY.md`.
 

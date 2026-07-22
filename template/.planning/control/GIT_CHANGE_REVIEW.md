@@ -2,6 +2,8 @@
 
 Use when requested, before non-trivial closure, or when configured risk triggers fire.
 
+Follow `disciplines/CODE_REVIEW.md` for separate spec-conformance and standards-conformance passes.
+
 ## Strategy
 
 Review summary first, then targeted patches:
@@ -17,4 +19,4 @@ Do not load an unbounded raw repository diff by default.
 
 ## Verdict
 
-Record findings, evidence, severity, affected acceptance criteria, and one verdict: `Pass`, `Pass with findings`, or `Block`.
+Record findings, evidence, impact, affected criterion or standard, and one verdict: `Pass`, `Pass with findings`, or `Block`.

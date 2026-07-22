@@ -75,9 +75,9 @@ A failed patch is not evidence that a file is pristine.
    - apply the matching write strategy;
    - re-read and verify it before continuing.
 5. Do not send one multi-file line patch across pristine bootstrap documents.
-6. Record unknowns rather than inventing facts.
+6. Record unknowns rather than inventing facts. When durable domain terms or invariants are evident, update `project/GLOSSARY.md` using `disciplines/DOMAIN_MODELING.md`.
 7. Create or refresh one evidence-based assessment under `.planning/assessments/current/`.
-8. Update `.planning/ACTIVE.md` with the verified current stage, next permitted action, assessment path, and unresolved blockers.
+8. Update `.planning/ACTIVE.md` using `CHANGE_LIFECYCLE.md`; with no active change use `Discovery / Ready`, the next gate, assessment path, and unresolved blockers.
 9. Review the final diff and verify:
    - only the allowed planning paths changed;
    - no project-specific content was lost;

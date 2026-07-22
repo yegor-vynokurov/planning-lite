@@ -15,7 +15,8 @@ Select a mode for every user turn. Modes do not persist automatically.
 
 - Explicit wording and explicit skill invocation win.
 - When code changes are possible but authorization is ambiguous, choose Dialogue or Planning.
-- Approval of an idea or recommendation is not implementation authorization.
+- For a broad effort that cannot yet support a bounded specification, use Dialogue or Planning with `WAYFINDING.md`.
+- Approval of an idea or recommendation is not approval of a change or plan.
 - A question during execution pauses further edits for that turn unless the user also clearly says to continue.
 - Mixed requests must be split at the approval boundary. Complete read-only analysis first; do not silently cross into editing.
-- Special workflows may be invoked from their normal mode without creating a new mode.
+- Special workflows and disciplines may be invoked from their normal mode without creating another mode.
