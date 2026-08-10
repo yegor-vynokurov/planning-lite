@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 4.3.0 - 2026-08-10
+
 - Add the opt-in `planning-lite-campaign` CLI and `planning_lite.campaign` package for bounded experiment campaigns.
 - Add immutable campaign manifests, frozen-input verification, append-only hash-linked journals, deterministic resume state, budgets, and stop gates.
 - Bind balanced evaluation suites to campaign attempts with sealed evidence hashes and idempotent resume.
