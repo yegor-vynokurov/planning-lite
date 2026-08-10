@@ -23,6 +23,7 @@ dependencies = [
 
 [project.scripts]
 planning-lite = "planning_lite.cli:main"
+planning-lite-campaign = "planning_lite.campaign.cli:main"
 
 [tool.hatch.version]
 source = "vcs"

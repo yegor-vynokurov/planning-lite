@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Add the opt-in `planning-lite-campaign` CLI and `planning_lite.campaign` package for bounded experiment campaigns.
+- Add immutable campaign manifests, frozen-input verification, append-only hash-linked journals, deterministic resume state, budgets, and stop gates.
+- Bind balanced evaluation suites to campaign attempts with sealed evidence hashes and idempotent resume.
+- Add deterministic candidate review, review receipts and handoff capsules, independent reviewer decisions, and tamper detection.
+- Add campaign completion seals and bounded release handoffs while keeping release promotion explicitly separate.
+- Keep the existing `planning-lite` CLI, Copier template, `AGENTS.md`, and target-project managed files unchanged.
+- Bind `planning-lite-campaign --version` to the same Git-tag-derived Planning Lite distribution version.
+
 ## 4.2.0 - 2026-07-22
 
 - state machine:
