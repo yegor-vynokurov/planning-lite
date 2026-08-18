@@ -86,6 +86,16 @@ The basic installer:
 
 The hidden Copier answers file is retained so that the project can later be moved to the update-enabled workflow without reinstalling all prompts from scratch.
 
+## Current development design track
+
+The current unreleased Project Spine / Direction Workflows design is tracked in:
+
+```text
+docs/design/project-spine/
+```
+
+It is development documentation only and is not installed into consumer projects until separate governed implementation changes modify the Planning Lite template.
+
 ## Update-enabled installation
 
 The basic mode is enough when the goal is simply to add the planning prompts and start the agent.
