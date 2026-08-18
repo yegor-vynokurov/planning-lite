@@ -85,3 +85,22 @@ Completion остаётся truthful sunk-cost accounting. Если реальн
 превысил reservation, `attempt_completed` не скрывает и не отбрасывает фактические
 metrics. После такого completion новый attempt всё равно не сможет стартовать, если
 фактический Campaign budget уже исчерпан.
+
+## Historical attempt evidence reconciliation
+
+Для legacy Campaign, где исторический `attempt_completed` уже существует, но не содержит
+production-compatible balanced-suite projection, Campaign Core поддерживает append-only
+`attempt_evidence_reconciled`. Reconciliation привязывает candidate/attempt к точному
+историческому completion sequence и event SHA, а также к terminal suite identity и шести
+sealed evidence SHA-256.
+
+Исторический `attempt_completed` не переписывается. Reconciliation не меняет attempt/token/
+wall-clock accounting и не переинтерпретирует scientific outcome. Candidate Review использует
+валидный reconciliation event только как provenance overlay для соответствующего legacy
+completion; native completions с уже встроенной suite provenance не reconciliate-ятся.
+
+Production API:
+
+```python
+from planning_lite.campaign import reconcile_completed_attempt_suite_evidence
+```

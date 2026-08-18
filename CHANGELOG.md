@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add append-only reconciliation for legacy completed Campaign attempts that have sealed balanced-suite evidence but no native suite projection, without rewriting historical journal events or accounting.
+- Add optional strict attempt budget admission so new governed attempts reserve projected token and wall-clock cost before `attempt_started`, while preserving backward compatibility for historical manifests and truthful sunk-cost completion.
+
 ## 4.3.0 - 2026-08-10
 
 - Add the opt-in `planning-lite-campaign` CLI and `planning_lite.campaign` package for bounded experiment campaigns.
