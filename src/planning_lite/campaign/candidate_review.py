@@ -139,24 +139,30 @@ def review_campaign_candidate(
         ),
         None,
     )
-    latest_completion = next(
+    latest_evidence = next(
         (
             event
             for event in reversed(events)
-            if event.event_type == "attempt_completed"
+            if event.event_type in {"attempt_completed", "attempt_evidence_reconciled"}
             and event.payload.get("candidate_id") == resolved_candidate
         ),
         None,
     )
     if latest_receipt is not None and (
-        latest_completion is None or latest_receipt.sequence > latest_completion.sequence
+        latest_evidence is None or latest_receipt.sequence > latest_evidence.sequence
     ):
         raise CandidateReviewError(
             f"Candidate {resolved_candidate!r} already has a review receipt for current evidence"
         )
 
+    reconciliations = _reconciliations_by_attempt(events, resolved_candidate)
     completed = tuple(
-        _attempt_from_event(event)
+        _attempt_from_event(
+            event,
+            reconciliation=reconciliations.get(
+                _required_string(event.payload.get("attempt_id"), "attempt_id")
+            ),
+        )
         for event in events
         if event.event_type == "attempt_completed"
         and event.payload.get("candidate_id") == resolved_candidate
@@ -451,8 +457,39 @@ def _evidence_completeness_reasons(
     return tuple(reasons)
 
 
-def _attempt_from_event(event: JournalEvent) -> CandidateAttemptReview:
-    suite = event.payload.get("suite")
+def _reconciliations_by_attempt(
+    events: tuple[JournalEvent, ...],
+    candidate_id: str,
+) -> dict[str, JournalEvent]:
+    result: dict[str, JournalEvent] = {}
+    for event in events:
+        if (
+            event.event_type != "attempt_evidence_reconciled"
+            or event.payload.get("candidate_id") != candidate_id
+        ):
+            continue
+        attempt_id = _required_string(
+            event.payload.get("attempt_id"),
+            "attempt_evidence_reconciled.attempt_id",
+        )
+        if attempt_id in result:
+            raise CandidateReviewError(
+                f"Attempt {attempt_id!r} has duplicate reconciled suite evidence"
+            )
+        result[attempt_id] = event
+    return result
+
+
+def _attempt_from_event(
+    event: JournalEvent,
+    *,
+    reconciliation: JournalEvent | None = None,
+) -> CandidateAttemptReview:
+    suite = (
+        reconciliation.payload.get("suite")
+        if reconciliation is not None
+        else event.payload.get("suite")
+    )
     suite_payload = suite if isinstance(suite, Mapping) else {}
     evidence = suite_payload.get("evidence_sha256")
     evidence_payload = evidence if isinstance(evidence, Mapping) else {}

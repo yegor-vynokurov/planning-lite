@@ -20,6 +20,7 @@ EVENT_TYPES = (
     "candidate_registered",
     "attempt_started",
     "attempt_completed",
+    "attempt_evidence_reconciled",
     "candidate_reviewed",
     "candidate_kept",
     "candidate_rejected",
@@ -51,8 +52,14 @@ ALLOWED_TRANSITIONS = {
     },
     "candidate_reviewed": {
         "attempt_started",
+        "attempt_evidence_reconciled",
         "candidate_kept",
         "candidate_rejected",
+        "candidate_quarantined",
+        "campaign_stopped",
+    },
+    "attempt_evidence_reconciled": {
+        "attempt_started",
         "candidate_quarantined",
         "campaign_stopped",
     },
@@ -655,13 +662,14 @@ def _validate_event_payload(event_type: str, payload: Mapping[str, Any]) -> None
         "candidate_registered",
         "attempt_started",
         "attempt_completed",
+        "attempt_evidence_reconciled",
         "candidate_reviewed",
         "candidate_kept",
         "candidate_rejected",
         "candidate_quarantined",
     }:
         _nonempty_string(payload.get("candidate_id"), f"{event_type}.candidate_id")
-    if event_type in {"attempt_started", "attempt_completed"}:
+    if event_type in {"attempt_started", "attempt_completed", "attempt_evidence_reconciled"}:
         _nonempty_string(payload.get("attempt_id"), f"{event_type}.attempt_id")
     if event_type == "attempt_completed":
         hard_gate = payload.get("hard_gate_passed")
@@ -675,6 +683,57 @@ def _validate_event_payload(event_type: str, payload: Mapping[str, Any]) -> None
             raise CampaignError("attempt_completed.metrics must be an object")
         _nonnegative_int(metrics.get("total_tokens", 0), "metrics.total_tokens")
         _nonnegative_number(metrics.get("duration_seconds", 0.0), "metrics.duration_seconds")
+    if event_type == "attempt_evidence_reconciled":
+        sequence = _positive_int(
+            payload.get("source_attempt_completed_sequence"),
+            "attempt_evidence_reconciled.source_attempt_completed_sequence",
+        )
+        if sequence < 1:
+            raise CampaignError("attempt_evidence_reconciled source sequence must be positive")
+        source_sha = _nonempty_string(
+            payload.get("source_attempt_completed_event_sha256"),
+            "attempt_evidence_reconciled.source_attempt_completed_event_sha256",
+        )
+        if not SHA256_RE.fullmatch(source_sha):
+            raise CampaignError(
+                "attempt_evidence_reconciled.source_attempt_completed_event_sha256 must be a SHA-256"
+            )
+        if payload.get("adapter") != "balanced-suite-reconciliation-v1":
+            raise CampaignError(
+                "attempt_evidence_reconciled.adapter must be balanced-suite-reconciliation-v1"
+            )
+        if payload.get("reason") != "historical_suite_projection_reconciliation":
+            raise CampaignError(
+                "attempt_evidence_reconciled.reason must be historical_suite_projection_reconciliation"
+            )
+        if payload.get("next_action") != "start_next_independent_attempt":
+            raise CampaignError(
+                "attempt_evidence_reconciled.next_action must remain start_next_independent_attempt"
+            )
+        suite = _object(payload.get("suite"), "attempt_evidence_reconciled.suite")
+        for field in ("suite_id", "suite_root", "eval_id", "source_commit", "plan_sha256", "suite_status", "verdict_status"):
+            _nonempty_string(suite.get(field), f"attempt_evidence_reconciled.suite.{field}")
+        if not SHA256_RE.fullmatch(str(suite.get("plan_sha256"))):
+            raise CampaignError("attempt_evidence_reconciled.suite.plan_sha256 must be a SHA-256")
+        for field in ("total_runs", "terminal_runs", "passed_runs", "failed_runs", "error_runs"):
+            _nonnegative_int(suite.get(field), f"attempt_evidence_reconciled.suite.{field}")
+        evidence = _object(
+            suite.get("evidence_sha256"),
+            "attempt_evidence_reconciled.suite.evidence_sha256",
+        )
+        required = {
+            "suite-plan.json", "suite-state.json", "suite-result.json",
+            "suite-aggregation.json", "suite-report.json", "suite-verdict.json",
+        }
+        if set(evidence) != required:
+            raise CampaignError(
+                "attempt_evidence_reconciled.suite.evidence_sha256 must contain the exact six suite evidence files"
+            )
+        for name, digest in evidence.items():
+            if not isinstance(digest, str) or not SHA256_RE.fullmatch(digest):
+                raise CampaignError(
+                    f"attempt_evidence_reconciled invalid evidence SHA-256 for {name}"
+                )
     if event_type == "candidate_reviewed":
         _nonempty_string(payload.get("hypothesis_id"), "candidate_reviewed.hypothesis_id")
         decision = _nonempty_string(payload.get("decision"), "candidate_reviewed.decision")
@@ -903,6 +962,51 @@ def _validate_transition(
         if attempt_id in completed_attempts:
             raise CampaignError(f"Duplicate completed attempt_id: {attempt_id}")
 
+    if event_type == "attempt_evidence_reconciled":
+        candidate_id = _nonempty_string(
+            payload.get("candidate_id"), "attempt_evidence_reconciled.candidate_id"
+        )
+        attempt_id = _nonempty_string(
+            payload.get("attempt_id"), "attempt_evidence_reconciled.attempt_id"
+        )
+        current_candidate = _current_candidate(events)
+        if candidate_id != current_candidate:
+            raise CampaignError(
+                f"attempt_evidence_reconciled candidate_id {candidate_id!r} does not match current candidate {current_candidate!r}"
+            )
+        matches = [
+            event for event in events
+            if event.event_type == "attempt_completed"
+            and event.payload.get("candidate_id") == candidate_id
+            and event.payload.get("attempt_id") == attempt_id
+        ]
+        if len(matches) != 1:
+            raise CampaignError(
+                f"attempt_evidence_reconciled requires exactly one historical attempt_completed for {attempt_id!r}"
+            )
+        source = matches[0]
+        if source.payload.get("suite") is not None:
+            raise CampaignError(
+                "attempt_evidence_reconciled is only allowed for historical completions without native suite provenance"
+            )
+        if payload.get("source_attempt_completed_sequence") != source.sequence:
+            raise CampaignError(
+                "attempt_evidence_reconciled source sequence does not match historical completion"
+            )
+        if payload.get("source_attempt_completed_event_sha256") != source.event_sha256:
+            raise CampaignError(
+                "attempt_evidence_reconciled source event SHA does not match historical completion"
+            )
+        duplicates = [
+            event for event in events
+            if event.event_type == "attempt_evidence_reconciled"
+            and event.payload.get("candidate_id") == candidate_id
+            and event.payload.get("attempt_id") == attempt_id
+        ]
+        if duplicates:
+            raise CampaignError(
+                f"Attempt {attempt_id!r} already has reconciled suite evidence"
+            )
     if event_type == "candidate_reviewed":
         candidate_id = _nonempty_string(
             payload.get("candidate_id"), "candidate_reviewed.candidate_id"
@@ -938,7 +1042,7 @@ def _validate_transition(
                 "campaign_stopped",
             },
             "reject": {"candidate_rejected", "candidate_quarantined", "campaign_stopped"},
-            "continue": {"attempt_started", "candidate_quarantined", "campaign_stopped"},
+            "continue": {"attempt_started", "attempt_evidence_reconciled", "candidate_quarantined", "campaign_stopped"},
         }.get(decision, set())
         if event_type not in permitted:
             raise CampaignError(
@@ -1099,6 +1203,8 @@ def _next_action(
 ) -> str:
     if last.event_type in TERMINAL_EVENT_TYPES:
         return "none"
+    if last.event_type == "attempt_evidence_reconciled":
+        return "start_next_independent_attempt"
     if last.event_type == "candidate_reviewed":
         return {
             "keep": "await_independent_review",
