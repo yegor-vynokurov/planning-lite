@@ -5,11 +5,22 @@
 1. Создать ветку в центральном репозитории.
 2. Менять файлы в `template/` и при необходимости CLI.
 3. Добавлять описание изменений в раздел `## Unreleased` файла `CHANGELOG.md`.
-4. Проверить template smoke test и закоммитить изменения.
-5. Перейти на чистую ветку `main`.
-6. Запустить `uv run planning-lite release patch|minor|major`.
-7. Проверить созданный release-коммит и tag.
-8. Вручную отправить `main` и tag в remote.
+4. Выполнить central-repository verification:
+
+   ```powershell
+   uv sync
+   uv run pytest
+   uv run python scripts/test_template_update.py
+   ```
+
+   Последняя команда создаёт временный consumer-проект, выполняет adopt и запускает Doctor **в этом временном consumer**, а не в корне central repo.
+5. Закоммитить изменения.
+6. Перейти на чистую ветку `main`.
+7. Запустить `uv run planning-lite release patch|minor|major`.
+8. Проверить созданный release-коммит и tag.
+9. Вручную отправить `main` и tag в remote.
+
+> **Граница Doctor:** не запускайте `planning-lite doctor .` в корне центрального репозитория Planning Lite. Doctor предназначен для adopted/installed consumer-проекта и закономерно сообщит об отсутствующих `.planning/*`, `.agents/*` и `.copier-answers.planning-lite.yml` в central source repo.
 
 Номера версий в `pyproject.toml`, `__init__.py` и template-файлах вручную не редактируются: единственным источником является Git tag.
 

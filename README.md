@@ -143,6 +143,8 @@ uv run pytest
 uv run python scripts/test_template_update.py
 ```
 
+`planning-lite doctor .` is **not** a central-repository validation command. `doctor` validates an adopted/installed consumer project, where `.planning/`, `.agents/`, and `.copier-answers.planning-lite.yml` exist at the project root. The smoke test above creates such a temporary consumer and runs Doctor there.
+
 Development, release automation, and template-update operations are documented separately in:
 
 - `docs/ARCHITECTURE.ru.md`;

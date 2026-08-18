@@ -17,6 +17,20 @@ PL-V38-04 Roadmap synthesis/prioritization + Change handoff: implemented by the 
 release: not performed
 ```
 
+## Verification boundary
+
+Central Planning Lite source-repository verification:
+
+```text
+uv sync
+uv run pytest
+uv run python scripts/test_template_update.py
+```
+
+Do **not** run `planning-lite doctor .` at the central repository root. Doctor validates an adopted/installed consumer project. `scripts/test_template_update.py` creates a temporary consumer and runs Doctor against that consumer; `Doctor: OK` from that smoke test is the relevant installation result.
+
+Post-PL-V38-04 docs/test-instructions hotfix: the commit containing this clarification. No product/template semantics changed.
+
 ## Priority / stop gate
 
 ```text

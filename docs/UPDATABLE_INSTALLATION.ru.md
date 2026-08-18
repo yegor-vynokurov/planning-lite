@@ -250,7 +250,8 @@ planning-lite update .
     обновление файлов в текущем проекте
 
 planning-lite doctor .
-    проверка структуры после adopt или update
+    проверка структуры adopted/installed consumer-проекта после adopt или update;
+    не является проверкой корня центрального source repository
 
 planning-lite configure ...
     необязательное переопределение источника шаблона
