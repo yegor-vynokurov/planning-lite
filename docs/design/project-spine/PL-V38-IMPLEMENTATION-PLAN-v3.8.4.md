@@ -1,4 +1,4 @@
-# PL-V38 implementation plan v3.8.3
+# PL-V38 implementation plan v3.8.4
 
 **Status:** current stepwise implementation plan
 **Date:** 2026-08-18
@@ -39,7 +39,7 @@ working tree clean
 main ahead of origin/main by 3
 ```
 
-The v3.8.2 design checkpoint is tracked at `40ca8cf`. PL-V38-01 now implements the first Project Spine product behavior.
+The v3.8.2 design checkpoint is tracked at `40ca8cf`. PL-V38-01 implements Direction Foundation; its EOL-stable integrity-test hotfix is `782c785`. PL-V38-02 now implements the Current/Gap layer.
 
 ## Research-asset review
 
@@ -65,8 +65,8 @@ not part of PL-V38-01 implementation
 
 ```text
 PL-V38-01   Direction foundation                         COMPLETE
-PL-V38-02   Current assessment + causal Gap Map          NEXT
-PL-V38-03   Recommendation residue/reconciliation
+PL-V38-02   Current assessment + causal Gap Map          COMPLETE
+PL-V38-03   Recommendation residue/reconciliation        NEXT
 PL-V38-04   Roadmap synthesis/prioritization + handoff
 FIELD       Poker Field Pilot 2 / next-Change derivation
 PL-V38-05   Direction context/visibility/ContextTrace
@@ -141,20 +141,43 @@ Do not create dependencies on either folder.
 
 # 4. PL-V38-02 — Current assessment + causal Gap Map
 
-Add managed workflows for capability assessment and Gap derivation.
+## Result
 
-Core checks:
+Implemented two sequential workflow operations:
+
+```text
+PW-DIR-004 CURRENT_CAPABILITY_ASSESSMENT [Audit]
+PW-DIR-005 CAUSAL_GAP_DERIVATION [Planning]
+```
+
+Artifact split:
+
+```text
+CURRENT_CAPABILITY_ASSESSMENT
+→ project-owned evidence snapshot under assessments/current
+→ created only when the Audit actually runs
+
+GAP_MAP.md
+→ durable project-owned causal direction artifact
+→ managed pristine copy for safe installation/update
+```
+
+Core checks implemented:
 
 ```text
 Coverage != EvidenceConfidence
 PARTIAL separates satisfied/missing/evidence-limit properties
 evidence limitation != automatic Gap
 one causal Gap may affect several capabilities
+PRIMARY != DEPENDENT effect
 SATISFIED capability not silently reopened
 Gap closure is outcome-oriented
+Change completion != Gap closure
+Gap != RoadmapOutcome != Change
+CURRENT_BASELINE Gap Map requires explicit user acceptance
 ```
 
-Poker fixture shapes may guide static tests, but no permanent Poker runtime dependency is introduced.
+Poker fixture shapes informed semantics/static tests, but no permanent Poker runtime dependency was introduced.
 
 ---
 
@@ -374,8 +397,8 @@ Space saving is not a sufficient reason to destroy provenance.
 # 14. Next execution gate
 
 ```text
-PL-V38-02
-Current Capability Assessment + causal Gap Map
+PL-V38-03
+Recommendation semantic residue + historical direction reconciliation
 ```
 
 Poker remains frozen until PL-V38-04 is complete and `PILOT-PL-DIRECTION-002` begins.

@@ -16,9 +16,9 @@ Explicit user wording wins. Modes apply to the current turn only.
 
 Apply `APPROVAL_GATES.md` before approving plans, editing production code, changing approved scope, or closing work.
 
-Use the matching authoritative workflow for bootstrap, direction inventory, Target-State exploration/calibration, wayfinding, recommendations, lifecycle, scaffold, definition, planning, readiness, execution, amendment, closure, drift, recovery, checkpoint, Git review, or agent portability. Do not duplicate those rules in the current prompt.
+Use the matching authoritative workflow for bootstrap, direction inventory, Target-State exploration/calibration, Current Capability Assessment, causal Gap derivation, wayfinding, recommendations, lifecycle, scaffold, definition, planning, readiness, execution, amendment, closure, drift, recovery, checkpoint, Git review, or agent portability. Do not duplicate those rules in the current prompt.
 
-For whole-project direction work, establish authority/current-state consistency through `DIRECTION_INVENTORY.md` before Target exploration when that evidence is not already current. Use `TARGET_STATE_EXPLORER.md` for a Target draft and `TARGET_BASELINE_CALIBRATION.md` for question ownership, Target acceptance, and Capability Model foundation.
+For whole-project direction work, establish authority/current-state consistency through `DIRECTION_INVENTORY.md` before Target exploration when that evidence is not already current. Use `TARGET_STATE_EXPLORER.md` for a Target draft and `TARGET_BASELINE_CALIBRATION.md` for question ownership, Target acceptance, and Capability Model foundation. After an `ACCEPTED` Target and `CURRENT_BASELINE` Capability Model exist, use `CURRENT_CAPABILITY_ASSESSMENT.md` before `CAUSAL_GAP_DERIVATION.md`. Do not infer formal Gaps directly from general assessment prose.
 
 If a repository skill is selected and effective configuration enables usage logging, follow `SKILL_USAGE_LOGGING.md` once for the turn. Logging is non-blocking.
 

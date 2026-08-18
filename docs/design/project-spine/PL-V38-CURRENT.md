@@ -9,7 +9,9 @@
 released baseline: v4.3.0 @ 0e66941
 post-release reconciliation: 0d7c923 → 0681b86 → 57eb5bd
 design checkpoint: 40ca8cf (v3.8.2)
-current product change: PL-V38-01 Direction Foundation (implemented by the commit containing this file)
+PL-V38-01 Direction Foundation: 8d2026d
+PL-V38-01 Windows EOL hash-test hotfix: 782c785
+current product change: PL-V38-02 Current Capability Assessment + causal Gap Map (implemented by the commit containing this file)
 release: not performed
 ```
 
@@ -20,7 +22,7 @@ PRIMARY: Planning Lite
 POKER: FROZEN
 ```
 
-Poker must remain at the clean post-CHG-0008 `Discovery / Ready`, no-active-Change boundary until PL-V38-04 is complete. Do not manually create the next Poker implementation Change before the field gate.
+Poker remains at the clean post-CHG-0008 `Discovery / Ready`, no-active-Change boundary until PL-V38-04 is complete. Do not manually create the next Poker implementation Change before the field gate.
 
 ## Completed
 
@@ -29,34 +31,48 @@ W0 / architecture baseline
 PL-V38-00 central working-tree reconciliation
 v3.8.2 design/research-asset alignment
 PL-V38-01 Direction Foundation
+PL-V38-01 EOL-stable integrity-test hotfix
+PL-V38-02 Current Capability Assessment + causal Gap Map
 ```
 
-PL-V38-01 adds:
+PL-V38-02 adds:
 
 ```text
-PW-DIR-001  DIRECTION_INVENTORY
-PW-DIR-002  TARGET_STATE_EXPLORER
-PW-DIR-003  TARGET_BASELINE_CALIBRATION
-project/TARGET_STATE.md
-project/CAPABILITY_MODEL.md
-managed pristine copies
-direction-stage context profiles
-Doctor presence checks
+PW-DIR-004  CURRENT_CAPABILITY_ASSESSMENT [Audit]
+PW-DIR-005  CAUSAL_GAP_DERIVATION [Planning]
+assessments/CURRENT_CAPABILITY_ASSESSMENT_TEMPLATE.md
+project/GAP_MAP.md + managed pristine copy
+Coverage: SATISFIED / PARTIAL / NOT_SATISFIED / UNCERTAIN
+EvidenceConfidence: HIGH / MEDIUM / LOW
+PARTIAL decomposition
+causal Gap compression
+PRIMARY / DEPENDENT capability effects
+outcome-oriented Gap closure conditions
+explicit human acceptance for GAP_MAP CURRENT_BASELINE
 ```
 
-It explicitly does **not** add Gap derivation, RecommendationUnit, Roadmap synthesis, Context Compiler, Lab/Harness integration, or autonomous Target acceptance.
+Hard boundary preserved:
+
+```text
+evidence limitation != automatic Gap
+Coverage != EvidenceConfidence
+Change completion != Gap closure
+Gap != RoadmapOutcome != Change
+SATISFIED capability cannot be silently reopened
+```
+
+PL-V38-02 explicitly does **not** add recommendation semantic units, historical Roadmap reconciliation, prioritization, Context Compiler, Lab/Harness integration, or autonomous Gap acceptance.
 
 ## Next
 
 ```text
-PL-V38-02
-Current Capability Assessment + causal Gap Map
+PL-V38-03
+Recommendation semantic residue + historical direction reconciliation
 ```
 
 Then:
 
 ```text
-PL-V38-03 Recommendation semantic residue + historical reconciliation
 PL-V38-04 Roadmap synthesis + qualitative prioritization + bounded-Change handoff
 ```
 
@@ -98,12 +114,12 @@ Older `planning_lite_tools` versions remain lineage/archive candidates until a r
 
 ```text
 full current roadmap:
-  PLANNING-LITE-ROADMAP-v3.8.3.ru.md
+  PLANNING-LITE-ROADMAP-v3.8.4.ru.md
 
 implementation sequence:
-  PL-V38-IMPLEMENTATION-PLAN-v3.8.3.md
+  PL-V38-IMPLEMENTATION-PLAN-v3.8.4.md
 
-workflow semantics:
+workflow design evidence:
   DIRECTION-WORKFLOW-PLAYBOOKS-v1.2.md
 
 Poker-derived command source:
@@ -122,7 +138,8 @@ consolidated recommendation:
 Project Spine semantics first
 existing control/*.md workflow architecture first
 project-owned direction truth
-small deterministic validators only where useful
+assessment evidence separate from Target/Capability truth
+causal Gaps before historical reconciliation
 Poker field evidence before Context Compiler
 automation last
 ```

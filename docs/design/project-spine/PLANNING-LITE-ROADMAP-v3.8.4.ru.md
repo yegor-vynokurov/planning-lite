@@ -1,13 +1,13 @@
-# Planning Lite Roadmap v3.8.3 — Direction Foundation checkpoint + Poker Field Pilot 2 gate
+# Planning Lite Roadmap v3.8.4 — Current/Gap checkpoint + Poker Field Pilot 2 gate
 
 **Status:** Current implementation-facing roadmap; operational checkpoint lives in `PL-V38-CURRENT.md`
 **Date:** 2026-08-18
-**Parent:** Planning Lite Roadmap v3.8.2
-**Evidence:** Poker Project Spine pilot + W0/PL-V38-00 + v3.8.2 alignment + PL-V38-01 Direction Foundation implementation
+**Parent:** Planning Lite Roadmap v3.8.3 (Git history)
+**Evidence:** Poker Project Spine pilot + W0/PL-V38-00 + v3.8.2 alignment + PL-V38-01 Direction Foundation + PL-V38-02 Current/Gap implementation
 
 ---
 
-# 1. Why v3.8.3 exists
+# 1. Why v3.8.4 exists
 
 v3.8 promoted Project Spine from a field-pilot hypothesis to a bounded implementation candidate.
 W0 then established that Planning Lite is **template/workflow-first**, not Python-domain-model-first.
@@ -24,7 +24,7 @@ planning_lite_tools / step-16.4.1
 
 v3.8.2 aligned Project Spine with the real template/workflow architecture and existing research assets.
 
-v3.8.3 records the first product implementation checkpoint, `PL-V38-01`, and the sequencing decision to freeze Poker until Planning Lite reaches the same direction-to-Change handoff capability through `PL-V38-04`.
+v3.8.4 records completion of `PL-V38-02`: Planning Lite now separates accepted completed-state capabilities, evidence-based current capability coverage, and causal Gap identities. The sequencing decision remains to freeze Poker until Planning Lite reaches the direction-to-Change handoff capability through `PL-V38-04`.
 
 After `PL-V38-04`, Poker resumes as `PILOT-PL-DIRECTION-002` before context/compiler work continues. The semantic direction is unchanged.
 
@@ -58,7 +58,7 @@ v4.3.0 tag remains on 0e66941
 no new release tag
 ```
 
-PL-V38-00 is complete. PL-V38-01 is the first Project Spine product implementation.
+PL-V38-00 is complete. PL-V38-01 and its EOL-stable test hotfix are complete; PL-V38-02 is the second Project Spine product implementation. Reference PL-V38-02 verification is 133/133 tests PASS; release remains unperformed.
 
 ---
 
@@ -142,7 +142,7 @@ Project-specific direction truth belongs in project-owned artifacts such as futu
 .planning/project/GAP_MAP.md
 ```
 
-The exact minimal artifact set remains a bounded PL-V38-01/02 design decision.
+The first artifact boundary is now implemented: accepted Target/Capability truth is project-owned, Current Capability Assessment is a project-owned evidence snapshot under `assessments/current/`, and the causal Gap Map is project-owned durable direction truth.
 
 ## 4.3 Checklist extraction remains later
 
@@ -401,18 +401,30 @@ No Gap/reconciliation/prioritization behavior is included.
 
 ---
 
-## NOW — PL-V38-02
+## COMPLETED — PL-V38-02
 
 ### Current Capability Assessment + causal Gap Map
 
-Add managed workflows for:
+Implemented managed workflows:
 
 ```text
-CURRENT_CAPABILITY_ASSESSMENT
-CAUSAL_GAP_DERIVATION
+PW-DIR-004 CURRENT_CAPABILITY_ASSESSMENT [Audit]
+PW-DIR-005 CAUSAL_GAP_DERIVATION [Planning]
 ```
 
-Core semantics:
+Implemented artifact boundary:
+
+```text
+assessments/current/CURRENT_CAPABILITY_ASSESSMENT.md
+→ evidence snapshot created only when the Audit runs
+
+project/GAP_MAP.md
+→ durable project-owned causal direction truth
+→ DRAFT / CURRENT_BASELINE
+→ explicit user acceptance required for CURRENT_BASELINE
+```
+
+Core semantics implemented:
 
 ```text
 Coverage:
@@ -426,14 +438,16 @@ PARTIAL:
   missing target properties
   evidence limitations
 
-Gap:
-  missing Target property
-  causal consolidation
-  PRIMARY / DEPENDENT capability effect
-  outcome-oriented closure condition
+evidence limitation != automatic Gap
+causal symptom compression
+PRIMARY / DEPENDENT capability effects
+SATISFIED capability cannot be silently reopened
+outcome-oriented Gap closure condition
+Change completion != Gap closure
+Gap != RoadmapOutcome != Change
 ```
 
-No broad recommendation/history reads by default.
+Broad recommendation/Roadmap history remains deferred to PL-V38-03.
 
 ---
 
@@ -761,7 +775,7 @@ PL-V38-01:
 IMPLEMENTED DIRECTION FOUNDATION
 
 PL-V38-02:
-CURRENT NEXT IMPLEMENTATION CANDIDATE
+IMPLEMENTED CURRENT CAPABILITY ASSESSMENT + CAUSAL GAP FOUNDATION
 
 Poker:
 FROZEN UNTIL PL-V38-04; THEN PILOT-PL-DIRECTION-002

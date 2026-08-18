@@ -18,6 +18,8 @@ Each fact has one primary home.
 | project glossary | canonical domain language, invariants, aliases, and anchors |
 | `project/TARGET_STATE.md` | desired completed-state direction, claim provenance, non-goals, Target question ownership, acceptance evidence, and Target-state signals |
 | `project/CAPABILITY_MODEL.md` | durable completed-state capabilities derived from the current Target; never current satisfaction status |
+| `assessments/current/CURRENT_CAPABILITY_ASSESSMENT.md` | evidence snapshot of current capability Coverage and EvidenceConfidence against the accepted baseline; not a durable Target mutation |
+| `project/GAP_MAP.md` | accepted causal missing conditions between demonstrated Current state and Target capabilities, with stable Gap identities and outcome-oriented closure conditions |
 | project documents | current durable facts, not session history |
 | skill usage CSV | optional best-effort frequency log; never authoritative project state |
 

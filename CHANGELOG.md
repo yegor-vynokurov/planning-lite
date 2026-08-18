@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Add Project Spine Current Capability Assessment and causal Gap derivation workflows, separating Coverage from EvidenceConfidence, preserving evidence uncertainty, and adding a project-owned Gap Map with human baseline authority.
 - Add the first Project Spine Direction Foundation workflows, project-owned Target/Capability artifacts, stage-specific context rules, and Doctor coverage.
 
 - Preserve the Project Spine v3.8.2 design track, including Poker-derived workflow commands and explicit reuse/ownership boundaries for `planning-lite-lab` and the Context Pilot/Eval Harness research assets.

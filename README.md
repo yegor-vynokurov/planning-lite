@@ -95,7 +95,7 @@ docs/design/project-spine/PL-V38-CURRENT.md
 docs/design/project-spine/
 ```
 
-Read `PL-V38-CURRENT.md` first after a context reset. PL-V38-01 Direction Foundation is implemented in the current template; later Project Spine stages remain design work until their bounded changes are implemented.
+Read `PL-V38-CURRENT.md` first after a context reset. PL-V38-01 Direction Foundation and PL-V38-02 Current Capability Assessment + causal Gap Map are implemented in the current template; later Project Spine stages remain design work until their bounded changes are implemented.
 
 ## Update-enabled installation
 

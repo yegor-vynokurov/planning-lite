@@ -53,6 +53,14 @@ Start from the current direction inventory plus charter/completion criteria, exi
 
 Start from the direction inventory, Target draft, and Capability Model template/current model. Read additional evidence only for unresolved `TARGET_BOUNDARY_QUESTION` items. Capability-design and research questions do not justify broad history by default.
 
+### Current Capability Assessment
+
+Start from the accepted Target, current Capability Model, direction inventory, `CURRENT_STATE.md`, and `REPOSITORY_MAP.md`. Inspect repository/code/test/data/documentation evidence capability by capability. Open historical Changes only when a current coverage/provenance claim depends on that exact record. Do not load recommendation or old-Roadmap history by default.
+
+### Causal Gap derivation
+
+Start from the accepted Target/Capability baselines and the current capability assessment. Treat the assessment as the primary evidence boundary. Do not rescan the repository or open recommendation/Roadmap history unless a specific assessment statement is uninterpretable without targeted evidence.
+
 These profiles refine Tier 1-3 loading; they do not authorize a Context Compiler or autonomous history search.
 
 ## Context packet

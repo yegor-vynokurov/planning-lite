@@ -2,7 +2,7 @@
 
 **Status:** canonical design specification; PW-DIR-001..003 implemented by PL-V38-01, later workflows remain design
 **Origin:** Poker Project Spine pilot
-**Alignment:** Planning Lite roadmap v3.8.3
+**Alignment:** Planning Lite roadmap v3.8.4
 
 ---
 
@@ -574,3 +574,5 @@ Rules:
 4. PL-V38-06A must qualify the `step-16.4.1` tools lineage before old versions are archived or deleted.
 5. PL-V38-06B/07 should reuse qualified harness mechanisms for immutable evidence, file-access observation, balanced suites and routing/resolution metrics.
 6. Campaign Core may govern repeated evidence but does not own workflow semantics.
+
+> Implementation note: PL-V38-01/02 workflow contracts `PW-DIR-001` through `PW-DIR-005` are now authoritative in `template/.planning/control/`; this document remains design/source evidence rather than runtime authority.

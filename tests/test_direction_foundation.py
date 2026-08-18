@@ -96,7 +96,7 @@ def test_direction_inventory_has_fail_closed_consistency_gate() -> None:
     assert "stop before Target exploration" in inventory
 
 
-def test_capability_model_is_not_current_state_or_gap_map() -> None:
+def test_capability_model_remains_separate_from_current_assessment_and_gap_map() -> None:
     root = _root()
     capability = (root / "template/.planning/project/CAPABILITY_MODEL.md").read_text(
         encoding="utf-8"
@@ -106,8 +106,9 @@ def test_capability_model_is_not_current_state_or_gap_map() -> None:
     assert "SATISFIED" in capability
     assert "PARTIAL" in capability
     assert "do not record" in capability.lower()
-    assert not (root / "template/.planning/project/GAP_MAP.md").exists()
-    assert not (root / "template/.planning/control/CAUSAL_GAP_DERIVATION.md").exists()
+    assert (root / "template/.planning/project/GAP_MAP.md").exists()
+    assert (root / "template/.planning/control/CAUSAL_GAP_DERIVATION.md").exists()
+    assert "Coverage" not in capability.split("## Capabilities", 1)[1].split("## Modeling notes", 1)[0]
 
 
 def test_doctor_requires_first_class_direction_project_files() -> None:

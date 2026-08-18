@@ -9,6 +9,8 @@ Use one entry point for one operation. Numbered prompts are optional shortcuts; 
 | Inventory project direction / consistency | Audit | direct request or `prompts/02-refine-project-goal-and-completion-criteria.md` preflight | `control/DIRECTION_INVENTORY.md` |
 | Explore Target State | Planning | `prompts/02-refine-project-goal-and-completion-criteria.md` | `control/TARGET_STATE_EXPLORER.md` |
 | Calibrate/accept Target + Capability Model | Planning | `prompts/02-refine-project-goal-and-completion-criteria.md` | `control/TARGET_BASELINE_CALIBRATION.md` |
+| Assess current capability Coverage / evidence | Audit | `prompts/02-refine-project-goal-and-completion-criteria.md` | `control/CURRENT_CAPABILITY_ASSESSMENT.md` |
+| Derive causal Gap Map | Planning | `prompts/02-refine-project-goal-and-completion-criteria.md` | `control/CAUSAL_GAP_DERIVATION.md` |
 | Discovery / uncertain broad effort | Dialogue / Planning | direct request | `control/WAYFINDING.md` when needed |
 | Capture or triage ideas | Dialogue / Planning | `prompts/03-capture-or-triage-recommendations.md` | `control/RECOMMENDATION_LIFECYCLE.md` |
 | Definition | Planning | `prompts/04-create-approved-change.md` | `control/CHANGE_DEFINITION.md` + `control/CHANGE_SCAFFOLD.md` |

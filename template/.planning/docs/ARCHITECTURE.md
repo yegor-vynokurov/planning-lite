@@ -13,3 +13,5 @@ Planning Lite separates seven concerns:
 Managed pristine copies under `.planning/templates/` support safe classification, full-file bootstrap materialization, scaffold repair, and optional log initialization without overwriting live project-owned state.
 
 Typical runtime load is `ACTIVE + effective config + one mode + one workflow + targeted project/code context`, plus one discipline only when its terminology changes the operation.
+
+For Project Spine direction work, keep completed-state intent (`TARGET_STATE.md`, `CAPABILITY_MODEL.md`), current evidence snapshots (`assessments/current/`), and causal direction truth (`GAP_MAP.md`) as separate artifact classes.

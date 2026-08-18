@@ -1,6 +1,6 @@
 # Planning Lite 4.x template `.planning` manifest
 
-Files: **143**.
+Files: **148**.
 
 ## Files
 
@@ -22,6 +22,7 @@ Files: **143**.
 - `.planning/adapters/registry.yml`
 - `.planning/adapters/scripts/README.md`
 - `.planning/adapters/scripts/materialize_adapter.py`
+- `.planning/assessments/CURRENT_CAPABILITY_ASSESSMENT_TEMPLATE.md`
 - `.planning/assessments/README.md`
 - `.planning/assessments/TEMPLATE.md`
 - `.planning/assessments/archive/.gitkeep`
@@ -42,6 +43,7 @@ Files: **143**.
 - `.planning/control/AGENT_ADAPTER_CONTRACT.md`
 - `.planning/control/AGENT_PORTABILITY.md`
 - `.planning/control/APPROVAL_GATES.md`
+- `.planning/control/CAUSAL_GAP_DERIVATION.md`
 - `.planning/control/CHANGE_AMENDMENT.md`
 - `.planning/control/CHANGE_CLOSURE.md`
 - `.planning/control/CHANGE_DEFINITION.md`
@@ -52,6 +54,7 @@ Files: **143**.
 - `.planning/control/CHANGE_SCAFFOLD.md`
 - `.planning/control/CONFIG_RESOLUTION.md`
 - `.planning/control/CONTEXT_POLICY.md`
+- `.planning/control/CURRENT_CAPABILITY_ASSESSMENT.md`
 - `.planning/control/DIRECTION_INVENTORY.md`
 - `.planning/control/DRIFT_POLICY.md`
 - `.planning/control/GIT_CHANGE_REVIEW.md`
@@ -98,6 +101,7 @@ Files: **143**.
 - `.planning/project/CAPABILITY_MODEL.md`
 - `.planning/project/CURRENT_STATE.md`
 - `.planning/project/DEFINITION_OF_DONE.md`
+- `.planning/project/GAP_MAP.md`
 - `.planning/project/GLOSSARY.md`
 - `.planning/project/PROJECT_CHARTER.md`
 - `.planning/project/PROJECT_COMPLETION_CRITERIA.md`
@@ -139,6 +143,7 @@ Files: **143**.
 - `.planning/templates/project/CAPABILITY_MODEL.md`
 - `.planning/templates/project/CURRENT_STATE.md`
 - `.planning/templates/project/DEFINITION_OF_DONE.md`
+- `.planning/templates/project/GAP_MAP.md`
 - `.planning/templates/project/GLOSSARY.md`
 - `.planning/templates/project/PROJECT_CHARTER.md`
 - `.planning/templates/project/PROJECT_COMPLETION_CRITERIA.md`

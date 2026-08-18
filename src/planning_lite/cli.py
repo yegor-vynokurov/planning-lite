@@ -483,6 +483,7 @@ def _iter_required_paths() -> Iterable[str]:
         ".planning/project/PROJECT_CHARTER.md",
         ".planning/project/TARGET_STATE.md",
         ".planning/project/CAPABILITY_MODEL.md",
+        ".planning/project/GAP_MAP.md",
         ".planning/project/PROJECT_INSTRUCTIONS.md",
         ".planning/skills/planning-checkpoint/SKILL.md",
     )
