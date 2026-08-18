@@ -76,15 +76,16 @@ A failed patch is not evidence that a file is pristine.
    - re-read and verify it before continuing.
 5. Do not send one multi-file line patch across pristine bootstrap documents.
 6. Record unknowns rather than inventing facts. When durable domain terms or invariants are evident, update `project/GLOSSARY.md` using `disciplines/DOMAIN_MODELING.md`.
-7. Create or refresh one evidence-based assessment under `.planning/assessments/current/`.
-8. Update `.planning/ACTIVE.md` using `CHANGE_LIFECYCLE.md`; with no active change use `Discovery / Ready`, the next gate, assessment path, and unresolved blockers.
-9. Review the final diff and verify:
+7. Treat `project/TARGET_STATE.md` and `project/CAPABILITY_MODEL.md` as direction artifacts, not bootstrap completion chores. In Audit mode do not invent or accept a Target merely to fill pristine templates. Preserve them as pristine/draft where direction authority is insufficient and route to `DIRECTION_INVENTORY.md` / `TARGET_STATE_EXPLORER.md`.
+8. Create or refresh one evidence-based assessment under `.planning/assessments/current/`.
+9. Update `.planning/ACTIVE.md` using `CHANGE_LIFECYCLE.md`; with no active change use `Discovery / Ready`, the next gate, assessment path, and unresolved blockers.
+10. Review the final diff and verify:
    - only the allowed planning paths changed;
    - no project-specific content was lost;
    - no managed canonical template was edited as project state;
    - no production code changed;
    - every written file can be read as UTF-8.
-10. Finish with recommendations or questions, not implementation tasks.
+11. Finish with recommendations or questions, not implementation tasks.
 
 ## Output contract
 

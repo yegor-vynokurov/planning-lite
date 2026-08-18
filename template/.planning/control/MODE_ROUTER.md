@@ -15,7 +15,8 @@ Select a mode for every user turn. Modes do not persist automatically.
 
 - Explicit wording and explicit skill invocation win.
 - When code changes are possible but authorization is ambiguous, choose Dialogue or Planning.
-- For a broad effort that cannot yet support a bounded specification, use Dialogue or Planning with `WAYFINDING.md`.
+- For a broad effort that cannot yet support a bounded specification, use Dialogue or Planning with `WAYFINDING.md` when the uncertainty is local to one effort.
+- For whole-project direction, intended deliverable, or "what should this project become?" questions, establish direction authority/current-state consistency in Audit with `DIRECTION_INVENTORY.md`, then use Planning with `TARGET_STATE_EXPLORER.md` or `TARGET_BASELINE_CALIBRATION.md`.
 - Approval of an idea or recommendation is not approval of a change or plan.
 - A question during execution pauses further edits for that turn unless the user also clearly says to continue.
 - Mixed requests must be split at the approval boundary. Complete read-only analysis first; do not silently cross into editing.

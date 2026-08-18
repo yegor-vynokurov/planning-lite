@@ -1,8 +1,8 @@
 # Planning Lite Direction Workflow Playbooks v1.2
 
-**Status:** canonical design specification, not yet released behavior
+**Status:** canonical design specification; PW-DIR-001..003 implemented by PL-V38-01, later workflows remain design
 **Origin:** Poker Project Spine pilot
-**Alignment:** Planning Lite v3.8.1 implementation route
+**Alignment:** Planning Lite roadmap v3.8.3
 
 ---
 

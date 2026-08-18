@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add the first Project Spine Direction Foundation workflows, project-owned Target/Capability artifacts, stage-specific context rules, and Doctor coverage.
+
 - Preserve the Project Spine v3.8.2 design track, including Poker-derived workflow commands and explicit reuse/ownership boundaries for `planning-lite-lab` and the Context Pilot/Eval Harness research assets.
 - Add append-only reconciliation for legacy completed Campaign attempts that have sealed balanced-suite evidence but no native suite projection, without rewriting historical journal events or accounting.
 - Add optional strict attempt budget admission so new governed attempts reserve projected token and wall-clock cost before `attempt_started`, while preserving backward compatibility for historical manifests and truthful sunk-cost completion.

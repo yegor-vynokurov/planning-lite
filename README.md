@@ -88,13 +88,14 @@ The hidden Copier answers file is retained so that the project can later be move
 
 ## Current development design track
 
-The current unreleased Project Spine / Direction Workflows design is tracked in:
+The current unreleased Project Spine / Direction Workflows design and operational handoff are tracked in:
 
 ```text
+docs/design/project-spine/PL-V38-CURRENT.md
 docs/design/project-spine/
 ```
 
-It is development documentation only and is not installed into consumer projects until separate governed implementation changes modify the Planning Lite template.
+Read `PL-V38-CURRENT.md` first after a context reset. PL-V38-01 Direction Foundation is implemented in the current template; later Project Spine stages remain design work until their bounded changes are implemented.
 
 ## Update-enabled installation
 

@@ -16,6 +16,8 @@ Each fact has one primary home.
 | recommendation `INDEX.md` | discovery summary; must agree with items |
 | decision record | durable decision and rationale |
 | project glossary | canonical domain language, invariants, aliases, and anchors |
+| `project/TARGET_STATE.md` | desired completed-state direction, claim provenance, non-goals, Target question ownership, acceptance evidence, and Target-state signals |
+| `project/CAPABILITY_MODEL.md` | durable completed-state capabilities derived from the current Target; never current satisfaction status |
 | project documents | current durable facts, not session history |
 | skill usage CSV | optional best-effort frequency log; never authoritative project state |
 

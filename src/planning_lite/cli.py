@@ -481,6 +481,8 @@ def _iter_required_paths() -> Iterable[str]:
         ".planning/framework/defaults.yml",
         ".planning/framework/OWNERSHIP.yml",
         ".planning/project/PROJECT_CHARTER.md",
+        ".planning/project/TARGET_STATE.md",
+        ".planning/project/CAPABILITY_MODEL.md",
         ".planning/project/PROJECT_INSTRUCTIONS.md",
         ".planning/skills/planning-checkpoint/SKILL.md",
     )

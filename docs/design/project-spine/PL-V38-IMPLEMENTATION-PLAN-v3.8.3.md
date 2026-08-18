@@ -1,4 +1,4 @@
-# PL-V38 implementation plan v3.8.2
+# PL-V38 implementation plan v3.8.3
 
 **Status:** current stepwise implementation plan
 **Date:** 2026-08-18
@@ -39,7 +39,7 @@ working tree clean
 main ahead of origin/main by 3
 ```
 
-No Project Spine behavior has been implemented yet.
+The v3.8.2 design checkpoint is tracked at `40ca8cf`. PL-V38-01 now implements the first Project Spine product behavior.
 
 ## Research-asset review
 
@@ -64,10 +64,11 @@ not part of PL-V38-01 implementation
 # 2. Current implementation sequence
 
 ```text
-PL-V38-01   Direction foundation
-PL-V38-02   Current assessment + causal Gap Map
+PL-V38-01   Direction foundation                         COMPLETE
+PL-V38-02   Current assessment + causal Gap Map          NEXT
 PL-V38-03   Recommendation residue/reconciliation
-PL-V38-04   Roadmap synthesis/prioritization
+PL-V38-04   Roadmap synthesis/prioritization + handoff
+FIELD       Poker Field Pilot 2 / next-Change derivation
 PL-V38-05   Direction context/visibility/ContextTrace
 PL-V38-06A  Lab + tools reactivation/lineage qualification
 PL-V38-06B  Qualified Poker eval suite
@@ -79,11 +80,11 @@ PL-V38-08   Safe orchestration + release decision
 
 # 3. PL-V38-01 — Direction foundation
 
-## Goal
+## Result
 
-Replace the first three manually authored Poker direction prompts with managed Planning Lite workflows.
+The first three manually authored Poker direction procedures are now represented by managed Planning Lite workflows and project-owned direction artifacts.
 
-## Likely managed workflow additions
+## Managed workflow additions
 
 ```text
 template/.planning/control/DIRECTION_INVENTORY.md
@@ -91,18 +92,14 @@ template/.planning/control/TARGET_STATE_EXPLORER.md
 template/.planning/control/TARGET_BASELINE_CALIBRATION.md
 ```
 
-## Likely project-owned artifacts/templates
-
-Minimal candidates:
+## Project-owned artifacts/templates
 
 ```text
 TARGET_STATE.md
 CAPABILITY_MODEL.md
 ```
 
-Exact Copier ownership/materialization must be designed from the current template before implementation.
-
-## Required semantics
+## Implemented semantics
 
 ```text
 authority/freshness discovery
@@ -115,7 +112,7 @@ Target flow-back rule
 explicit human Target acceptance
 ```
 
-## Explicit exclusions
+## Preserved exclusions
 
 ```text
 Gap derivation
@@ -131,7 +128,7 @@ new LLM Campaign
 
 ## Research assets
 
-For PL-V38-01:
+For PL-V38-01 the external assets remain inactive:
 
 ```text
 planning-lite-lab       reference only
@@ -197,7 +194,17 @@ Research-heavy outcomes compose protocol-first rules into existing Change planni
 
 ---
 
-# 7. PL-V38-05 — Direction context + visibility + ContextTrace
+# 7. FIELD — Poker Project Spine Field Pilot 2
+
+After PL-V38-04, stop Planning Lite feature expansion and resume Poker from the clean post-CHG-0008 boundary.
+
+Use Planning Lite itself to derive the next bounded Bayesian implementation Change. Capture failures/overreads/authority mistakes as new Planning Lite evidence.
+
+Do not manually pre-create the Poker implementation Change before this pilot; that next-Change derivation is the field test.
+
+---
+
+# 8. PL-V38-05 — Direction context + visibility + ContextTrace
 
 Extend existing Context Policy.
 
@@ -217,7 +224,7 @@ Do not use Context Compiler yet.
 
 ---
 
-# 8. PL-V38-06A — Research asset reactivation / qualification
+# 9. PL-V38-06A — Research asset reactivation / qualification
 
 This is the first stage where the two external research assets become active dependencies of the work.
 
@@ -262,7 +269,7 @@ Deletion is not authorized merely by classification.
 
 ---
 
-# 9. PL-V38-06B — Qualified Poker eval suite
+# 10. PL-V38-06B — Qualified Poker eval suite
 
 Turn Poker field evidence into controlled-realistic fixture packages.
 
@@ -299,7 +306,7 @@ Change completion != Gap closure
 
 ---
 
-# 10. PL-V38-07 — Context Compiler experiment
+# 11. PL-V38-07 — Context Compiler experiment
 
 Only after workflow semantics and fixtures are stable.
 
@@ -333,7 +340,7 @@ Campaign Core is optional and only used if repeated governed runs are justified.
 
 ---
 
-# 11. PL-V38-08 — Safe orchestration
+# 12. PL-V38-08 — Safe orchestration
 
 Automate only proven read-only/deterministic transitions.
 
@@ -343,7 +350,7 @@ Prove ordinary small changes remain lightweight.
 
 ---
 
-# 12. Asset cleanup policy
+# 13. Asset cleanup policy
 
 Do not delete either research folder before PL-V38-06A.
 
@@ -364,18 +371,11 @@ Space saving is not a sufficient reason to destroy provenance.
 
 ---
 
-# 13. Next execution gate
+# 14. Next execution gate
 
 ```text
-PL-V38-01
-Direction foundation
+PL-V38-02
+Current Capability Assessment + causal Gap Map
 ```
 
-Before implementation, define exact:
-
-```text
-managed/project-owned paths
-Copier ownership impact
-workflow output contracts
-initial deterministic fixture subset
-```
+Poker remains frozen until PL-V38-04 is complete and `PILOT-PL-DIRECTION-002` begins.

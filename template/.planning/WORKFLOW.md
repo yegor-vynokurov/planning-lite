@@ -6,6 +6,9 @@ Use one entry point for one operation. Numbered prompts are optional shortcuts; 
 |---|---|---|---|
 | Bootstrap an existing repository | Audit | `prompts/00-bootstrap-existing-project.md` | `control/PROJECT_BOOTSTRAP.md` |
 | Assess current state | Audit | `prompts/01-assess-current-state-and-recommend-next-steps.md` | prompt itself |
+| Inventory project direction / consistency | Audit | direct request or `prompts/02-refine-project-goal-and-completion-criteria.md` preflight | `control/DIRECTION_INVENTORY.md` |
+| Explore Target State | Planning | `prompts/02-refine-project-goal-and-completion-criteria.md` | `control/TARGET_STATE_EXPLORER.md` |
+| Calibrate/accept Target + Capability Model | Planning | `prompts/02-refine-project-goal-and-completion-criteria.md` | `control/TARGET_BASELINE_CALIBRATION.md` |
 | Discovery / uncertain broad effort | Dialogue / Planning | direct request | `control/WAYFINDING.md` when needed |
 | Capture or triage ideas | Dialogue / Planning | `prompts/03-capture-or-triage-recommendations.md` | `control/RECOMMENDATION_LIFECYCLE.md` |
 | Definition | Planning | `prompts/04-create-approved-change.md` | `control/CHANGE_DEFINITION.md` + `control/CHANGE_SCAFFOLD.md` |

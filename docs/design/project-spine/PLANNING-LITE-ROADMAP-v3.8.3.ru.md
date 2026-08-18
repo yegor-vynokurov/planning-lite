@@ -1,13 +1,13 @@
-# Planning Lite Roadmap v3.8.2 — Project Spine + research-asset reuse alignment
+# Planning Lite Roadmap v3.8.3 — Direction Foundation checkpoint + Poker Field Pilot 2 gate
 
-**Status:** Current implementation-facing design roadmap
+**Status:** Current implementation-facing roadmap; operational checkpoint lives in `PL-V38-CURRENT.md`
 **Date:** 2026-08-18
-**Parent:** Planning Lite Roadmap v3.8 / un-applied v3.8.1 alignment draft
-**Evidence:** Poker Project Spine pilot + W0 architecture inspection + PL-V38-00 reconciliation + review of `planning-lite-lab` and `planning_lite_tools`
+**Parent:** Planning Lite Roadmap v3.8.2
+**Evidence:** Poker Project Spine pilot + W0/PL-V38-00 + v3.8.2 alignment + PL-V38-01 Direction Foundation implementation
 
 ---
 
-# 1. Why v3.8.2 exists
+# 1. Why v3.8.3 exists
 
 v3.8 promoted Project Spine from a field-pilot hypothesis to a bounded implementation candidate.
 W0 then established that Planning Lite is **template/workflow-first**, not Python-domain-model-first.
@@ -22,10 +22,11 @@ planning_lite_tools / step-16.4.1
 → Context Pilot + Eval Harness reference implementation
 ```
 
-The earlier v3.8.1 design package was never applied to the central repository.
-This v3.8.2 document supersedes that package and folds both corrections into one current roadmap.
+v3.8.2 aligned Project Spine with the real template/workflow architecture and existing research assets.
 
-The semantic direction is unchanged. The implementation and reuse boundaries are now explicit.
+v3.8.3 records the first product implementation checkpoint, `PL-V38-01`, and the sequencing decision to freeze Poker until Planning Lite reaches the same direction-to-Change handoff capability through `PL-V38-04`.
+
+After `PL-V38-04`, Poker resumes as `PILOT-PL-DIRECTION-002` before context/compiler work continues. The semantic direction is unchanged.
 
 ---
 
@@ -38,26 +39,26 @@ v4.3.0
 0e66941d33e192938ab848e3c046699cf5ab92a2
 ```
 
-Completed local reconciliation:
+Completed central preparation before PL-V38-01:
 
 ```text
 0d7c923  campaign: reconcile legacy attempt suite evidence
 0681b86  campaign: add strict attempt budget admission
 57eb5bd  docs: record post-v4.3 campaign repairs
+40ca8cf  docs: preserve Project Spine v3.8.2 design track
 ```
 
-Verified local state after PL-V38-00:
+Verified local boundary before PL-V38-01:
 
 ```text
-main HEAD: 57eb5bd797fd96269bc6a4a03eef70c2f893a4b5
-main ahead of origin/main by 3
+main HEAD: 40ca8cf95f983262e01d01a77cbad0d89d54002b
 working tree clean
 114/114 tests pass
 v4.3.0 tag remains on 0e66941
 no new release tag
 ```
 
-PL-V38-00 is a completed prerequisite reconciliation, not Project Spine implementation.
+PL-V38-00 is complete. PL-V38-01 is the first Project Spine product implementation.
 
 ---
 
@@ -328,7 +329,7 @@ no Project Spine behavior implemented
 
 ---
 
-## NOW — PL-V38-01
+## COMPLETED — PL-V38-01
 
 ### Direction foundation: authority inventory + Target/Capability contracts
 
@@ -381,11 +382,26 @@ Lab/Harness integration
 new LLM campaign
 ```
 
-The two external research assets are reference material only at this stage.
+The two external research assets remain reference material only at this stage.
+
+Implemented product boundary:
+
+```text
+PW-DIR-001 DIRECTION_INVENTORY
+PW-DIR-002 TARGET_STATE_EXPLORER
+PW-DIR-003 TARGET_BASELINE_CALIBRATION
+project-owned TARGET_STATE.md
+project-owned CAPABILITY_MODEL.md
+managed pristine copies
+stage-specific context profiles
+Doctor presence checks
+```
+
+No Gap/reconciliation/prioritization behavior is included.
 
 ---
 
-## NEXT — PL-V38-02
+## NOW — PL-V38-02
 
 ### Current Capability Assessment + causal Gap Map
 
@@ -463,6 +479,42 @@ protocol-first composition for research-heavy outcomes
 ```
 
 No automatic Change creation before acceptance.
+
+---
+
+## FIELD GATE — PILOT-PL-DIRECTION-002
+
+### Poker continuation / next-Change derivation
+
+Poker is intentionally frozen while PL-V38-01 through PL-V38-04 are implemented.
+
+Resume Poker from its clean post-CHG-0008 boundary only after PL-V38-04. Use the newly implemented Planning Lite direction flow to determine the next bounded Bayesian implementation Change.
+
+Expected semantic test:
+
+```text
+CHG-0008 completed
+RM-PKR-001 still NOW
+GAP-PKR-002 open
+GAP-PKR-003 open
+protocol evidence exists
+study implementation absent
+→ derive the next bounded implementation Change
+```
+
+Failure modes to observe:
+
+```text
+repeating the protocol
+premature Gap/Roadmap closure
+returning to stale API priority
+production integration before study evidence
+over-broad implementation Change
+unnecessary history reload
+loss of completed-Change lineage
+```
+
+Field findings from this pilot must be reconciled before PL-V38-05/06/07 design is treated as stable.
 
 ---
 
@@ -706,5 +758,11 @@ Context Compiler:
 EXPERIMENTAL / PL-V38-07
 
 PL-V38-01:
+IMPLEMENTED DIRECTION FOUNDATION
+
+PL-V38-02:
 CURRENT NEXT IMPLEMENTATION CANDIDATE
+
+Poker:
+FROZEN UNTIL PL-V38-04; THEN PILOT-PL-DIRECTION-002
 ```

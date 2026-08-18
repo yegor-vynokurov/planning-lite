@@ -18,3 +18,5 @@ Use in Audit mode after bootstrap, significant implementation, closure, drift sy
 5. Do not rewrite unrelated documents for stylistic consistency.
 
 A project-state refresh records facts. New opportunities belong in recommendations; implementation belongs in an approved change or qualified quick fix.
+
+`TARGET_STATE.md` and `CAPABILITY_MODEL.md` are not ordinary refresh targets. Do not rewrite accepted direction because implementation facts changed. A material contradiction with an accepted Target should be recorded as a `TARGET_STATE_SIGNAL` and routed to Planning through `TARGET_BASELINE_CALIBRATION.md`; explicit user/durable authority is required for Target acceptance or revision.

@@ -36,6 +36,25 @@ Load assessments, completed changes, old recommendations, drift history, raw dif
 - Never load all prompts, skills, disciplines, recommendations, adapters, or usage logs by default.
 - After a fresh conversation, resume from durable state rather than rescanning automatically.
 
+
+## Direction-stage context profiles
+
+Whole-project direction work uses stage-dependent depth rather than one broad project scan.
+
+### Direction inventory
+
+Start from `ACTIVE.md`, `CURRENT_STATE.md`, charter/completion criteria, current Roadmap, project instructions/rules where authoritative, `REPOSITORY_MAP.md`, bounded Git state, and only the Change/lifecycle records needed for consistency. Expand recommendations/history only to resolve a concrete authority or freshness conflict.
+
+### Target-State exploration
+
+Start from the current direction inventory plus charter/completion criteria, existing Target State, and targeted evidence for disputed Target claims. Do not reopen broad history merely to brainstorm possibilities.
+
+### Target baseline calibration
+
+Start from the direction inventory, Target draft, and Capability Model template/current model. Read additional evidence only for unresolved `TARGET_BOUNDARY_QUESTION` items. Capability-design and research questions do not justify broad history by default.
+
+These profiles refine Tier 1-3 loading; they do not authorize a Context Compiler or autonomous history search.
+
 ## Context packet
 
 The active change `context.md` is the resumable packet. Keep it compact and update it at meaningful checkpoints, decisions, amendments, stage transitions, or before a new session.

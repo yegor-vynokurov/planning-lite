@@ -1,6 +1,6 @@
 # Planning Lite 4.x template `.planning` manifest
 
-Files: **136**.
+Files: **143**.
 
 ## Files
 
@@ -52,6 +52,7 @@ Files: **136**.
 - `.planning/control/CHANGE_SCAFFOLD.md`
 - `.planning/control/CONFIG_RESOLUTION.md`
 - `.planning/control/CONTEXT_POLICY.md`
+- `.planning/control/DIRECTION_INVENTORY.md`
 - `.planning/control/DRIFT_POLICY.md`
 - `.planning/control/GIT_CHANGE_REVIEW.md`
 - `.planning/control/MODE_ROUTER.md`
@@ -63,6 +64,8 @@ Files: **136**.
 - `.planning/control/SESSION_CHECKPOINT.md`
 - `.planning/control/SKILL_USAGE_LOGGING.md`
 - `.planning/control/STATE_OWNERSHIP.md`
+- `.planning/control/TARGET_BASELINE_CALIBRATION.md`
+- `.planning/control/TARGET_STATE_EXPLORER.md`
 - `.planning/control/WAYFINDING.md`
 - `.planning/decisions/INDEX.md`
 - `.planning/decisions/README.md`
@@ -92,6 +95,7 @@ Files: **136**.
 - `.planning/modes/QUICK_FIX.md`
 - `.planning/observability/SKILL_USAGE.csv`
 - `.planning/project/ARCHITECTURE_OVERVIEW.md`
+- `.planning/project/CAPABILITY_MODEL.md`
 - `.planning/project/CURRENT_STATE.md`
 - `.planning/project/DEFINITION_OF_DONE.md`
 - `.planning/project/GLOSSARY.md`
@@ -101,6 +105,7 @@ Files: **136**.
 - `.planning/project/PROJECT_RULES.md`
 - `.planning/project/REPOSITORY_MAP.md`
 - `.planning/project/ROADMAP.md`
+- `.planning/project/TARGET_STATE.md`
 - `.planning/prompts/00-bootstrap-existing-project.md`
 - `.planning/prompts/01-assess-current-state-and-recommend-next-steps.md`
 - `.planning/prompts/02-refine-project-goal-and-completion-criteria.md`
@@ -131,6 +136,7 @@ Files: **136**.
 - `.planning/skills/planning-recover/SKILL.md`
 - `.planning/templates/observability/SKILL_USAGE.csv`
 - `.planning/templates/project/ARCHITECTURE_OVERVIEW.md`
+- `.planning/templates/project/CAPABILITY_MODEL.md`
 - `.planning/templates/project/CURRENT_STATE.md`
 - `.planning/templates/project/DEFINITION_OF_DONE.md`
 - `.planning/templates/project/GLOSSARY.md`
@@ -140,3 +146,4 @@ Files: **136**.
 - `.planning/templates/project/PROJECT_RULES.md`
 - `.planning/templates/project/REPOSITORY_MAP.md`
 - `.planning/templates/project/ROADMAP.md`
+- `.planning/templates/project/TARGET_STATE.md`

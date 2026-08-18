@@ -16,7 +16,9 @@ Explicit user wording wins. Modes apply to the current turn only.
 
 Apply `APPROVAL_GATES.md` before approving plans, editing production code, changing approved scope, or closing work.
 
-Use the matching authoritative workflow for bootstrap, wayfinding, recommendations, lifecycle, scaffold, definition, planning, readiness, execution, amendment, closure, drift, recovery, checkpoint, Git review, or agent portability. Do not duplicate those rules in the current prompt.
+Use the matching authoritative workflow for bootstrap, direction inventory, Target-State exploration/calibration, wayfinding, recommendations, lifecycle, scaffold, definition, planning, readiness, execution, amendment, closure, drift, recovery, checkpoint, Git review, or agent portability. Do not duplicate those rules in the current prompt.
+
+For whole-project direction work, establish authority/current-state consistency through `DIRECTION_INVENTORY.md` before Target exploration when that evidence is not already current. Use `TARGET_STATE_EXPLORER.md` for a Target draft and `TARGET_BASELINE_CALIBRATION.md` for question ownership, Target acceptance, and Capability Model foundation.
 
 If a repository skill is selected and effective configuration enables usage logging, follow `SKILL_USAGE_LOGGING.md` once for the turn. Logging is non-blocking.
 
