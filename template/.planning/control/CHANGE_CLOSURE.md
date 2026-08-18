@@ -41,6 +41,10 @@ Checked task boxes are not completion evidence.
 
 For every source recommendation, verify links and apply `RECOMMENDATION_LIFECYCLE.md`. When semantic units exist, reconcile only the referenced `Source recommendation units` against accepted scope/evidence and leave unrelated units untouched. For legacy items without units, determine `Full`, `Partial`, or `None` coverage. Update item/index bookkeeping as applicable. Do not mark a recommendation `Completed` merely because one linked change completed; `Change completion != Recommendation completion`.
 
+## Roadmap / Gap contribution
+
+When the Change references a source Roadmap outcome or Gaps, record what evidence the Change contributes to each declared exit/closure condition. Do not automatically change Roadmap outcome state or Gap state merely because the Change closes. Preserve `Change completion != RoadmapOutcome completion` and `Change completion != Gap closure`. Any Roadmap/Gap transition requires its own evidence-based project-state reconciliation and applicable authority.
+
 ## Project-memory synchronization
 
 Update only factual documents made stale by delivery, using `PROJECT_STATE_REFRESH.md`. Create follow-up recommendations only for durable non-blocking work outside approved scope.

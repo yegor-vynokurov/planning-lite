@@ -1,4 +1,4 @@
-# PL-V38 implementation plan v3.8.5
+# PL-V38 implementation plan v3.8.6
 
 **Status:** current stepwise implementation plan
 **Date:** 2026-08-18
@@ -39,7 +39,7 @@ working tree clean
 main ahead of origin/main by 3
 ```
 
-The v3.8.2 design checkpoint is tracked at `40ca8cf`. PL-V38-01 implements Direction Foundation; its EOL-stable integrity-test hotfix is `782c785`. PL-V38-02 implements Current/Gap; PL-V38-03 implements recommendation semantic residue and historical reconciliation.
+The v3.8.2 design checkpoint is tracked at `40ca8cf`. PL-V38-01 implements Direction Foundation; its EOL-stable integrity-test hotfix is `782c785`. PL-V38-02 implements Current/Gap; PL-V38-03 implements recommendation semantic residue and historical reconciliation. PL-V38-04 implements Roadmap outcome synthesis, qualitative prioritization, human Roadmap acceptance, and bounded-Change lineage handoff.
 
 ## Research-asset review
 
@@ -67,8 +67,8 @@ not part of PL-V38-01 implementation
 PL-V38-01   Direction foundation                         COMPLETE
 PL-V38-02   Current assessment + causal Gap Map          COMPLETE
 PL-V38-03   Recommendation residue/reconciliation        COMPLETE
-PL-V38-04   Roadmap synthesis/prioritization + handoff    NEXT
-FIELD       Poker Field Pilot 2 / next-Change derivation
+PL-V38-04   Roadmap synthesis/prioritization + handoff    COMPLETE
+FIELD       Poker Field Pilot 2 / next-Change derivation  NEXT / STOP-GATE
 PL-V38-05   Direction context/visibility/ContextTrace
 PL-V38-06A  Lab + tools reactivation/lineage qualification
 PL-V38-06B  Qualified Poker eval suite
@@ -230,25 +230,46 @@ Broad historical reads are intentionally allowed only in this workflow stage. PL
 
 # 6. PL-V38-04 — Roadmap synthesis + prioritization
 
-Add:
+## Result
+
+Implemented:
 
 ```text
-outcome synthesis
-natural Gap bundling
-credible-alternative comparison
-qualitative prioritization
-preferred-next-outcome proposal
+PW-DIR-007 ROADMAP_SYNTHESIS_PRIORITIZATION [Planning]
+assessments/ROADMAP_SYNTHESIS_TEMPLATE.md
+project-owned ROADMAP.md CURRENT_BASELINE schema
+exact Roadmap/Gap/Recommendation lineage in Change definition/closure
 ```
 
-Human acceptance before canonical direction mutation.
+Semantic boundary:
 
-Research-heavy outcomes compose protocol-first rules into existing Change planning.
+```text
+accepted Project Spine + current reconciliation
+→ coherent RoadmapOutcome candidates
+→ credible-alternative qualitative comparison
+→ one preferred NOW proposal
+→ explicit human Roadmap acceptance
+→ later-turn CHANGE_DEFINITION handoff
+```
+
+Hard guards:
+
+```text
+historical Roadmap order != current priority
+RoadmapOutcome != Gap != Change
+Change completion != RoadmapOutcome completion
+Change completion != Gap closure
+no automatic Change creation
+no PL-V38-05 continuation before field evidence
+```
+
+Research-heavy outcomes explicitly consider protocol-first composition rather than freezing production integration before scientific decision rules are defined.
 
 ---
 
 # 7. FIELD — Poker Project Spine Field Pilot 2
 
-After PL-V38-04, stop Planning Lite feature expansion and resume Poker from the clean post-CHG-0008 boundary.
+PL-V38-04 is complete. **Stop Planning Lite feature expansion now** and resume Poker from the clean post-CHG-0008 boundary after local PL-V38-04 verification.
 
 Use Planning Lite itself to derive the next bounded Bayesian implementation Change. Capture failures/overreads/authority mistakes as new Planning Lite evidence.
 
@@ -426,8 +447,8 @@ Space saving is not a sufficient reason to destroy provenance.
 # 14. Next execution gate
 
 ```text
-PL-V38-03
-Recommendation semantic residue + historical direction reconciliation
+PILOT-PL-DIRECTION-002
+Poker continuation / next-Change derivation
 ```
 
-Poker remains frozen until PL-V38-04 is complete and `PILOT-PL-DIRECTION-002` begins.
+Do not start PL-V38-05 before this field gate is run and its findings are reconciled. Do not manually pre-create the next Poker Change: deriving that bounded Change from the accepted Poker Roadmap is the test.

@@ -4,6 +4,9 @@
 - Created:
 - Approved by:
 - Approval evidence:
+- Source Roadmap outcome: `None`
+- Roadmap outcome contribution: `NOT_APPLICABLE / PARTIAL / COMPLETES_OUTCOME`
+- Source gaps: `[]`
 - Source recommendations: `[]`
 - Source recommendation units: `[]`
 

@@ -14,4 +14,4 @@ Managed pristine copies under `.planning/templates/` support safe classification
 
 Typical runtime load is `ACTIVE + effective config + one mode + one workflow + targeted project/code context`, plus one discipline only when its terminology changes the operation.
 
-For Project Spine direction work, keep completed-state intent (`TARGET_STATE.md`, `CAPABILITY_MODEL.md`), current evidence snapshots (`assessments/current/`), and causal direction truth (`GAP_MAP.md`) as separate artifact classes.
+For Project Spine direction work, keep completed-state intent (`TARGET_STATE.md`, `CAPABILITY_MODEL.md`), current evidence/decision snapshots (`assessments/current/`), causal direction truth (`GAP_MAP.md`), and explicitly accepted current outcome direction (`ROADMAP.md`) as separate artifact classes. Roadmap synthesis evidence does not become canonical priority until explicit acceptance.

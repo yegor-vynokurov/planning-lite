@@ -1,13 +1,13 @@
-# Planning Lite Roadmap v3.8.5 — Recommendation-reconciliation checkpoint + Poker Field Pilot 2 gate
+# Planning Lite Roadmap v3.8.6 — Roadmap-handoff checkpoint + Poker Field Pilot 2 next
 
 **Status:** Current implementation-facing roadmap; operational checkpoint lives in `PL-V38-CURRENT.md`
 **Date:** 2026-08-18
-**Parent:** Planning Lite Roadmap v3.8.4 (Git history)
-**Evidence:** Poker Project Spine pilot + W0/PL-V38-00 + v3.8.2 alignment + PL-V38-01 Direction Foundation + PL-V38-02 Current/Gap + PL-V38-03 recommendation/history reconciliation
+**Parent:** Planning Lite Roadmap v3.8.5 (Git history)
+**Evidence:** Poker Project Spine pilot + W0/PL-V38-00 + v3.8.2 alignment + PL-V38-01 Direction Foundation + PL-V38-02 Current/Gap + PL-V38-03 recommendation/history reconciliation + PL-V38-04 Roadmap synthesis/handoff
 
 ---
 
-# 1. Why v3.8.5 exists
+# 1. Why v3.8.6 exists
 
 v3.8 promoted Project Spine from a field-pilot hypothesis to a bounded implementation candidate.
 W0 then established that Planning Lite is **template/workflow-first**, not Python-domain-model-first.
@@ -24,9 +24,9 @@ planning_lite_tools / step-16.4.1
 
 v3.8.2 aligned Project Spine with the real template/workflow architecture and existing research assets.
 
-v3.8.5 records completion of `PL-V38-03`: Planning Lite now preserves composite Recommendation meaning as stable semantic units, reconciles that residue and historical Roadmap lineage against the accepted Project Spine, and explicitly refuses to inherit historical priority. The sequencing decision remains to freeze Poker until Planning Lite reaches the direction-to-Change handoff capability through `PL-V38-04`.
+v3.8.6 records completion of `PL-V38-04`: Planning Lite can now synthesize coherent Roadmap outcomes from the accepted Project Spine, compare credible alternatives without fake numeric precision or inherited historical order, accept exactly one current `NOW` direction under explicit human authority, and hand that accepted outcome to the existing Change-definition lifecycle without auto-creating work.
 
-After `PL-V38-04`, Poker resumes as `PILOT-PL-DIRECTION-002` before context/compiler work continues. The semantic direction is unchanged.
+This completes the planned "catch Planning Lite up to Poker" semantic sequence. Planning Lite feature expansion now stops. The **next operation is the field gate** `PILOT-PL-DIRECTION-002` on frozen Poker; findings from that pilot must be reconciled before PL-V38-05+ is treated as stable.
 
 ---
 
@@ -46,6 +46,11 @@ Completed central preparation before PL-V38-01:
 0681b86  campaign: add strict attempt budget admission
 57eb5bd  docs: record post-v4.3 campaign repairs
 40ca8cf  docs: preserve Project Spine v3.8.2 design track
+8d2026d  feat: add Project Spine direction foundation
+782c785  test: make template SHA receipt EOL-stable
+3306d7a  feat: add Project Spine current and gap foundation
+61fe59a  feat: preserve recommendation semantic residue
+PL-V38-04 commit: the commit containing this roadmap update
 ```
 
 Verified local boundary before PL-V38-01:
@@ -482,40 +487,52 @@ Compatibility rule: legacy/simple recommendations remain valid until unit-level 
 
 ---
 
-## NEXT — PL-V38-04
+## COMPLETE — PL-V38-04
 
-### Roadmap synthesis + qualitative prioritization
+### Roadmap synthesis + qualitative prioritization + Change handoff
 
-Produce a compact outcome-oriented direction proposal.
+Implemented `PW-DIR-007 ROADMAP_SYNTHESIS_PRIORITIZATION` in the existing managed workflow layer.
 
-Support:
-
-```text
-one RoadmapOutcome → several Gap refs
-```
-
-while keeping independent Gap closure identities.
-
-Require:
+Artifact split:
 
 ```text
-credible-alternative comparison
-no inherited historical priority
-human direction acceptance
-protocol-first composition for research-heavy outcomes
+assessments/current/ROADMAP_SYNTHESIS.md
+→ DRAFT/CURRENT decision-evidence snapshot
+→ candidate outcomes + alternatives + qualitative prioritization
+
+project/ROADMAP.md
+→ project-owned accepted current Roadmap truth
+→ CURRENT_BASELINE requires explicit user acceptance
 ```
 
-No automatic Change creation before acceptance.
+Implemented semantics:
+
+```text
+RoadmapOutcome != Gap != Change
+one RoadmapOutcome may address several Gaps
+Gap closure checks remain independent
+historical Roadmap order != current priority
+credible alternatives before preferred outcome
+no weighted/fake numeric ranking by default
+NOW / NEXT / unordered LATER / FINAL_GATE / DEFERRED
+human acceptance before canonical Roadmap mutation
+Change completion != RoadmapOutcome completion
+Change completion != Gap closure
+```
+
+Roadmap synthesis normally consumes the accepted/current Spine plus the current direction-history reconciliation snapshot. Broad history is not reopened by default.
+
+Research-heavy outcomes explicitly consider protocol-first composition. The workflow preserves `study_complete != production_integrated` and does not force production adoption after a successful study.
+
+The accepted `NOW` outcome may be handed to existing `CHANGE_DEFINITION` **only on a later turn**. Change proposal lineage can now record the exact source Roadmap outcome, source Gaps, recommendation units, and whether the Change is a partial or outcome-completing contribution. No Change is auto-created by PW-DIR-007.
 
 ---
 
-## FIELD GATE — PILOT-PL-DIRECTION-002
+## NEXT FIELD GATE — PILOT-PL-DIRECTION-002
 
 ### Poker continuation / next-Change derivation
 
-Poker is intentionally frozen while PL-V38-01 through PL-V38-04 are implemented.
-
-Resume Poker from its clean post-CHG-0008 boundary only after PL-V38-04. Use the newly implemented Planning Lite direction flow to determine the next bounded Bayesian implementation Change.
+Poker was intentionally frozen while PL-V38-01 through PL-V38-04 were implemented. After local verification of PL-V38-04, resume Poker from its clean post-CHG-0008 boundary. Use the newly implemented Planning Lite direction flow to determine the next bounded Bayesian implementation Change.
 
 Expected semantic test:
 
@@ -794,8 +811,11 @@ PL-V38-03:
 IMPLEMENTED RECOMMENDATION SEMANTIC RESIDUE + HISTORICAL RECONCILIATION
 
 PL-V38-04:
-NEXT — ROADMAP SYNTHESIS + QUALITATIVE PRIORITIZATION + BOUNDED-CHANGE HANDOFF
+IMPLEMENTED ROADMAP SYNTHESIS + QUALITATIVE PRIORITIZATION + BOUNDED-CHANGE HANDOFF
 
 Poker:
-FROZEN UNTIL PL-V38-04; THEN PILOT-PL-DIRECTION-002
+NEXT FIELD GATE — PILOT-PL-DIRECTION-002 AFTER LOCAL PL-V38-04 VERIFICATION
+
+Planning Lite feature expansion:
+STOP BEFORE PL-V38-05 UNTIL FIELD FINDINGS ARE RECONCILED
 ```

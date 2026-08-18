@@ -21,6 +21,8 @@ Each fact has one primary home.
 | `assessments/current/CURRENT_CAPABILITY_ASSESSMENT.md` | evidence snapshot of current capability Coverage and EvidenceConfidence against the accepted baseline; not a durable Target mutation |
 | `project/GAP_MAP.md` | accepted causal missing conditions between demonstrated Current state and Target capabilities, with stable Gap identities and outcome-oriented closure conditions |
 | `assessments/current/DIRECTION_HISTORY_RECONCILIATION.md` | snapshot reconciling recommendation semantic units and historical Roadmap lineage against the accepted Project Spine; not current Roadmap priority |
+| `assessments/current/ROADMAP_SYNTHESIS.md` | evidence snapshot comparing coherent Roadmap outcome candidates, qualitative priority, alternatives, and proposed sequence; not canonical until explicit acceptance |
+| `project/ROADMAP.md` | accepted current Roadmap outcome identities, sequence positions, Gap/capability lineage, exit conditions, exclusions, and accepted preferred direction; not Change authorization |
 | project documents | current durable facts, not session history |
 | skill usage CSV | optional best-effort frequency log; never authoritative project state |
 

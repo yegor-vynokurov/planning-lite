@@ -21,6 +21,13 @@
 
 ## Amendments, drift, limitations, and residual risk
 
+## Roadmap / Gap contribution
+
+| Roadmap outcome or Gap | Declared contribution | Evidence delivered | State transition proposed | Notes |
+|---|---|---|---|---|
+
+A completed Change does not automatically complete a Roadmap outcome or close a Gap.
+
 ## Recommendation outcomes
 
 | Recommendation | Coverage | Previous status | New status | Item updated | Index updated | Notes |

@@ -19,6 +19,7 @@ Select a mode for every user turn. Modes do not persist automatically.
 - For whole-project direction, intended deliverable, or "what should this project become?" questions, establish direction authority/current-state consistency in Audit with `DIRECTION_INVENTORY.md`, then use Planning with `TARGET_STATE_EXPLORER.md` or `TARGET_BASELINE_CALIBRATION.md`.
 - After the accepted Target/Capability baseline exists, assess current capability Coverage/EvidenceConfidence in Audit with `CURRENT_CAPABILITY_ASSESSMENT.md`; derive formal causal Gaps in a later Planning turn with `CAUSAL_GAP_DERIVATION.md`.
 - After the Gap Map is `CURRENT_BASELINE`, use Planning with `RECOMMENDATION_HISTORY_RECONCILIATION.md` when recommendation semantic residue or historical Roadmap lineage must be reconciled; broad history belongs there, not in earlier direction stages.
+- After direction-history reconciliation is `CURRENT` and `READY_FOR_ROADMAP_SYNTHESIS`, use Planning with `ROADMAP_SYNTHESIS_PRIORITIZATION.md` to propose/accept the current Roadmap. A later turn uses `CHANGE_DEFINITION.md`; do not cross that boundary in the Roadmap turn.
 - Approval of an idea or recommendation is not approval of a change or plan.
 - A question during execution pauses further edits for that turn unless the user also clearly says to continue.
 - Mixed requests must be split at the approval boundary. Complete read-only analysis first; do not silently cross into editing.

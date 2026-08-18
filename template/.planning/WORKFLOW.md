@@ -12,6 +12,7 @@ Use one entry point for one operation. Numbered prompts are optional shortcuts; 
 | Assess current capability Coverage / evidence | Audit | `prompts/02-refine-project-goal-and-completion-criteria.md` | `control/CURRENT_CAPABILITY_ASSESSMENT.md` |
 | Derive causal Gap Map | Planning | `prompts/02-refine-project-goal-and-completion-criteria.md` | `control/CAUSAL_GAP_DERIVATION.md` |
 | Reconcile recommendation residue + historical Roadmap | Planning | `prompts/02-refine-project-goal-and-completion-criteria.md` | `control/RECOMMENDATION_HISTORY_RECONCILIATION.md` |
+| Synthesize/prioritize/accept current Roadmap | Planning | `prompts/02-refine-project-goal-and-completion-criteria.md` | `control/ROADMAP_SYNTHESIS_PRIORITIZATION.md` |
 | Discovery / uncertain broad effort | Dialogue / Planning | direct request | `control/WAYFINDING.md` when needed |
 | Capture or triage ideas | Dialogue / Planning | `prompts/03-capture-or-triage-recommendations.md` | `control/RECOMMENDATION_LIFECYCLE.md` |
 | Definition | Planning | `prompts/04-create-approved-change.md` | `control/CHANGE_DEFINITION.md` + `control/CHANGE_SCAFFOLD.md` |

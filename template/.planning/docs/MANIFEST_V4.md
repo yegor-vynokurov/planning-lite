@@ -1,6 +1,6 @@
 # Planning Lite 4.x template `.planning` manifest
 
-Files: **150**.
+Files: **152**.
 
 ## Files
 
@@ -25,6 +25,7 @@ Files: **150**.
 - `.planning/assessments/CURRENT_CAPABILITY_ASSESSMENT_TEMPLATE.md`
 - `.planning/assessments/DIRECTION_HISTORY_RECONCILIATION_TEMPLATE.md`
 - `.planning/assessments/README.md`
+- `.planning/assessments/ROADMAP_SYNTHESIS_TEMPLATE.md`
 - `.planning/assessments/TEMPLATE.md`
 - `.planning/assessments/archive/.gitkeep`
 - `.planning/assessments/current/.gitkeep`
@@ -65,6 +66,7 @@ Files: **150**.
 - `.planning/control/RECOMMENDATION_HISTORY_RECONCILIATION.md`
 - `.planning/control/RECOMMENDATION_LIFECYCLE.md`
 - `.planning/control/RECOVERY.md`
+- `.planning/control/ROADMAP_SYNTHESIS_PRIORITIZATION.md`
 - `.planning/control/ROOT_ROUTER.md`
 - `.planning/control/SESSION_CHECKPOINT.md`
 - `.planning/control/SKILL_USAGE_LOGGING.md`

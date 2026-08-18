@@ -2,7 +2,7 @@
 
 **Status:** canonical design specification; PW-DIR-001..003 implemented by PL-V38-01, later workflows remain design
 **Origin:** Poker Project Spine pilot
-**Alignment:** Planning Lite roadmap v3.8.5
+**Alignment:** Planning Lite roadmap v3.8.6
 
 ---
 

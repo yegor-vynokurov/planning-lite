@@ -95,7 +95,7 @@ docs/design/project-spine/PL-V38-CURRENT.md
 docs/design/project-spine/
 ```
 
-Read `PL-V38-CURRENT.md` first after a context reset. PL-V38-01 Direction Foundation, PL-V38-02 Current Capability Assessment + causal Gap Map, and PL-V38-03 recommendation semantic residue + historical reconciliation are implemented in the current template; PL-V38-04 remains the next bounded Project Spine stage.
+Read `PL-V38-CURRENT.md` first after a context reset. PL-V38-01 through PL-V38-04 now implement the Project Spine direction-to-Change handoff foundation. Planning Lite feature expansion is intentionally stopped before PL-V38-05; the next gate is Poker Field Pilot 2 (`PILOT-PL-DIRECTION-002`).
 
 ## Update-enabled installation
 

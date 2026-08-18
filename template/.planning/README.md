@@ -10,7 +10,7 @@ Planning Lite is a repository-local control system for human-guided coding agent
 - `skills/`: thin agent-discoverable entry points with response contracts.
 - `prompts/`: short human-facing entry points that route to one workflow.
 - `templates/`: managed canonical pristine copies and scaffolds used for safe materialization and repair.
-- `project/`, `changes/`, `recommendations/`, `decisions/`, `assessments/`, `drift/`, `observability/`: durable project-owned state. Project direction is represented explicitly by `project/TARGET_STATE.md`, `project/CAPABILITY_MODEL.md`, and (after evidence-based derivation) `project/GAP_MAP.md`; formal current capability coverage lives in `assessments/current/CURRENT_CAPABILITY_ASSESSMENT.md`.
+- `project/`, `changes/`, `recommendations/`, `decisions/`, `assessments/`, `drift/`, `observability/`: durable project-owned state. Project direction is represented explicitly by `project/TARGET_STATE.md`, `project/CAPABILITY_MODEL.md`, `project/GAP_MAP.md`, and an explicitly accepted `project/ROADMAP.md`; formal current capability coverage and Roadmap/reconciliation decision evidence live in `assessments/current/` snapshots.
 - `adapters/`: client-specific invocation and operator guidance.
 
 ## Reading rule

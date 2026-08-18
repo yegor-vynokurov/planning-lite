@@ -65,6 +65,12 @@ Start from the accepted Target/Capability baselines and the current capability a
 
 Start from the accepted Target/Capability baselines, current capability assessment, and current Gap Map. Then intentionally load the recommendation registry/items and Roadmap/history needed to account for semantic units and lineage. Open completed Change evidence only when exact delivered scope is needed to classify a unit. This is the first direction stage where broad recommendation/Roadmap history is justified; repository rescans and unrelated archives are still not justified. Record missing evidence as uncertainty. Historical order is not current priority.
 
+### Roadmap synthesis + qualitative prioritization
+
+Start from the accepted Target/Capability baselines, current capability assessment, current Gap Map, and current direction-history reconciliation snapshot. Treat the reconciliation snapshot as the normal broad-history boundary. Read the current Roadmap only for current canonical IDs/lineage and baseline context. Do not reopen broad recommendations, historical Roadmaps, completed Changes, or repository code unless one concrete candidate/criterion cannot be resolved from the current artifacts. Historical sequence position is not priority evidence.
+
+After a Roadmap baseline is explicitly accepted, the next turn may load the accepted `NOW` outcome plus exact Gap/recommendation-unit lineage needed by `CHANGE_DEFINITION.md`. Do not carry the whole synthesis matrix into Change planning unless a concrete scope decision depends on it.
+
 These profiles refine Tier 1-3 loading; they do not authorize a Context Compiler or autonomous history search.
 
 ## Context packet
