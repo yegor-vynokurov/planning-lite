@@ -157,4 +157,8 @@ def test_planning_manifest_and_sha_receipt_match_template_tree() -> None:
     assert set(receipts) == expected_receipt_paths
     for relative, digest in receipts.items():
         path = root.parent / relative
-        assert hashlib.sha256(path.read_bytes()).hexdigest() == digest
+        # The receipt represents canonical repository text. Git may materialize
+        # text files with CRLF on Windows, so line-ending conversion must not
+        # turn an otherwise identical template checkout into an integrity failure.
+        canonical_bytes = path.read_bytes().replace(b"\r\n", b"\n")
+        assert hashlib.sha256(canonical_bytes).hexdigest() == digest
