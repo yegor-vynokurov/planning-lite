@@ -11,6 +11,8 @@ from .attempt_reconciliation import (
 )
 
 from .campaign import (
+    AttemptBudgetAdmissionPolicy,
+    AttemptBudgetReservation,
     CampaignError,
     CampaignManifest,
     append_campaign_event,
@@ -19,12 +21,16 @@ from .campaign import (
     load_campaign_journal,
     load_campaign_manifest,
     load_manifest_template,
+    prepare_attempt_budget_admission,
+    validate_attempt_budget_reservation,
 )
 
 __all__ = [
     "AttemptEvidenceReconciliationError",
     "build_reconciled_suite_payload",
     "reconcile_completed_attempt_suite_evidence",
+    "AttemptBudgetAdmissionPolicy",
+    "AttemptBudgetReservation",
     "CampaignError",
     "CampaignManifest",
     "append_campaign_event",
@@ -33,4 +39,6 @@ __all__ = [
     "load_campaign_journal",
     "load_campaign_manifest",
     "load_manifest_template",
+    "prepare_attempt_budget_admission",
+    "validate_attempt_budget_reservation",
 ]

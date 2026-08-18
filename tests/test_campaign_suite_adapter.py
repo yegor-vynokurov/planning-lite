@@ -37,6 +37,7 @@ class SuiteExecutionResult:
 
 
 from planning_lite.campaign.campaign import (
+    AttemptBudgetReservation,
     CampaignError,
     initialize_campaign,
     inspect_campaign,
@@ -87,6 +88,7 @@ class CampaignSuiteAdapterTests(unittest.TestCase):
                         "max_total_tokens": 10000,
                         "max_wall_clock_seconds": 1000,
                     },
+                    "attempt_budget_admission": {"required": True},
                     "stop_policy": {
                         "stop_on_hard_gate_failure": True,
                         "stop_after_accepted_candidate": True,
@@ -202,6 +204,11 @@ class CampaignSuiteAdapterTests(unittest.TestCase):
             source_commit="abc123",
             suite_root=self.suite_root,
             plan_sha256=self.plan_sha,
+            budget_reservation=AttemptBudgetReservation(
+                total_tokens=1000,
+                wall_clock_seconds=100.0,
+                basis="suite-adapter-test",
+            ),
         )
 
     def test_suite_attempt_is_journaled_once_and_uses_aggregate_cost(self):
@@ -225,6 +232,11 @@ class CampaignSuiteAdapterTests(unittest.TestCase):
                 "attempt_completed",
             ],
         )
+        start_payload = events[-2].payload
+        self.assertEqual(start_payload["budget_admission"]["reservation"]["total_tokens"], 1000)
+        self.assertEqual(start_payload["budget_admission"]["remaining_before"]["total_tokens"], 10000)
+        self.assertEqual(len(start_payload["budget_admission"]["admission_sha256"]), 64)
+
         payload = events[-1].payload
         self.assertTrue(payload["hard_gate_passed"])
         self.assertTrue(payload["improved"])
@@ -268,6 +280,35 @@ class CampaignSuiteAdapterTests(unittest.TestCase):
                 suite_root=self.root / "other-suite",
                 plan_sha256="b" * 64,
             )
+
+    def test_strict_suite_start_requires_budget_reservation(self):
+        with self.assertRaisesRegex(CampaignSuiteError, "requires attempt budget admission"):
+            start_campaign_suite_attempt(
+                self.binding,
+                suite_id="suite-001",
+                eval_id="lifecycle-status",
+                source_commit="abc123",
+                suite_root=self.suite_root,
+                plan_sha256=self.plan_sha,
+            )
+        self.assertEqual(len(load_campaign_journal(self.campaign_root)), 1)
+
+    def test_suite_start_rejects_reservation_above_remaining_budget(self):
+        with self.assertRaisesRegex(CampaignSuiteError, "exceeds remaining Campaign budget"):
+            start_campaign_suite_attempt(
+                self.binding,
+                suite_id="suite-001",
+                eval_id="lifecycle-status",
+                source_commit="abc123",
+                suite_root=self.suite_root,
+                plan_sha256=self.plan_sha,
+                budget_reservation=AttemptBudgetReservation(
+                    total_tokens=10001,
+                    wall_clock_seconds=100.0,
+                    basis="oversized-test",
+                ),
+            )
+        self.assertEqual(len(load_campaign_journal(self.campaign_root)), 1)
 
     def test_binding_validates_as_standalone_adapter_contract(self):
         binding = CampaignSuiteBinding(

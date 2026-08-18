@@ -8,12 +8,15 @@ from pathlib import Path
 from typing import Any, Mapping
 
 from .campaign import (
+    AttemptBudgetReservation,
     CampaignError,
     JournalEvent,
     append_campaign_event,
     inspect_campaign,
     load_campaign_journal,
     load_campaign_manifest,
+    prepare_attempt_budget_admission,
+    validate_attempt_budget_reservation,
 )
 
 
@@ -63,6 +66,7 @@ def start_campaign_suite_attempt(
     source_commit: str,
     suite_root: Path,
     plan_sha256: str,
+    budget_reservation: AttemptBudgetReservation | None = None,
 ):
     """Idempotently register hypothesis, candidate, and one suite-level attempt.
 
@@ -84,6 +88,32 @@ def start_campaign_suite_attempt(
 
     manifest = load_campaign_manifest(campaign_root)
     events = load_campaign_journal(campaign_root, manifest=manifest)
+
+    # Preserve idempotent replay/recovery for attempts that already exist,
+    # including historical attempts created before budget-admission support.
+    completed = _find_event(events, "attempt_completed", "attempt_id", attempt_id)
+    if completed is not None:
+        _verify_attempt_identity(completed, binding.candidate_id, identity)
+        _verify_recorded_evidence(completed, suite_root)
+        return inspect_campaign(campaign_root)
+    started = _find_event(events, "attempt_started", "attempt_id", attempt_id)
+    if started is not None:
+        _verify_attempt_identity(started, binding.candidate_id, identity)
+        return inspect_campaign(campaign_root)
+
+    policy = manifest.attempt_budget_admission
+    if policy is not None and policy.required and budget_reservation is None:
+        raise CampaignSuiteError(
+            "Campaign requires attempt budget admission before a new balanced-suite attempt"
+        )
+    if budget_reservation is not None:
+        try:
+            validate_attempt_budget_reservation(
+                campaign_root=campaign_root,
+                reservation=budget_reservation,
+            )
+        except CampaignError as exc:
+            raise CampaignSuiteError(str(exc)) from exc
 
     hypothesis = _find_event(events, "hypothesis_registered", "hypothesis_id", binding.hypothesis_id)
     if hypothesis is None:
@@ -119,26 +149,30 @@ def start_campaign_suite_attempt(
                 f"{observed_hypothesis!r}, not {binding.hypothesis_id!r}"
             )
 
-    completed = _find_event(events, "attempt_completed", "attempt_id", attempt_id)
-    if completed is not None:
-        _verify_attempt_identity(completed, binding.candidate_id, identity)
-        _verify_recorded_evidence(completed, suite_root)
-        return inspect_campaign(campaign_root)
+    admission_payload = None
+    if budget_reservation is not None:
+        try:
+            admission_payload = prepare_attempt_budget_admission(
+                campaign_root=campaign_root,
+                candidate_id=binding.candidate_id,
+                attempt_id=attempt_id,
+                reservation=budget_reservation,
+            )
+        except CampaignError as exc:
+            raise CampaignSuiteError(str(exc)) from exc
 
-    started = _find_event(events, "attempt_started", "attempt_id", attempt_id)
-    if started is not None:
-        _verify_attempt_identity(started, binding.candidate_id, identity)
-        return inspect_campaign(campaign_root)
-
+    payload = {
+        "candidate_id": binding.candidate_id,
+        "attempt_id": attempt_id,
+        "suite": identity,
+        "adapter": "balanced-suite-v1",
+    }
+    if admission_payload is not None:
+        payload["budget_admission"] = admission_payload
     return append_campaign_event(
         campaign_root=campaign_root,
         event_type="attempt_started",
-        payload={
-            "candidate_id": binding.candidate_id,
-            "attempt_id": attempt_id,
-            "suite": identity,
-            "adapter": "balanced-suite-v1",
-        },
+        payload=payload,
     )
 
 

@@ -174,6 +174,37 @@ class StopPolicy:
 
 
 @dataclass(frozen=True)
+class AttemptBudgetAdmissionPolicy:
+    required: bool
+
+    @classmethod
+    def from_dict(cls, payload: Mapping[str, Any]) -> "AttemptBudgetAdmissionPolicy":
+        return cls(
+            required=_bool(
+                payload.get("required"),
+                "attempt_budget_admission.required",
+            )
+        )
+
+
+@dataclass(frozen=True)
+class AttemptBudgetReservation:
+    total_tokens: int | None
+    wall_clock_seconds: float | None
+    basis: str
+
+    def validate(self) -> None:
+        if self.total_tokens is not None:
+            _positive_int(self.total_tokens, "attempt budget reservation total_tokens")
+        if self.wall_clock_seconds is not None:
+            _optional_positive_number(
+                self.wall_clock_seconds,
+                "attempt budget reservation wall_clock_seconds",
+            )
+        _nonempty_string(self.basis, "attempt budget reservation basis")
+
+
+@dataclass(frozen=True)
 class CampaignManifest:
     schema_version: int
     campaign_id: str
@@ -185,10 +216,25 @@ class CampaignManifest:
     budget: CampaignBudget
     stop_policy: StopPolicy
     manifest_sha256: str
+    attempt_budget_admission: AttemptBudgetAdmissionPolicy | None = None
 
     def unsigned_dict(self) -> dict[str, Any]:
-        payload = asdict(self)
-        payload.pop("manifest_sha256", None)
+        # Preserve historical schema-v1 manifest identities. The optional
+        # admission policy participates in the manifest hash only when it is
+        # explicitly present in a new manifest.
+        payload: dict[str, Any] = {
+            "schema_version": self.schema_version,
+            "campaign_id": self.campaign_id,
+            "purpose": self.purpose,
+            "frozen_parent": asdict(self.frozen_parent),
+            "frozen_inputs": [asdict(item) for item in self.frozen_inputs],
+            "mutable_scope": list(self.mutable_scope),
+            "off_limits": list(self.off_limits),
+            "budget": asdict(self.budget),
+            "stop_policy": asdict(self.stop_policy),
+        }
+        if self.attempt_budget_admission is not None:
+            payload["attempt_budget_admission"] = asdict(self.attempt_budget_admission)
         return payload
 
     def to_dict(self) -> dict[str, Any]:
@@ -239,6 +285,14 @@ class CampaignManifest:
         stop_policy = StopPolicy.from_dict(
             _object(payload.get("stop_policy"), "stop_policy")
         )
+        admission_payload = payload.get("attempt_budget_admission")
+        attempt_budget_admission = (
+            None
+            if admission_payload is None
+            else AttemptBudgetAdmissionPolicy.from_dict(
+                _object(admission_payload, "attempt_budget_admission")
+            )
+        )
         supplied_hash = payload.get("manifest_sha256")
         unsigned = {
             "schema_version": CAMPAIGN_SCHEMA_VERSION,
@@ -251,6 +305,8 @@ class CampaignManifest:
             "budget": asdict(budget),
             "stop_policy": asdict(stop_policy),
         }
+        if attempt_budget_admission is not None:
+            unsigned["attempt_budget_admission"] = asdict(attempt_budget_admission)
         calculated = _sha256_json(unsigned)
         if supplied_hash is None:
             if require_hash:
@@ -271,6 +327,7 @@ class CampaignManifest:
             budget=budget,
             stop_policy=stop_policy,
             manifest_sha256=calculated,
+            attempt_budget_admission=attempt_budget_admission,
         )
 
 
@@ -383,6 +440,66 @@ def initialize_campaign(
     capsule = build_resume_capsule(manifest, (event,))
     _atomic_write_json(root / "resume-capsule.json", capsule.to_dict(), overwrite=True)
     return capsule
+
+
+def validate_attempt_budget_reservation(
+    *,
+    campaign_root: Path,
+    reservation: AttemptBudgetReservation,
+) -> dict[str, int | float | None]:
+    """Fail closed when a requested reservation cannot fit the current budget.
+
+    This is a read-only admission preview. It deliberately does not depend on a
+    candidate registration or journal mutation, so adapters can reject an
+    obviously unaffordable attempt before auto-registering hypothesis/candidate
+    events.
+    """
+
+    root = campaign_root.resolve()
+    manifest = load_campaign_manifest(root)
+    events = load_campaign_journal(root, manifest=manifest)
+    reservation.validate()
+    capsule = build_resume_capsule(manifest, events)
+    _assert_budget_reservation_fits(
+        manifest=manifest,
+        capsule=capsule,
+        reservation=reservation,
+    )
+    return {
+        "total_tokens": capsule.remaining_budget.get("tokens"),
+        "wall_clock_seconds": _canonical_wall_clock(
+            capsule.remaining_budget.get("wall_clock_seconds")
+        ),
+    }
+
+
+def prepare_attempt_budget_admission(
+    *,
+    campaign_root: Path,
+    candidate_id: str,
+    attempt_id: str,
+    reservation: AttemptBudgetReservation,
+) -> dict[str, Any]:
+    """Build an exact journal-head-bound admission for one future attempt.
+
+    Admission proves that the requested reservation fits the remaining frozen
+    Campaign budget *before* ``attempt_started`` is appended. Completion remains
+    truthful sunk-cost accounting: actual runtime usage may exceed the
+    reservation and must still be recorded; normal Campaign budget checks then
+    prevent any further unaffordable attempt from starting.
+    """
+
+    root = campaign_root.resolve()
+    manifest = load_campaign_manifest(root)
+    events = load_campaign_journal(root, manifest=manifest)
+    reservation.validate()
+    return _build_attempt_budget_admission(
+        manifest=manifest,
+        events=events,
+        candidate_id=_nonempty_string(candidate_id, "budget admission candidate_id"),
+        attempt_id=_nonempty_string(attempt_id, "budget admission attempt_id"),
+        reservation=reservation,
+    )
 
 
 def append_campaign_event(
@@ -536,6 +653,24 @@ def build_resume_capsule(
         if current_candidate_id
         else 0
     )
+    reserved_tokens = 0
+    reserved_wall_clock_seconds = 0.0
+    open_attempt_id = _open_attempt(event_list)
+    if open_attempt_id is not None:
+        for event in reversed(event_list):
+            if (
+                event.event_type == "attempt_started"
+                and event.payload.get("attempt_id") == open_attempt_id
+            ):
+                admission_payload = event.payload.get("budget_admission")
+                if isinstance(admission_payload, dict):
+                    admission = _parse_attempt_budget_admission(admission_payload)
+                    reservation = admission["reservation"]
+                    reserved_tokens = int(reservation.get("total_tokens") or 0)
+                    reserved_wall_clock_seconds = float(
+                        reservation.get("wall_clock_seconds") or 0.0
+                    )
+                break
     remaining_budget: dict[str, int | float | None] = {
         "candidates": max(manifest.budget.max_candidates - len(candidates), 0),
         "total_attempts": max(
@@ -548,18 +683,28 @@ def build_resume_capsule(
         "tokens": (
             None
             if manifest.budget.max_total_tokens is None
-            else max(manifest.budget.max_total_tokens - total_tokens, 0)
+            else max(
+                manifest.budget.max_total_tokens - total_tokens - reserved_tokens,
+                0,
+            )
         ),
         "wall_clock_seconds": (
             None
             if manifest.budget.max_wall_clock_seconds is None
-            else max(manifest.budget.max_wall_clock_seconds - wall_clock_seconds, 0.0)
+            else max(
+                manifest.budget.max_wall_clock_seconds
+                - wall_clock_seconds
+                - reserved_wall_clock_seconds,
+                0.0,
+            )
         ),
     }
     stop_reasons = _stop_reasons(
         manifest=manifest,
         events=event_list,
         remaining_budget=remaining_budget,
+        total_tokens=total_tokens,
+        wall_clock_seconds=wall_clock_seconds,
         hard_gate_failure_seen=hard_gate_failure_seen,
         consecutive_non_improving=consecutive_non_improving,
     )
@@ -671,6 +816,10 @@ def _validate_event_payload(event_type: str, payload: Mapping[str, Any]) -> None
         _nonempty_string(payload.get("candidate_id"), f"{event_type}.candidate_id")
     if event_type in {"attempt_started", "attempt_completed", "attempt_evidence_reconciled"}:
         _nonempty_string(payload.get("attempt_id"), f"{event_type}.attempt_id")
+    if event_type == "attempt_started" and payload.get("budget_admission") is not None:
+        _parse_attempt_budget_admission(
+            _object(payload.get("budget_admission"), "attempt_started.budget_admission")
+        )
     if event_type == "attempt_completed":
         hard_gate = payload.get("hard_gate_passed")
         improved = payload.get("improved")
@@ -941,6 +1090,23 @@ def _validate_transition(
             and capsule.wall_clock_seconds >= manifest.budget.max_wall_clock_seconds
         ):
             raise CampaignError("Wall-clock budget is exhausted")
+        admission_payload = payload.get("budget_admission")
+        if (
+            manifest.attempt_budget_admission is not None
+            and manifest.attempt_budget_admission.required
+            and admission_payload is None
+        ):
+            raise CampaignError(
+                "attempt_started requires an exact budget_admission under the Campaign manifest policy"
+            )
+        if admission_payload is not None:
+            _verify_attempt_budget_admission(
+                manifest=manifest,
+                events=events,
+                candidate_id=candidate_id,
+                attempt_id=attempt_id,
+                payload=_object(admission_payload, "attempt_started.budget_admission"),
+            )
 
     if event_type == "attempt_completed":
         candidate_id = _nonempty_string(
@@ -1135,6 +1301,214 @@ def _current_candidate(events: tuple[JournalEvent, ...]) -> str | None:
     return None
 
 
+def _canonical_wall_clock(value: int | float | None) -> float | None:
+    if value is None:
+        return None
+    return round(float(value), 6)
+
+
+def _assert_budget_reservation_fits(
+    *,
+    manifest: CampaignManifest,
+    capsule: ResumeCapsule,
+    reservation: AttemptBudgetReservation,
+) -> None:
+    remaining_tokens = capsule.remaining_budget.get("tokens")
+    remaining_wall = _canonical_wall_clock(capsule.remaining_budget.get("wall_clock_seconds"))
+    reservation_wall = _canonical_wall_clock(reservation.wall_clock_seconds)
+    if manifest.budget.max_total_tokens is not None:
+        if reservation.total_tokens is None:
+            raise CampaignError(
+                "Budget admission requires a token reservation for a token-bounded Campaign"
+            )
+        if remaining_tokens is None or reservation.total_tokens > remaining_tokens:
+            raise CampaignError(
+                "Attempt token reservation exceeds remaining Campaign budget: "
+                f"need={reservation.total_tokens}, remaining={remaining_tokens}"
+            )
+    if manifest.budget.max_wall_clock_seconds is not None:
+        if reservation_wall is None:
+            raise CampaignError(
+                "Budget admission requires a wall-clock reservation for a wall-clock-bounded Campaign"
+            )
+        if remaining_wall is None or reservation_wall > remaining_wall:
+            raise CampaignError(
+                "Attempt wall-clock reservation exceeds remaining Campaign budget: "
+                f"need={reservation_wall}, remaining={remaining_wall}"
+            )
+
+
+def _build_attempt_budget_admission(
+    *,
+    manifest: CampaignManifest,
+    events: tuple[JournalEvent, ...],
+    candidate_id: str,
+    attempt_id: str,
+    reservation: AttemptBudgetReservation,
+) -> dict[str, Any]:
+    capsule = build_resume_capsule(manifest, events)
+    if capsule.current_candidate_id != candidate_id:
+        raise CampaignError(
+            f"Budget admission candidate_id {candidate_id!r} does not match current candidate {capsule.current_candidate_id!r}"
+        )
+    if _open_attempt(events) is not None:
+        raise CampaignError("Cannot admit a new attempt while another attempt is open")
+
+    _assert_budget_reservation_fits(
+        manifest=manifest,
+        capsule=capsule,
+        reservation=reservation,
+    )
+    remaining_tokens = capsule.remaining_budget.get("tokens")
+    remaining_wall = _canonical_wall_clock(capsule.remaining_budget.get("wall_clock_seconds"))
+    reservation_wall = _canonical_wall_clock(reservation.wall_clock_seconds)
+
+    unsigned: dict[str, Any] = {
+        "schema_version": 1,
+        "campaign_id": manifest.campaign_id,
+        "manifest_sha256": manifest.manifest_sha256,
+        "journal_head_sha256": events[-1].event_sha256,
+        "candidate_id": candidate_id,
+        "attempt_id": attempt_id,
+        "reservation": {
+            "total_tokens": reservation.total_tokens,
+            "wall_clock_seconds": reservation_wall,
+        },
+        "remaining_before": {
+            "total_tokens": remaining_tokens,
+            "wall_clock_seconds": remaining_wall,
+        },
+        "basis": reservation.basis,
+    }
+    return {**unsigned, "admission_sha256": _sha256_json(unsigned)}
+
+
+def _parse_attempt_budget_admission(payload: Mapping[str, Any]) -> dict[str, Any]:
+    if payload.get("schema_version") != 1:
+        raise CampaignError("attempt_started.budget_admission.schema_version must be 1")
+    campaign_id = _nonempty_string(
+        payload.get("campaign_id"), "attempt_started.budget_admission.campaign_id"
+    )
+    manifest_sha = _nonempty_string(
+        payload.get("manifest_sha256"),
+        "attempt_started.budget_admission.manifest_sha256",
+    )
+    head_sha = _nonempty_string(
+        payload.get("journal_head_sha256"),
+        "attempt_started.budget_admission.journal_head_sha256",
+    )
+    candidate_id = _nonempty_string(
+        payload.get("candidate_id"), "attempt_started.budget_admission.candidate_id"
+    )
+    attempt_id = _nonempty_string(
+        payload.get("attempt_id"), "attempt_started.budget_admission.attempt_id"
+    )
+    if not SHA256_RE.fullmatch(manifest_sha) or not SHA256_RE.fullmatch(head_sha):
+        raise CampaignError("attempt_started.budget_admission hashes must be SHA-256 values")
+    reservation = _object(
+        payload.get("reservation"), "attempt_started.budget_admission.reservation"
+    )
+    total_tokens = reservation.get("total_tokens")
+    if total_tokens is not None:
+        total_tokens = _positive_int(
+            total_tokens, "attempt_started.budget_admission.reservation.total_tokens"
+        )
+    wall_clock = reservation.get("wall_clock_seconds")
+    if wall_clock is not None:
+        wall_clock = _canonical_wall_clock(
+            _optional_positive_number(
+                wall_clock,
+                "attempt_started.budget_admission.reservation.wall_clock_seconds",
+            )
+        )
+    remaining = _object(
+        payload.get("remaining_before"),
+        "attempt_started.budget_admission.remaining_before",
+    )
+    remaining_tokens = remaining.get("total_tokens")
+    if remaining_tokens is not None:
+        remaining_tokens = _nonnegative_int(
+            remaining_tokens,
+            "attempt_started.budget_admission.remaining_before.total_tokens",
+        )
+    remaining_wall = remaining.get("wall_clock_seconds")
+    if remaining_wall is not None:
+        remaining_wall = _canonical_wall_clock(
+            _nonnegative_number(
+                remaining_wall,
+                "attempt_started.budget_admission.remaining_before.wall_clock_seconds",
+            )
+        )
+    basis = _nonempty_string(payload.get("basis"), "attempt_started.budget_admission.basis")
+    admission_sha = _nonempty_string(
+        payload.get("admission_sha256"), "attempt_started.budget_admission.admission_sha256"
+    )
+    unsigned = {
+        "schema_version": 1,
+        "campaign_id": campaign_id,
+        "manifest_sha256": manifest_sha,
+        "journal_head_sha256": head_sha,
+        "candidate_id": candidate_id,
+        "attempt_id": attempt_id,
+        "reservation": {
+            "total_tokens": total_tokens,
+            "wall_clock_seconds": wall_clock,
+        },
+        "remaining_before": {
+            "total_tokens": remaining_tokens,
+            "wall_clock_seconds": remaining_wall,
+        },
+        "basis": basis,
+    }
+    if not SHA256_RE.fullmatch(admission_sha) or admission_sha != _sha256_json(unsigned):
+        raise CampaignError("attempt_started.budget_admission identity does not match its contents")
+    return {**unsigned, "admission_sha256": admission_sha}
+
+
+def _verify_attempt_budget_admission(
+    *,
+    manifest: CampaignManifest,
+    events: tuple[JournalEvent, ...],
+    candidate_id: str,
+    attempt_id: str,
+    payload: Mapping[str, Any],
+) -> None:
+    admission = _parse_attempt_budget_admission(payload)
+    if admission["campaign_id"] != manifest.campaign_id:
+        raise CampaignError("attempt_started.budget_admission campaign_id mismatch")
+    if admission["manifest_sha256"] != manifest.manifest_sha256:
+        raise CampaignError("attempt_started.budget_admission manifest identity mismatch")
+    if admission["journal_head_sha256"] != events[-1].event_sha256:
+        raise CampaignError("attempt_started.budget_admission is stale for the current journal head")
+    if admission["candidate_id"] != candidate_id or admission["attempt_id"] != attempt_id:
+        raise CampaignError("attempt_started.budget_admission attempt identity mismatch")
+
+    capsule = build_resume_capsule(manifest, events)
+    expected_remaining = {
+        "total_tokens": capsule.remaining_budget.get("tokens"),
+        "wall_clock_seconds": _canonical_wall_clock(
+            capsule.remaining_budget.get("wall_clock_seconds")
+        ),
+    }
+    if admission["remaining_before"] != expected_remaining:
+        raise CampaignError("attempt_started.budget_admission remaining-budget snapshot drift")
+
+    reservation = AttemptBudgetReservation(
+        total_tokens=admission["reservation"]["total_tokens"],
+        wall_clock_seconds=admission["reservation"]["wall_clock_seconds"],
+        basis=admission["basis"],
+    )
+    rebuilt = _build_attempt_budget_admission(
+        manifest=manifest,
+        events=events,
+        candidate_id=candidate_id,
+        attempt_id=attempt_id,
+        reservation=reservation,
+    )
+    if rebuilt != admission:
+        raise CampaignError("attempt_started.budget_admission does not match current Campaign state")
+
+
 def _open_attempt(events: tuple[JournalEvent, ...]) -> str | None:
     completed = {
         _optional_string(event.payload.get("attempt_id"))
@@ -1155,6 +1529,8 @@ def _stop_reasons(
     manifest: CampaignManifest,
     events: tuple[JournalEvent, ...],
     remaining_budget: Mapping[str, int | float | None],
+    total_tokens: int,
+    wall_clock_seconds: float,
     hard_gate_failure_seen: bool,
     consecutive_non_improving: int,
 ) -> tuple[str, ...]:
@@ -1174,6 +1550,21 @@ def _stop_reasons(
             value = remaining_budget.get(key)
             if value == 0 or value == 0.0:
                 reasons.append(f"{key}_budget_exhausted")
+    if (
+        manifest.attempt_budget_admission is not None
+        and manifest.attempt_budget_admission.required
+        and last.event_type == "attempt_completed"
+    ):
+        if (
+            manifest.budget.max_total_tokens is not None
+            and total_tokens > manifest.budget.max_total_tokens
+        ):
+            reasons.append("token_budget_overrun")
+        if (
+            manifest.budget.max_wall_clock_seconds is not None
+            and wall_clock_seconds > manifest.budget.max_wall_clock_seconds
+        ):
+            reasons.append("wall_clock_budget_overrun")
     if (
         manifest.stop_policy.stop_after_accepted_candidate
         and any(event.event_type == "candidate_kept" for event in events)

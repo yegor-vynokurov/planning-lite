@@ -46,3 +46,42 @@ next_release_action = await_release_gate
 ```
 
 Release Integration Candidate 0.1 не меняет версию, не создаёт tag и не авторизует promotion.
+
+## Attempt budget admission (CHG-CAMPAIGN-BUDGET-ADMISSION-001)
+
+Новые Campaign могут включить строгую admission policy в manifest:
+
+```json
+"attempt_budget_admission": {
+  "required": true
+}
+```
+
+Для такого Campaign `attempt_started` разрешён только с self-hashed `budget_admission`,
+который привязан к текущему `manifest_sha256`, текущему journal head, candidate/attempt
+identity и снимку оставшегося token/wall-clock budget.
+
+Balanced-suite adapter принимает явный `AttemptBudgetReservation`:
+
+```python
+AttemptBudgetReservation(
+    total_tokens=600000,
+    wall_clock_seconds=8100.0,
+    basis="governed-upper-bound-v1",
+)
+```
+
+Admission выполняется **до** дорогого attempt. Если reservation превышает оставшийся
+frozen Campaign budget, новый `attempt_started` не записывается.
+
+Backward compatibility намеренная:
+
+- historical manifests без `attempt_budget_admission` сохраняют прежний manifest SHA;
+- historical journals без `budget_admission` продолжают читаться;
+- idempotent replay уже существующего `attempt_started`/`attempt_completed` остаётся доступным;
+- strict policy применяется только к новым attempts в Campaign, где она явно включена.
+
+Completion остаётся truthful sunk-cost accounting. Если реальный runtime неожиданно
+превысил reservation, `attempt_completed` не скрывает и не отбрасывает фактические
+metrics. После такого completion новый attempt всё равно не сможет стартовать, если
+фактический Campaign budget уже исчерпан.
