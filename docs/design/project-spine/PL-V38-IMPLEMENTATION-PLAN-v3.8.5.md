@@ -1,4 +1,4 @@
-# PL-V38 implementation plan v3.8.4
+# PL-V38 implementation plan v3.8.5
 
 **Status:** current stepwise implementation plan
 **Date:** 2026-08-18
@@ -39,7 +39,7 @@ working tree clean
 main ahead of origin/main by 3
 ```
 
-The v3.8.2 design checkpoint is tracked at `40ca8cf`. PL-V38-01 implements Direction Foundation; its EOL-stable integrity-test hotfix is `782c785`. PL-V38-02 now implements the Current/Gap layer.
+The v3.8.2 design checkpoint is tracked at `40ca8cf`. PL-V38-01 implements Direction Foundation; its EOL-stable integrity-test hotfix is `782c785`. PL-V38-02 implements Current/Gap; PL-V38-03 implements recommendation semantic residue and historical reconciliation.
 
 ## Research-asset review
 
@@ -66,8 +66,8 @@ not part of PL-V38-01 implementation
 ```text
 PL-V38-01   Direction foundation                         COMPLETE
 PL-V38-02   Current assessment + causal Gap Map          COMPLETE
-PL-V38-03   Recommendation residue/reconciliation        NEXT
-PL-V38-04   Roadmap synthesis/prioritization + handoff
+PL-V38-03   Recommendation residue/reconciliation        COMPLETE
+PL-V38-04   Roadmap synthesis/prioritization + handoff    NEXT
 FIELD       Poker Field Pilot 2 / next-Change derivation
 PL-V38-05   Direction context/visibility/ContextTrace
 PL-V38-06A  Lab + tools reactivation/lineage qualification
@@ -183,19 +183,48 @@ Poker fixture shapes informed semantics/static tests, but no permanent Poker run
 
 # 5. PL-V38-03 — Recommendation residue + historical reconciliation
 
-Extend existing recommendation lifecycle.
+## Result
 
-Preserve:
+Implemented one bounded direction workflow:
 
 ```text
-semantic units
-future seeds
-carry-forward
-unanchored recommendations
-Change completion != Recommendation completion
+PW-DIR-006 RECOMMENDATION_HISTORY_RECONCILIATION [Planning]
 ```
 
-Broad historical reads are intentionally allowed only in this workflow stage.
+Artifact split:
+
+```text
+recommendation item
+→ remains authoritative project-owned record
+→ may gain stable REC-NNNN/Ux semantic units
+→ lifecycle Status remains separate from reconciliation review/parent state
+
+DIRECTION_HISTORY_RECONCILIATION
+→ project-owned assessment snapshot under assessments/current
+→ DRAFT / CURRENT
+→ created only when reconciliation actually runs
+→ does not mutate canonical Roadmap priority
+```
+
+Core checks implemented:
+
+```text
+all original recommendation semantic units are accounted for
+Change completion != Recommendation completion
+unit state != primary lineage
+future seed != current Gap/priority
+CARRIED_FORWARD != implemented
+historical Roadmap order != current priority
+legacy/simple recommendations remain valid until reconciliation is needed
+CURRENT reconciliation requires explicit user acceptance
+Roadmap dispositions: KEEP / REFRAME / SPLIT / MERGE_CANDIDATE / DEFER / COMPLETE / RETIRE_FROM_BOUNDED_TARGET / UNCERTAIN
+orphan + overlap + apparently-completed-residue audit
+exact Source recommendation units may scope later Changes
+```
+
+Implementation refinement from the original design: parent reconciliation state `OPEN` is included for a current recommendation whose required units remain wholly open.
+
+Broad historical reads are intentionally allowed only in this workflow stage. PL-V38-03 stops before prioritization or canonical Roadmap synthesis.
 
 ---
 

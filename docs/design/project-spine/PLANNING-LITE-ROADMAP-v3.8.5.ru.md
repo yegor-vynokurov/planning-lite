@@ -1,13 +1,13 @@
-# Planning Lite Roadmap v3.8.4 — Current/Gap checkpoint + Poker Field Pilot 2 gate
+# Planning Lite Roadmap v3.8.5 — Recommendation-reconciliation checkpoint + Poker Field Pilot 2 gate
 
 **Status:** Current implementation-facing roadmap; operational checkpoint lives in `PL-V38-CURRENT.md`
 **Date:** 2026-08-18
-**Parent:** Planning Lite Roadmap v3.8.3 (Git history)
-**Evidence:** Poker Project Spine pilot + W0/PL-V38-00 + v3.8.2 alignment + PL-V38-01 Direction Foundation + PL-V38-02 Current/Gap implementation
+**Parent:** Planning Lite Roadmap v3.8.4 (Git history)
+**Evidence:** Poker Project Spine pilot + W0/PL-V38-00 + v3.8.2 alignment + PL-V38-01 Direction Foundation + PL-V38-02 Current/Gap + PL-V38-03 recommendation/history reconciliation
 
 ---
 
-# 1. Why v3.8.4 exists
+# 1. Why v3.8.5 exists
 
 v3.8 promoted Project Spine from a field-pilot hypothesis to a bounded implementation candidate.
 W0 then established that Planning Lite is **template/workflow-first**, not Python-domain-model-first.
@@ -24,7 +24,7 @@ planning_lite_tools / step-16.4.1
 
 v3.8.2 aligned Project Spine with the real template/workflow architecture and existing research assets.
 
-v3.8.4 records completion of `PL-V38-02`: Planning Lite now separates accepted completed-state capabilities, evidence-based current capability coverage, and causal Gap identities. The sequencing decision remains to freeze Poker until Planning Lite reaches the direction-to-Change handoff capability through `PL-V38-04`.
+v3.8.5 records completion of `PL-V38-03`: Planning Lite now preserves composite Recommendation meaning as stable semantic units, reconciles that residue and historical Roadmap lineage against the accepted Project Spine, and explicitly refuses to inherit historical priority. The sequencing decision remains to freeze Poker until Planning Lite reaches the direction-to-Change handoff capability through `PL-V38-04`.
 
 After `PL-V38-04`, Poker resumes as `PILOT-PL-DIRECTION-002` before context/compiler work continues. The semantic direction is unchanged.
 
@@ -58,7 +58,7 @@ v4.3.0 tag remains on 0e66941
 no new release tag
 ```
 
-PL-V38-00 is complete. PL-V38-01 and its EOL-stable test hotfix are complete; PL-V38-02 is the second Project Spine product implementation. Reference PL-V38-02 verification is 133/133 tests PASS; release remains unperformed.
+PL-V38-00 is complete. PL-V38-01 and its EOL-stable test hotfix are complete; PL-V38-02 and PL-V38-03 are implemented Project Spine product slices. Reference PL-V38-03 verification is recorded in the commit/result receipt; release remains unperformed.
 
 ---
 
@@ -75,11 +75,11 @@ CURRENT ↔ TARGET
     ↓
 CAUSAL GAP MAP
     ↓
-ROADMAP OUTCOMES
+RECOMMENDATION + HISTORICAL ROADMAP RECONCILIATION
     ↓
-RECOMMENDATIONS / DISCOVERIES / DECISIONS
+CURRENT ROADMAP OUTCOMES
     ↓
-GOVERNED CHANGE
+DISCOVERIES / DECISIONS / GOVERNED CHANGE
     ↓
 EVIDENCE
     ↓
@@ -447,25 +447,38 @@ Change completion != Gap closure
 Gap != RoadmapOutcome != Change
 ```
 
-Broad recommendation/Roadmap history remains deferred to PL-V38-03.
+Broad recommendation/Roadmap history is now owned by PL-V38-03 rather than earlier Current/Gap stages.
 
 ---
 
-## NEXT — PL-V38-03
+## COMPLETE — PL-V38-03
 
 ### Recommendation semantic residue + historical direction reconciliation
 
-Extend `RECOMMENDATION_LIFECYCLE.md` rather than replacing it.
+Implemented:
 
-Add semantic-unit accounting, future seeds, carry-forward and parent reconciliation states.
+```text
+PW-DIR-006 RECOMMENDATION_HISTORY_RECONCILIATION [Planning]
+stable REC-NNNN/Ux semantic-unit identity
+unit state + primary lineage classification
+lifecycle Status != reconciliation state
+future-seed + carry-forward preservation
+parent reconciliation states including OPEN
+DIRECTION_HISTORY_RECONCILIATION assessment snapshot
+historical Roadmap disposition ledger
+orphan/overlap/residue audit
+exact Source recommendation units on bounded Changes
+```
 
 Invariant:
 
 ```text
 all original recommendation semantic units are accounted for
+Change completion != Recommendation completion
+historical Roadmap order != current priority
 ```
 
-This is the workflow stage where broad recommendation/Roadmap history is intentionally allowed.
+Compatibility rule: legacy/simple recommendations remain valid until unit-level reconciliation is actually needed. `CURRENT` reconciliation requires explicit user acceptance; the workflow does not rewrite canonical `ROADMAP.md`.
 
 ---
 
@@ -763,7 +776,7 @@ older planning_lite_tools versions:
 PRESERVE FOR NOW; ARCHIVE/DELETE ONLY AFTER LINEAGE RECEIPT
 
 Recommendation residue:
-APPROVED FOR PL-V38-03
+IMPLEMENTED THROUGH PW-DIR-006 / PL-V38-03
 
 Context routing:
 REUSE VALIDATED PILOT IDEAS AT PL-V38-05, NOT WHOLESALE CODE COPY
@@ -776,6 +789,12 @@ IMPLEMENTED DIRECTION FOUNDATION
 
 PL-V38-02:
 IMPLEMENTED CURRENT CAPABILITY ASSESSMENT + CAUSAL GAP FOUNDATION
+
+PL-V38-03:
+IMPLEMENTED RECOMMENDATION SEMANTIC RESIDUE + HISTORICAL RECONCILIATION
+
+PL-V38-04:
+NEXT — ROADMAP SYNTHESIS + QUALITATIVE PRIORITIZATION + BOUNDED-CHANGE HANDOFF
 
 Poker:
 FROZEN UNTIL PL-V38-04; THEN PILOT-PL-DIRECTION-002

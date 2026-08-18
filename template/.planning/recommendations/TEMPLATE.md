@@ -5,6 +5,8 @@
 - Last reviewed:
 - Source:
 - Converted changes: `[]`
+- Reconciliation review: `NOT_RECONCILED / DRAFT / CURRENT`
+- Parent reconciliation state: `OPEN / COMPLETED / PARTIALLY_REALIZED / CLOSED_WITH_CARRYFORWARD / DEFERRED / SUPERSEDED / REJECTED / UNANCHORED / NEEDS_REFRAME / UNCERTAIN / n/a`
 
 ## Observation or idea
 
@@ -18,7 +20,24 @@
 
 ## Dependencies and open questions
 
+## Semantic units
+
+Use only when the recommendation needs unit-level reconciliation. Preserve stable unit IDs once created.
+
+| Unit | Statement | State | Primary lineage | Gap(s) / Target signal | Capability(s) | Evidence | Trigger / destination |
+|---|---|---|---|---|---|---|---|
+
+Allowed states: `IMPLEMENTED`, `STILL_OPEN`, `CARRIED_FORWARD`, `FUTURE_SEED`, `DEFERRED`, `REJECTED`, `SUPERSEDED`, `NEEDS_REFRAME`, `UNCERTAIN`.
+
+Allowed primary lineage: `GAP_ANCHORED`, `TARGET_STATE_SIGNAL`, `LOCAL_TACTIC`, `OPTIONAL_FUTURE`, `OUTSIDE_BOUNDED_TARGET`, `UNANCHORED`.
+
+## Residue accounting
+
+- Invariant: `all original recommendation semantic units are accounted for`
+- Result: `NOT_RUN / PASS / FAIL`
+- Notes:
+
 ## Coverage history
 
-| Change | Coverage | Outcome | Date |
-|---|---|---|---|
+| Change | Unit(s) | Coverage | Outcome | Date |
+|---|---|---|---|---|

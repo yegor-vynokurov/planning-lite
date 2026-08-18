@@ -1,6 +1,6 @@
 # Planning Lite 4.x template `.planning` manifest
 
-Files: **148**.
+Files: **150**.
 
 ## Files
 
@@ -23,6 +23,7 @@ Files: **148**.
 - `.planning/adapters/scripts/README.md`
 - `.planning/adapters/scripts/materialize_adapter.py`
 - `.planning/assessments/CURRENT_CAPABILITY_ASSESSMENT_TEMPLATE.md`
+- `.planning/assessments/DIRECTION_HISTORY_RECONCILIATION_TEMPLATE.md`
 - `.planning/assessments/README.md`
 - `.planning/assessments/TEMPLATE.md`
 - `.planning/assessments/archive/.gitkeep`
@@ -61,6 +62,7 @@ Files: **148**.
 - `.planning/control/MODE_ROUTER.md`
 - `.planning/control/PROJECT_BOOTSTRAP.md`
 - `.planning/control/PROJECT_STATE_REFRESH.md`
+- `.planning/control/RECOMMENDATION_HISTORY_RECONCILIATION.md`
 - `.planning/control/RECOMMENDATION_LIFECYCLE.md`
 - `.planning/control/RECOVERY.md`
 - `.planning/control/ROOT_ROUTER.md`

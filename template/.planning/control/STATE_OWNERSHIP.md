@@ -12,7 +12,7 @@ Each fact has one primary home.
 | active `amendments.md` | approved or permitted deviations from definition or plan |
 | active `readiness.md` | pre-implementation spec-readiness and engineering-readiness evidence and verdict |
 | active `review.md` | spec-conformance, standards-conformance, completion evidence, closure authorization, recommendation outcomes, final location |
-| recommendation item | authoritative recommendation content and lifecycle status |
+| recommendation item | authoritative recommendation content, lifecycle status, and accepted semantic-unit/reconciliation ledger when present |
 | recommendation `INDEX.md` | discovery summary; must agree with items |
 | decision record | durable decision and rationale |
 | project glossary | canonical domain language, invariants, aliases, and anchors |
@@ -20,6 +20,7 @@ Each fact has one primary home.
 | `project/CAPABILITY_MODEL.md` | durable completed-state capabilities derived from the current Target; never current satisfaction status |
 | `assessments/current/CURRENT_CAPABILITY_ASSESSMENT.md` | evidence snapshot of current capability Coverage and EvidenceConfidence against the accepted baseline; not a durable Target mutation |
 | `project/GAP_MAP.md` | accepted causal missing conditions between demonstrated Current state and Target capabilities, with stable Gap identities and outcome-oriented closure conditions |
+| `assessments/current/DIRECTION_HISTORY_RECONCILIATION.md` | snapshot reconciling recommendation semantic units and historical Roadmap lineage against the accepted Project Spine; not current Roadmap priority |
 | project documents | current durable facts, not session history |
 | skill usage CSV | optional best-effort frequency log; never authoritative project state |
 

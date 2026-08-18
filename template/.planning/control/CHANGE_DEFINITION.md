@@ -17,7 +17,7 @@ Follow `CHANGE_LIFECYCLE.md`. Load `disciplines/DOMAIN_MODELING.md` only when do
    - `requirements-checklist.md`.
 7. Leave later-stage files in initialized template state.
 8. State goal, scope, non-goals, user-visible outcome, interfaces, invariants, constraints, risks, migration or recovery needs, and measurable acceptance criteria.
-9. Link every source recommendation in both directions under `RECOMMENDATION_LIFECYCLE.md`.
+9. Link every source recommendation in both directions under `RECOMMENDATION_LIFECYCLE.md`; when semantic units exist, record the exact `Source recommendation units` selected by scope rather than implying whole-parent coverage.
 10. Verify scaffold integrity and confirm no nested `.gitkeep` or unexpected scaffold artifact exists.
 11. Set `Definition / Awaiting approval` and ask the user to approve, revise, defer, or reject the definition.
 

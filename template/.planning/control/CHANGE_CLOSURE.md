@@ -39,7 +39,7 @@ Checked task boxes are not completion evidence.
 
 ## Recommendation reconciliation
 
-For every source recommendation, verify links, determine `Full`, `Partial`, or `None` coverage, update item and index, and apply `RECOMMENDATION_LIFECYCLE.md`. Do not mark a recommendation `Completed` merely because one linked change completed.
+For every source recommendation, verify links and apply `RECOMMENDATION_LIFECYCLE.md`. When semantic units exist, reconcile only the referenced `Source recommendation units` against accepted scope/evidence and leave unrelated units untouched. For legacy items without units, determine `Full`, `Partial`, or `None` coverage. Update item/index bookkeeping as applicable. Do not mark a recommendation `Completed` merely because one linked change completed; `Change completion != Recommendation completion`.
 
 ## Project-memory synchronization
 

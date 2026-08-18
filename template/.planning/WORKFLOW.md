@@ -11,6 +11,7 @@ Use one entry point for one operation. Numbered prompts are optional shortcuts; 
 | Calibrate/accept Target + Capability Model | Planning | `prompts/02-refine-project-goal-and-completion-criteria.md` | `control/TARGET_BASELINE_CALIBRATION.md` |
 | Assess current capability Coverage / evidence | Audit | `prompts/02-refine-project-goal-and-completion-criteria.md` | `control/CURRENT_CAPABILITY_ASSESSMENT.md` |
 | Derive causal Gap Map | Planning | `prompts/02-refine-project-goal-and-completion-criteria.md` | `control/CAUSAL_GAP_DERIVATION.md` |
+| Reconcile recommendation residue + historical Roadmap | Planning | `prompts/02-refine-project-goal-and-completion-criteria.md` | `control/RECOMMENDATION_HISTORY_RECONCILIATION.md` |
 | Discovery / uncertain broad effort | Dialogue / Planning | direct request | `control/WAYFINDING.md` when needed |
 | Capture or triage ideas | Dialogue / Planning | `prompts/03-capture-or-triage-recommendations.md` | `control/RECOMMENDATION_LIFECYCLE.md` |
 | Definition | Planning | `prompts/04-create-approved-change.md` | `control/CHANGE_DEFINITION.md` + `control/CHANGE_SCAFFOLD.md` |
@@ -23,4 +24,4 @@ Use one entry point for one operation. Numbered prompts are optional shortcuts; 
 | Amend an active change | Planning | `prompts/12-amend-active-change.md` | `control/CHANGE_AMENDMENT.md` |
 | Recover from wrong mode | Recovery | `prompts/13-recover-from-wrong-mode.md` | `control/RECOVERY.md` |
 
-A recommendation is not a change. An approved proposal is not an approved plan. A `Ready` verdict is not execution authorization. Completed implementation is not closure. A checkpoint preserves state without advancing the lifecycle.
+A recommendation semantic unit is not a Gap, Roadmap outcome, or Change. A recommendation is not a change. An approved proposal is not an approved plan. A `Ready` verdict is not execution authorization. Completed implementation is not closure. A checkpoint preserves state without advancing the lifecycle.

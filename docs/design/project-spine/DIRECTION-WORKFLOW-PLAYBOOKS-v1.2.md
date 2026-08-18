@@ -2,7 +2,7 @@
 
 **Status:** canonical design specification; PW-DIR-001..003 implemented by PL-V38-01, later workflows remain design
 **Origin:** Poker Project Spine pilot
-**Alignment:** Planning Lite roadmap v3.8.4
+**Alignment:** Planning Lite roadmap v3.8.5
 
 ---
 
@@ -355,9 +355,10 @@ NEEDS_REFRAME
 UNCERTAIN
 ```
 
-Parent states:
+Parent states (implementation adds `OPEN` for a wholly current/open recommendation):
 
 ```text
+OPEN
 COMPLETED
 PARTIALLY_REALIZED
 CLOSED_WITH_CARRYFORWARD
@@ -388,7 +389,7 @@ Hard invariant:
 all original semantic units are accounted for
 ```
 
-Historical priority is not inherited automatically.
+Historical priority is not inherited automatically. The implemented workflow stores broad reconciliation as an assessment snapshot and does not rewrite canonical `ROADMAP.md` in PW-DIR-006.
 
 ---
 

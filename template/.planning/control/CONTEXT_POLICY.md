@@ -61,6 +61,10 @@ Start from the accepted Target, current Capability Model, direction inventory, `
 
 Start from the accepted Target/Capability baselines and the current capability assessment. Treat the assessment as the primary evidence boundary. Do not rescan the repository or open recommendation/Roadmap history unless a specific assessment statement is uninterpretable without targeted evidence.
 
+### Recommendation + historical Roadmap reconciliation
+
+Start from the accepted Target/Capability baselines, current capability assessment, and current Gap Map. Then intentionally load the recommendation registry/items and Roadmap/history needed to account for semantic units and lineage. Open completed Change evidence only when exact delivered scope is needed to classify a unit. This is the first direction stage where broad recommendation/Roadmap history is justified; repository rescans and unrelated archives are still not justified. Record missing evidence as uncertainty. Historical order is not current priority.
+
 These profiles refine Tier 1-3 loading; they do not authorize a Context Compiler or autonomous history search.
 
 ## Context packet

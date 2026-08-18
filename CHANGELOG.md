@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Add Project Spine recommendation semantic-unit residue and historical Roadmap reconciliation (`PW-DIR-006`), preserving future/carry-forward meaning, separating lifecycle status from reconciliation state, and preventing completed Changes or historical ordering from silently collapsing current direction.
 - Add Project Spine Current Capability Assessment and causal Gap derivation workflows, separating Coverage from EvidenceConfidence, preserving evidence uncertainty, and adding a project-owned Gap Map with human baseline authority.
 - Add the first Project Spine Direction Foundation workflows, project-owned Target/Capability artifacts, stage-specific context rules, and Doctor coverage.
 

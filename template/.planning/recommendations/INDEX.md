@@ -1,4 +1,4 @@
 # Recommendation index
 
-| ID | Title | Status | Linked changes | Last reviewed |
-|---|---|---|---|---|
+| ID | Title | Status | Reconciliation | Open / carry-forward units | Linked changes | Last reviewed |
+|---|---|---|---|---|---|---|
