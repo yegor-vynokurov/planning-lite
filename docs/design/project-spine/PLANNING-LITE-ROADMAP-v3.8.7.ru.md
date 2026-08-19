@@ -26,7 +26,7 @@ v3.8.2 aligned Project Spine with the real template/workflow architecture and ex
 
 v3.8.7 preserves completion of `PL-V38-04` and inserts one evidence-driven corrective gate before the scored Poker field pilot. PL-V38-04 established that Planning Lite can now synthesize coherent Roadmap outcomes from the accepted Project Spine, compare credible alternatives without fake numeric precision or inherited historical order, accept exactly one current `NOW` direction under explicit human authority, and hand that accepted outcome to the existing Change-definition lifecycle without auto-creating work.
 
-The planned "catch Planning Lite up to Poker" semantic sequence remains complete. During non-scored pilot preparation, `PREP-FINDING-001` showed that ordinary Copier update is unsafe when a consumer intentionally keeps `.planning/.agents` Git-ignored. `PL-V38-PREP-01` fixes that compatibility boundary. The **next operation is to repeat the non-scored migration preview**, obtain `PILOT_READY`, and only then start `PILOT-PL-DIRECTION-002` Attempt 001. Findings from the scored pilot must still be reconciled before PL-V38-05+ is treated as stable.
+The planned "catch Planning Lite up to Poker" semantic sequence remains complete. During non-scored pilot preparation, `PREP-FINDING-001` showed that ordinary Copier update is unsafe when a consumer intentionally keeps `.planning/.agents` Git-ignored. `PL-V38-PREP-01` fixes that compatibility boundary. The corrective change is locally verified and published as remote pilot ref `pilot/pl-direction-002` at exact commit `c7a8cced0020e1e87e17f9567a5037fb44a1279f`. The **next operation is to repeat the non-scored migration preview**, obtain `PILOT_READY`, and only then start `PILOT-PL-DIRECTION-002` Attempt 001. Findings from the scored pilot must still be reconciled before PL-V38-05+ is treated as stable.
 
 ---
 
@@ -51,7 +51,7 @@ Completed central preparation before PL-V38-01:
 3306d7a  feat: add Project Spine current and gap foundation
 61fe59a  feat: preserve recommendation semantic residue
 PL-V38-04 commit: fafe133
-PL-V38-PREP-01 local-only update safety: the commit containing this roadmap update
+PL-V38-PREP-01 local-only update safety: c7a8cced0020e1e87e17f9567a5037fb44a1279f
 ```
 
 Verified local boundary before PL-V38-01:
@@ -64,7 +64,7 @@ v4.3.0 tag remains on 0e66941
 no new release tag
 ```
 
-PL-V38-00 and PL-V38-01..04 are complete. PL-V38-PREP-01 is the bounded corrective product change triggered by non-scored Poker preparation. Release remains unperformed; PL-V38-05 remains stopped pending the repaired field gate.
+PL-V38-00 and PL-V38-01..04 are complete. PL-V38-PREP-01 is complete at `c7a8cce` and locally verified, including the local-only v4.2.0 → current smoke. The exact candidate is published only on `pilot/pl-direction-002`; `origin/main` is intentionally not advanced by the pilot preparation. Release remains unperformed; PL-V38-05 remains stopped pending the repaired field gate.
 
 ---
 

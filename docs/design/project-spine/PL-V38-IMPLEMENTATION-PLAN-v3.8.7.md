@@ -39,7 +39,7 @@ working tree clean
 main ahead of origin/main by 3
 ```
 
-The v3.8.2 design checkpoint is tracked at `40ca8cf`. PL-V38-01 implements Direction Foundation; its EOL-stable integrity-test hotfix is `782c785`. PL-V38-02 implements Current/Gap; PL-V38-03 implements recommendation semantic residue and historical reconciliation. PL-V38-04 implements Roadmap outcome synthesis, qualitative prioritization, human Roadmap acceptance, and bounded-Change lineage handoff. Non-scored Poker preparation then exposed a local-only consumer update defect; PL-V38-PREP-01 fixes that boundary before the scored field attempt.
+The v3.8.2 design checkpoint is tracked at `40ca8cf`. PL-V38-01 implements Direction Foundation; its EOL-stable integrity-test hotfix is `782c785`. PL-V38-02 implements Current/Gap; PL-V38-03 implements recommendation semantic residue and historical reconciliation. PL-V38-04 implements Roadmap outcome synthesis, qualitative prioritization, human Roadmap acceptance, and bounded-Change lineage handoff. Non-scored Poker preparation then exposed a local-only consumer update defect; PL-V38-PREP-01 fixes that boundary before the scored field attempt and is locally accepted at `c7a8cced0020e1e87e17f9567a5037fb44a1279f`; the exact candidate is published at remote ref `pilot/pl-direction-002`.
 
 ## Research-asset review
 
@@ -68,7 +68,7 @@ PL-V38-01   Direction foundation                         COMPLETE
 PL-V38-02   Current assessment + causal Gap Map          COMPLETE
 PL-V38-03   Recommendation residue/reconciliation        COMPLETE
 PL-V38-04   Roadmap synthesis/prioritization + handoff    COMPLETE
-PL-V38-PREP-01 Local-only consumer update safety          COMPLETE CORRECTIVE GATE
+PL-V38-PREP-01 Local-only consumer update safety          COMPLETE @ c7a8cce
 FIELD       Poker Field Pilot 2 / next-Change derivation  NEXT / STOP-GATE
 PL-V38-05   Direction context/visibility/ContextTrace
 PL-V38-06A  Lab + tools reactivation/lineage qualification
@@ -270,7 +270,7 @@ Research-heavy outcomes explicitly consider protocol-first composition rather th
 
 # 7. FIELD — Poker Project Spine Field Pilot 2
 
-PL-V38-04 is complete and PL-V38-PREP-01 repairs the local-only update boundary found during non-scored preparation. **Stop Planning Lite feature expansion now**. Repeat the disposable local-only migration preview, require `PILOT_READY`, then resume Poker from the clean post-CHG-0008 boundary.
+PL-V38-04 is complete and PL-V38-PREP-01 (`c7a8cce`) repairs the local-only update boundary found during non-scored preparation. Central tests, template smoke, local-only migration smoke, pilot preparation 1.1.0, and its validation are PASS. **Stop Planning Lite feature expansion now**. Repeat the disposable local-only migration preview, require `PILOT_READY`, then resume Poker from the clean post-CHG-0008 boundary.
 
 Use Planning Lite itself to derive the next bounded Bayesian implementation Change. Capture failures/overreads/authority mistakes as new Planning Lite evidence.
 

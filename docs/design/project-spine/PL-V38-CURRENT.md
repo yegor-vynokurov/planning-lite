@@ -15,7 +15,8 @@ PL-V38-02 Current Capability Assessment + causal Gap Map: 3306d7a
 PL-V38-03 Recommendation semantic residue + historical reconciliation: 61fe59a
 PL-V38-04 Roadmap synthesis/prioritization + Change handoff: fafe133
 post-PL-V38-04 Doctor-boundary hotfix: e51320b
-PL-V38-PREP-01 Local-only consumer update safety: implemented by the commit containing this file
+PL-V38-PREP-01 Local-only consumer update safety: c7a8cced0020e1e87e17f9567a5037fb44a1279f
+remote pilot ref: `pilot/pl-direction-002` → `c7a8cced0020e1e87e17f9567a5037fb44a1279f` (verified by `git ls-remote`)
 release: not performed
 ```
 
@@ -37,8 +38,11 @@ Post-PL-V38-04 docs/test-instructions hotfix: e51320b. No product/template seman
 ## Priority / stop gate
 
 ```text
-PRIMARY NEXT: repeat PILOT-PL-DIRECTION-002 non-scored migration preview on Poker
-SCORED ATTEMPT-001: NOT STARTED
+PRIMARY NEXT: repeat PILOT-PL-DIRECTION-002 non-scored migration preview on a disposable Poker worktree using the repaired local-only updater
+PRE_UPDATE_BASELINE: PASS / captured at Poker `f88a7fb9aeb5e6baa62cd362a9156fa4a943c063`
+PILOT PREPARATION: 1.1.0 / validation PASS
+REMOTE PILOT CANDIDATE: `pilot/pl-direction-002` → `c7a8cce...`
+SCORED ATTEMPT-001: NOT STARTED / attempts executed = 0
 PLANNING LITE FEATURE EXPANSION: STOP before PL-V38-05
 ```
 
@@ -103,7 +107,7 @@ no PL-V38-05 before Poker field findings are reconciled
 
 ## Next — pre-pilot repair validation, then field gate
 
-First repeat the non-scored migration preview with the safe updater:
+First repeat the non-scored migration preview with the safe updater. The exact Planning Lite candidate is `c7a8cced0020e1e87e17f9567a5037fb44a1279f`, reachable via `pilot/pl-direction-002`:
 
 ```text
 planning-lite check <Poker-preview> --vcs-ref <exact candidate SHA>
