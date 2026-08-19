@@ -270,7 +270,7 @@ Research-heavy outcomes explicitly consider protocol-first composition rather th
 
 # 7. FIELD — Poker Project Spine Field Pilot 2
 
-PL-V38-04 is complete and PL-V38-PREP-01 (`c7a8cce`) repairs the local-only update boundary found during non-scored preparation. Central tests, template smoke, local-only migration smoke, pilot preparation 1.1.0, and its validation are PASS. **Stop Planning Lite feature expansion now**. Repeat the disposable local-only migration preview, require `PILOT_READY`, then resume Poker from the clean post-CHG-0008 boundary.
+PL-V38-04 is complete and PL-V38-PREP-01 (`c7a8cce`) repairs the local-only update boundary found during non-scored preparation. Central tests, template smoke, local-only migration smoke, repaired disposable Poker preview, canonical metadata-only migration (`920dad3`), Doctor/idempotence, deterministic materialization, and `PILOT_READY` are PASS. **Stop Planning Lite feature expansion now**. Start scored Poker Attempt 001 with the frozen entry prompt; do not pre-create the next Change.
 
 Use Planning Lite itself to derive the next bounded Bayesian implementation Change. Capture failures/overreads/authority mistakes as new Planning Lite evidence.
 
@@ -452,4 +452,4 @@ PILOT-PL-DIRECTION-002
 Poker continuation / next-Change derivation
 ```
 
-Do not start PL-V38-05 before the repaired migration preview reaches `PILOT_READY`, this field gate is run, and its findings are reconciled. Do not manually pre-create the next Poker Change: deriving that bounded Change from the accepted Poker Roadmap is the test.
+Do not start PL-V38-05 before scored Attempt 001 is run and its findings are reconciled. `PILOT_READY` is already PASS. Do not manually pre-create the next Poker Change: deriving that bounded Change from the accepted Poker Roadmap is the test.

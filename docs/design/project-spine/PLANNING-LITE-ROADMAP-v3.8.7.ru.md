@@ -26,7 +26,7 @@ v3.8.2 aligned Project Spine with the real template/workflow architecture and ex
 
 v3.8.7 preserves completion of `PL-V38-04` and inserts one evidence-driven corrective gate before the scored Poker field pilot. PL-V38-04 established that Planning Lite can now synthesize coherent Roadmap outcomes from the accepted Project Spine, compare credible alternatives without fake numeric precision or inherited historical order, accept exactly one current `NOW` direction under explicit human authority, and hand that accepted outcome to the existing Change-definition lifecycle without auto-creating work.
 
-The planned "catch Planning Lite up to Poker" semantic sequence remains complete. During non-scored pilot preparation, `PREP-FINDING-001` showed that ordinary Copier update is unsafe when a consumer intentionally keeps `.planning/.agents` Git-ignored. `PL-V38-PREP-01` fixes that compatibility boundary. The corrective change is locally verified and published as remote pilot ref `pilot/pl-direction-002` at exact commit `c7a8cced0020e1e87e17f9567a5037fb44a1279f`. The **next operation is to repeat the non-scored migration preview**, obtain `PILOT_READY`, and only then start `PILOT-PL-DIRECTION-002` Attempt 001. Findings from the scored pilot must still be reconciled before PL-V38-05+ is treated as stable.
+The planned "catch Planning Lite up to Poker" semantic sequence remains complete. During non-scored pilot preparation, `PREP-FINDING-001` showed that ordinary Copier update is unsafe when a consumer intentionally keeps `.planning/.agents` Git-ignored. `PL-V38-PREP-01` fixes that compatibility boundary. The corrective change is locally verified and published as remote pilot ref `pilot/pl-direction-002` at exact commit `c7a8cced0020e1e87e17f9567a5037fb44a1279f`. The repaired disposable preview, canonical local-only migration, Doctor/idempotence gates, deterministic Project Spine materialization, and final `PILOT_READY` validation have now all passed. The canonical scored fixture is local branch `planning/continuation-baseline` at metadata-only commit `920dad303f8750b5bc65b38f3bace4f72cb2819c`, whose scientific parent remains `f88a7fb...`. The **next operation is the frozen scored Attempt 001 entry turn**. Findings from the scored pilot must still be reconciled before PL-V38-05+ is treated as stable.
 
 ---
 
@@ -64,7 +64,7 @@ v4.3.0 tag remains on 0e66941
 no new release tag
 ```
 
-PL-V38-00 and PL-V38-01..04 are complete. PL-V38-PREP-01 is complete at `c7a8cce` and locally verified, including the local-only v4.2.0 → current smoke. The exact candidate is published only on `pilot/pl-direction-002`; `origin/main` is intentionally not advanced by the pilot preparation. Release remains unperformed; PL-V38-05 remains stopped pending the repaired field gate.
+PL-V38-00 and PL-V38-01..04 are complete. PL-V38-PREP-01 is complete at `c7a8cce` and locally verified, including the local-only v4.2.0 → current smoke. The exact candidate is published only on `pilot/pl-direction-002`; `origin/main` is intentionally not advanced by the pilot preparation. The repaired Poker migration/materialization reached `PILOT_READY: PASS`; scored Attempt 001 has not yet started. Release remains unperformed; PL-V38-05 remains stopped pending scored field evidence.
 
 ---
 
@@ -560,7 +560,7 @@ PILOT_READY receipt
 
 ### Poker continuation / next-Change derivation
 
-Poker was intentionally frozen while PL-V38-01 through PL-V38-04 were implemented. After local verification of PL-V38-PREP-01 and a successful non-scored local-only migration preview, resume Poker from its clean post-CHG-0008 boundary. Use the newly implemented Planning Lite direction flow to determine the next bounded Bayesian implementation Change.
+Poker was intentionally frozen while PL-V38-01 through PL-V38-04 were implemented. PL-V38-PREP-01 and the complete repaired non-scored migration/materialization path have now passed, including `PILOT_READY`. Start the frozen scored Attempt 001 from local fixture branch `planning/continuation-baseline` at `920dad3`, preserving `f88a7fb` as its scientific parent. Use the newly implemented Planning Lite direction flow to determine the next bounded Bayesian implementation Change.
 
 Expected semantic test:
 
@@ -842,7 +842,7 @@ PL-V38-04:
 IMPLEMENTED ROADMAP SYNTHESIS + QUALITATIVE PRIORITIZATION + BOUNDED-CHANGE HANDOFF
 
 Poker:
-NEXT — REPEAT NON-SCORED LOCAL-ONLY MIGRATION PREVIEW → PILOT_READY → PILOT-PL-DIRECTION-002
+NEXT — PILOT-PL-DIRECTION-002 SCORED ATTEMPT 001 (FROZEN ENTRY PROMPT)
 
 Planning Lite feature expansion:
 STOP BEFORE PL-V38-05 UNTIL FIELD FINDINGS ARE RECONCILED

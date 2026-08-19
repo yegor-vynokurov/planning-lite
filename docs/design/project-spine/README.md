@@ -1,7 +1,7 @@
 # Project Spine / Direction Workflows design track
 
 **Status:** tracked design source for the next Planning Lite direction work
-**Implementation status:** PL-V38-01 through PL-V38-04 plus PL-V38-PREP-01 (`c7a8cce`) implemented and locally verified; exact pilot candidate published at `pilot/pl-direction-002`; not released; repaired non-scored Poker migration preview is next
+**Implementation status:** PL-V38-01 through PL-V38-04 plus PL-V38-PREP-01 (`c7a8cce`) implemented and locally verified; exact pilot candidate published at `pilot/pl-direction-002`; repaired non-scored Poker migration/materialization reached `PILOT_READY: PASS`; scored Attempt 001 is next; not released
 **Current alignment:** v3.8.7
 
 This directory preserves the Project Spine design work derived from the Poker field pilot and aligns it with the actual Planning Lite architecture and existing research assets.
@@ -24,7 +24,7 @@ Planning Lite roadmap v3.6.2
 → PL-V38-03 recommendation/history reconciliation
 → PL-V38-04 Roadmap synthesis + Change handoff
 → PL-V38-PREP-01 local-only consumer update safety
-→ v3.8.7 / local-only migration recheck → Poker Field Pilot 2
+→ v3.8.7 / repaired migration + PILOT_READY PASS → Poker Field Pilot 2 Attempt 001
 ```
 
 ## Files

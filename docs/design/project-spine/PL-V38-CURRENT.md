@@ -38,15 +38,19 @@ Post-PL-V38-04 docs/test-instructions hotfix: e51320b. No product/template seman
 ## Priority / stop gate
 
 ```text
-PRIMARY NEXT: repeat PILOT-PL-DIRECTION-002 non-scored migration preview on a disposable Poker worktree using the repaired local-only updater
+PRIMARY NEXT: start PILOT-PL-DIRECTION-002 scored Attempt 001 with the frozen `operator/ENTRY_PROMPT.txt`
 PRE_UPDATE_BASELINE: PASS / captured at Poker `f88a7fb9aeb5e6baa62cd362a9156fa4a943c063`
-PILOT PREPARATION: 1.1.0 / validation PASS
+PILOT PREPARATION: 1.1.2 / validation PASS
+REPAIRED DISPOSABLE PREVIEW: PASS / REMOVE_MANAGED=0 / Doctor OK / second plan zero mutations
+CANONICAL POKER MIGRATION: PASS / metadata-only commit `920dad303f8750b5bc65b38f3bace4f72cb2819c` on local branch `planning/continuation-baseline`
+PROJECT SPINE MATERIALIZATION: PASS
+PILOT_READY: PASS / receipt `runs/preflight/pilot-ready/PILOT_READY.json`
 REMOTE PILOT CANDIDATE: `pilot/pl-direction-002` → `c7a8cce...`
 SCORED ATTEMPT-001: NOT STARTED / attempts executed = 0
 PLANNING LITE FEATURE EXPANSION: STOP before PL-V38-05
 ```
 
-Poker remains frozen at its clean post-CHG-0008 `Discovery / Ready`, no-active-Change boundary. **Do not manually pre-create the next Poker implementation Change**; deriving that Change through the new Planning Lite direction flow remains the field test.
+Poker scored fixture is now prepared on local branch `planning/continuation-baseline` at metadata-only migration commit `920dad303f8750b5bc65b38f3bace4f72cb2819c`. The scientific parent remains the clean post-CHG-0008 commit `f88a7fb...`; `.planning/.agents` remain local-only and project-owned Project Spine state has been deterministically materialized. `PILOT_READY: PASS` confirms no active Change, no implementation authorization, `RM-PKR-001` still NOW, and `GAP-PKR-002/003` still open. **Do not manually pre-create the next Poker implementation Change**; deriving that Change through the new Planning Lite direction flow remains the scored field test.
 
 Pre-pilot preparation exposed `PREP-FINDING-001`: ordinary Copier update against Poker's intentionally Git-ignored `.planning/.agents` removed 96 managed/local files in a disposable preview even though the central template had not intentionally deleted them. The scored attempt did not start and canonical Poker was not changed. `PL-V38-PREP-01` adds a fail-closed ownership-aware local-only update path.
 
@@ -105,32 +109,24 @@ no automatic Poker activation
 no PL-V38-05 before Poker field findings are reconciled
 ```
 
-## Next — pre-pilot repair validation, then field gate
+## Next — scored field gate
 
-First repeat the non-scored migration preview with the safe updater. The exact Planning Lite candidate is `c7a8cced0020e1e87e17f9567a5037fb44a1279f`, reachable via `pilot/pl-direction-002`:
+All non-scored migration/materialization gates are complete. The repaired local-only updater has passed synthetic regression, disposable real-Poker replay, canonical read-only check, canonical atomic update, Doctor, and idempotence. The canonical scored fixture is clean and `PILOT_READY: PASS`.
+
+Start exactly one scored Attempt 001 with the frozen entry prompt from the Lab package:
 
 ```text
-planning-lite check <Poker-preview> --vcs-ref <exact candidate SHA>
-→ inspect file-level local-only plan
-→ expect zero unintended managed removals
-
-planning-lite update <Poker-preview> --vcs-ref <exact candidate SHA> --local-only
-→ Doctor OK
-→ project-owned hashes preserved
-→ second check idempotent
-→ PILOT_READY receipt
+operator/ENTRY_PROMPT.txt
 ```
 
-Only then start:
+Do not add coaching before the entry turn. After the response, classify it using the frozen `operator/BRANCH_POLICY.md` (A–H). Only branch A permits the later frozen Follow-up A; genuine inconsistency follows branch B; premature write or historical-priority regression are hard failures.
+
+Expected Poker field state remains:
 
 ```text
-PILOT-PL-DIRECTION-002
-Poker continuation / next-Change derivation
-```
-
-Expected Poker field state:
-
-```text
+fixture branch: planning/continuation-baseline
+fixture HEAD: 920dad303f8750b5bc65b38f3bace4f72cb2819c
+scientific parent: f88a7fb9aeb5e6baa62cd362a9156fa4a943c063
 CHG-0008 completed
 RM-PKR-001 still NOW
 GAP-PKR-002 open
@@ -138,9 +134,8 @@ GAP-PKR-003 open
 Bayesian study protocol exists
 study implementation absent
 no active Change
+implementation authorized: No
 ```
-
-Use Planning Lite itself, not the old long operator prompt as the primary procedure, to recover/confirm the accepted Poker direction and derive the next bounded Change through the new Roadmap → `CHANGE_DEFINITION` handoff.
 
 The field test should determine whether Planning Lite can correctly conclude roughly:
 
@@ -148,7 +143,7 @@ The field test should determine whether Planning Lite can correctly conclude rou
 completed protocol Change contributed to RM-PKR-001
 BUT RM-PKR-001 is not complete
 AND GAP-PKR-002 / GAP-PKR-003 remain open
-→ next bounded work is implementation/evidence for the approved study protocol
+→ next governed step is bounded Change definition for implementation/evidence of the approved study protocol
 ```
 
 Observe especially:
@@ -164,7 +159,7 @@ loss of exact completed-Change/recommendation-unit lineage
 failure to preserve protocol-first scientific boundaries
 ```
 
-After the field pilot, capture findings before deciding whether PL-V38-05 should proceed unchanged, be amended, or be preceded by a repair change.
+After Attempt 001, preserve the full agent response and branch classification before any recovery/diagnostic turn. Reconcile field findings before deciding whether PL-V38-05 should proceed unchanged, be amended, or be preceded by another repair change.
 
 ## Research assets
 
