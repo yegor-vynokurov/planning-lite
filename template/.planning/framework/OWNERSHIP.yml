@@ -7,6 +7,7 @@ managed:
 - .planning/adapters/**
 - .planning/assessments/README.md
 - .planning/assessments/TEMPLATE.md
+- .planning/assessments/*_TEMPLATE.md
 - .planning/changes/README.md
 - .planning/changes/templates/**
 - .planning/control/**
@@ -16,6 +17,7 @@ managed:
 - .planning/docs/**
 - .planning/drift/README.md
 - .planning/drift/reviews/TEMPLATE.md
+- .planning/drift/reviews/.gitkeep
 - .planning/framework/**
 - .planning/modes/**
 - .planning/prompts/**

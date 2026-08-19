@@ -1,7 +1,7 @@
 # PL-V38 current operational checkpoint
 
 **Purpose:** compact resumable state for a new chat/agent. Read this file before reopening full roadmap/history.
-**Updated:** 2026-08-18
+**Updated:** 2026-08-19
 
 ## Central Planning Lite boundary
 
@@ -13,7 +13,9 @@ PL-V38-01 Direction Foundation: 8d2026d
 PL-V38-01 Windows EOL hash-test hotfix: 782c785
 PL-V38-02 Current Capability Assessment + causal Gap Map: 3306d7a
 PL-V38-03 Recommendation semantic residue + historical reconciliation: 61fe59a
-PL-V38-04 Roadmap synthesis/prioritization + Change handoff: implemented by the commit containing this file
+PL-V38-04 Roadmap synthesis/prioritization + Change handoff: fafe133
+post-PL-V38-04 Doctor-boundary hotfix: e51320b
+PL-V38-PREP-01 Local-only consumer update safety: implemented by the commit containing this file
 release: not performed
 ```
 
@@ -25,20 +27,24 @@ Central Planning Lite source-repository verification:
 uv sync
 uv run pytest
 uv run python scripts/test_template_update.py
+uv run python scripts/test_local_only_update.py
 ```
 
-Do **not** run `planning-lite doctor .` at the central repository root. Doctor validates an adopted/installed consumer project. `scripts/test_template_update.py` creates a temporary consumer and runs Doctor against that consumer; `Doctor: OK` from that smoke test is the relevant installation result.
+Do **not** run `planning-lite doctor .` at the central repository root. Doctor validates an adopted/installed consumer project. `scripts/test_template_update.py` and `scripts/test_local_only_update.py` create temporary consumers and run Doctor against consumer installations; `Doctor: OK` there is the relevant installation result.
 
-Post-PL-V38-04 docs/test-instructions hotfix: the commit containing this clarification. No product/template semantics changed.
+Post-PL-V38-04 docs/test-instructions hotfix: e51320b. No product/template semantics changed in that hotfix.
 
 ## Priority / stop gate
 
 ```text
-PRIMARY NEXT: PILOT-PL-DIRECTION-002 on Poker
+PRIMARY NEXT: repeat PILOT-PL-DIRECTION-002 non-scored migration preview on Poker
+SCORED ATTEMPT-001: NOT STARTED
 PLANNING LITE FEATURE EXPANSION: STOP before PL-V38-05
 ```
 
-Poker was frozen while PL-V38-01 through PL-V38-04 were implemented. After local PL-V38-04 verification, resume Poker from its clean post-CHG-0008 `Discovery / Ready`, no-active-Change boundary. **Do not manually pre-create the next Poker implementation Change**; deriving that Change through the new Planning Lite direction flow is the field test.
+Poker remains frozen at its clean post-CHG-0008 `Discovery / Ready`, no-active-Change boundary. **Do not manually pre-create the next Poker implementation Change**; deriving that Change through the new Planning Lite direction flow remains the field test.
+
+Pre-pilot preparation exposed `PREP-FINDING-001`: ordinary Copier update against Poker's intentionally Git-ignored `.planning/.agents` removed 96 managed/local files in a disposable preview even though the central template had not intentionally deleted them. The scored attempt did not start and canonical Poker was not changed. `PL-V38-PREP-01` adds a fail-closed ownership-aware local-only update path.
 
 ## Completed
 
@@ -51,6 +57,7 @@ PL-V38-01 EOL-stable integrity-test hotfix
 PL-V38-02 Current Capability Assessment + causal Gap Map
 PL-V38-03 Recommendation semantic residue + historical reconciliation
 PL-V38-04 Roadmap synthesis + qualitative prioritization + bounded-Change handoff
+PL-V38-PREP-01 Local-only consumer update safety
 ```
 
 The implemented Project Spine workflow chain is now:
@@ -94,7 +101,23 @@ no automatic Poker activation
 no PL-V38-05 before Poker field findings are reconciled
 ```
 
-## Next — field gate
+## Next — pre-pilot repair validation, then field gate
+
+First repeat the non-scored migration preview with the safe updater:
+
+```text
+planning-lite check <Poker-preview> --vcs-ref <exact candidate SHA>
+→ inspect file-level local-only plan
+→ expect zero unintended managed removals
+
+planning-lite update <Poker-preview> --vcs-ref <exact candidate SHA> --local-only
+→ Doctor OK
+→ project-owned hashes preserved
+→ second check idempotent
+→ PILOT_READY receipt
+```
+
+Only then start:
 
 ```text
 PILOT-PL-DIRECTION-002
@@ -157,10 +180,10 @@ Older `planning_lite_tools` versions remain lineage/archive candidates until a r
 
 ```text
 full current roadmap:
-  PLANNING-LITE-ROADMAP-v3.8.6.ru.md
+  PLANNING-LITE-ROADMAP-v3.8.7.ru.md
 
 implementation sequence:
-  PL-V38-IMPLEMENTATION-PLAN-v3.8.6.md
+  PL-V38-IMPLEMENTATION-PLAN-v3.8.7.md
 
 workflow design evidence:
   DIRECTION-WORKFLOW-PLAYBOOKS-v1.2.md
@@ -173,6 +196,15 @@ research asset roles:
 
 consolidated recommendation:
   REC-PL-DIRECTION-001-v2.md
+
+local-only update corrective change:
+  PL-V38-PREP-01-LOCAL-ONLY-UPDATE-SAFETY.md
+
+pre-pilot finding:
+  PILOT-PL-DIRECTION-002-PREP-FINDING-001.md
+
+Poker snapshot replay:
+  PL-V38-PREP-01-POKER-REPLAY.md
 ```
 
 ## Anti-drift reminder

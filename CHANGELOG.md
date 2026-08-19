@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add fail-closed ownership-aware updates for consumers that keep `.planning/` / `.agents/` Git-ignored, including file-level preview, atomic `--local-only` apply, project-owned hash preservation, and a v4.2.0 migration regression fixture.
+
 - Clarified maintainer verification: central source repos use pytest + template-update smoke; `planning-lite doctor .` is consumer-only.
 
 - Add Project Spine Roadmap outcome synthesis, credible-alternative qualitative prioritization, explicit human Roadmap acceptance, and exact Roadmap/Gap/Recommendation lineage handoff into bounded Change definition (`PW-DIR-007`), without auto-creating Changes or auto-closing outcomes/Gaps.

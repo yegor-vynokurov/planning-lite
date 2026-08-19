@@ -19,6 +19,7 @@ def test_central_repo_verification_does_not_require_root_doctor() -> None:
         "uv sync",
         "uv run pytest",
         "uv run python scripts/test_template_update.py",
+        "uv run python scripts/test_local_only_update.py",
     )
     for command in required_central_commands:
         assert command in readme
@@ -35,7 +36,9 @@ def test_doctor_remains_a_consumer_verification_command() -> None:
     operator = (root / "docs/OPERATOR_WORKFLOW.ru.md").read_text(encoding="utf-8")
     installation = (root / "docs/UPDATABLE_INSTALLATION.ru.md").read_text(encoding="utf-8")
     smoke = (root / "scripts/test_template_update.py").read_text(encoding="utf-8")
+    cli_source = (root / "src/planning_lite/cli.py").read_text(encoding="utf-8")
 
+    assert "test_local_only_update.py" in cli_source
     assert "Выполнить `planning-lite doctor .`" in operator
     assert "adopted/installed consumer-проекта" in installation
     assert '"planning-lite", "doctor", str(target)' in smoke

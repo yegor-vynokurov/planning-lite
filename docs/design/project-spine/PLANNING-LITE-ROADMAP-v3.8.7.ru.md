@@ -1,13 +1,13 @@
-# Planning Lite Roadmap v3.8.6 — Roadmap-handoff checkpoint + Poker Field Pilot 2 next
+# Planning Lite Roadmap v3.8.7 — local-only update safety gate before Poker Field Pilot 2
 
 **Status:** Current implementation-facing roadmap; operational checkpoint lives in `PL-V38-CURRENT.md`
-**Date:** 2026-08-18
-**Parent:** Planning Lite Roadmap v3.8.5 (Git history)
-**Evidence:** Poker Project Spine pilot + W0/PL-V38-00 + v3.8.2 alignment + PL-V38-01 Direction Foundation + PL-V38-02 Current/Gap + PL-V38-03 recommendation/history reconciliation + PL-V38-04 Roadmap synthesis/handoff
+**Date:** 2026-08-19
+**Parent:** Planning Lite Roadmap v3.8.6 (Git history)
+**Evidence:** Poker Project Spine pilot + W0/PL-V38-00 + v3.8.2 alignment + PL-V38-01..04 + PILOT-PL-DIRECTION-002 PREP-FINDING-001 + PL-V38-PREP-01 Poker snapshot replay
 
 ---
 
-# 1. Why v3.8.6 exists
+# 1. Why v3.8.7 exists
 
 v3.8 promoted Project Spine from a field-pilot hypothesis to a bounded implementation candidate.
 W0 then established that Planning Lite is **template/workflow-first**, not Python-domain-model-first.
@@ -24,9 +24,9 @@ planning_lite_tools / step-16.4.1
 
 v3.8.2 aligned Project Spine with the real template/workflow architecture and existing research assets.
 
-v3.8.6 records completion of `PL-V38-04`: Planning Lite can now synthesize coherent Roadmap outcomes from the accepted Project Spine, compare credible alternatives without fake numeric precision or inherited historical order, accept exactly one current `NOW` direction under explicit human authority, and hand that accepted outcome to the existing Change-definition lifecycle without auto-creating work.
+v3.8.7 preserves completion of `PL-V38-04` and inserts one evidence-driven corrective gate before the scored Poker field pilot. PL-V38-04 established that Planning Lite can now synthesize coherent Roadmap outcomes from the accepted Project Spine, compare credible alternatives without fake numeric precision or inherited historical order, accept exactly one current `NOW` direction under explicit human authority, and hand that accepted outcome to the existing Change-definition lifecycle without auto-creating work.
 
-This completes the planned "catch Planning Lite up to Poker" semantic sequence. Planning Lite feature expansion now stops. The **next operation is the field gate** `PILOT-PL-DIRECTION-002` on frozen Poker; findings from that pilot must be reconciled before PL-V38-05+ is treated as stable.
+The planned "catch Planning Lite up to Poker" semantic sequence remains complete. During non-scored pilot preparation, `PREP-FINDING-001` showed that ordinary Copier update is unsafe when a consumer intentionally keeps `.planning/.agents` Git-ignored. `PL-V38-PREP-01` fixes that compatibility boundary. The **next operation is to repeat the non-scored migration preview**, obtain `PILOT_READY`, and only then start `PILOT-PL-DIRECTION-002` Attempt 001. Findings from the scored pilot must still be reconciled before PL-V38-05+ is treated as stable.
 
 ---
 
@@ -50,7 +50,8 @@ Completed central preparation before PL-V38-01:
 782c785  test: make template SHA receipt EOL-stable
 3306d7a  feat: add Project Spine current and gap foundation
 61fe59a  feat: preserve recommendation semantic residue
-PL-V38-04 commit: the commit containing this roadmap update
+PL-V38-04 commit: fafe133
+PL-V38-PREP-01 local-only update safety: the commit containing this roadmap update
 ```
 
 Verified local boundary before PL-V38-01:
@@ -63,7 +64,7 @@ v4.3.0 tag remains on 0e66941
 no new release tag
 ```
 
-PL-V38-00 is complete. PL-V38-01 and its EOL-stable test hotfix are complete; PL-V38-02 and PL-V38-03 are implemented Project Spine product slices. Reference PL-V38-03 verification is recorded in the commit/result receipt; release remains unperformed.
+PL-V38-00 and PL-V38-01..04 are complete. PL-V38-PREP-01 is the bounded corrective product change triggered by non-scored Poker preparation. Release remains unperformed; PL-V38-05 remains stopped pending the repaired field gate.
 
 ---
 
@@ -528,11 +529,38 @@ The accepted `NOW` outcome may be handed to existing `CHANGE_DEFINITION` **only 
 
 ---
 
+## COMPLETE CORRECTIVE GATE — PL-V38-PREP-01
+
+**Local-only consumer update safety**
+
+Triggered by `PILOT-PL-DIRECTION-002 / PREP-FINDING-001`, where a disposable Poker preview using ordinary Copier update lost 96 ignored managed files even though those files remained in the central template. The scored field attempt had not started.
+
+Implemented contract:
+
+```text
+local-only managed roots detected
+→ check = ownership-aware file plan, no writes
+→ ordinary update = FAIL CLOSED
+→ explicit update --local-only = atomic ownership-aware apply
+→ project-owned existing files preserved byte-for-byte
+→ unknown/unsafe ownership transition = STOP
+```
+
+Before the field gate can start, repeat the non-scored Poker migration preview and require:
+
+```text
+zero unintended managed removals
+Doctor OK
+project-owned hash preservation
+idempotent second check
+PILOT_READY receipt
+```
+
 ## NEXT FIELD GATE — PILOT-PL-DIRECTION-002
 
 ### Poker continuation / next-Change derivation
 
-Poker was intentionally frozen while PL-V38-01 through PL-V38-04 were implemented. After local verification of PL-V38-04, resume Poker from its clean post-CHG-0008 boundary. Use the newly implemented Planning Lite direction flow to determine the next bounded Bayesian implementation Change.
+Poker was intentionally frozen while PL-V38-01 through PL-V38-04 were implemented. After local verification of PL-V38-PREP-01 and a successful non-scored local-only migration preview, resume Poker from its clean post-CHG-0008 boundary. Use the newly implemented Planning Lite direction flow to determine the next bounded Bayesian implementation Change.
 
 Expected semantic test:
 
@@ -814,7 +842,7 @@ PL-V38-04:
 IMPLEMENTED ROADMAP SYNTHESIS + QUALITATIVE PRIORITIZATION + BOUNDED-CHANGE HANDOFF
 
 Poker:
-NEXT FIELD GATE — PILOT-PL-DIRECTION-002 AFTER LOCAL PL-V38-04 VERIFICATION
+NEXT — REPEAT NON-SCORED LOCAL-ONLY MIGRATION PREVIEW → PILOT_READY → PILOT-PL-DIRECTION-002
 
 Planning Lite feature expansion:
 STOP BEFORE PL-V38-05 UNTIL FIELD FINDINGS ARE RECONCILED

@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import sys
 import tomllib
+import tempfile
 from datetime import date
 from pathlib import Path
 from typing import Iterable
@@ -15,6 +16,12 @@ import yaml
 from packaging.version import InvalidVersion, Version
 
 from . import __version__
+from .local_update import (
+    LocalUpdateError,
+    apply_local_update_plan,
+    build_local_update_plan,
+    format_local_update_plan,
+)
 
 ANSWERS_FILE = ".copier-answers.planning-lite.yml"
 CONFIG_ENV = "PLANNING_LITE_TEMPLATE"
@@ -59,6 +66,28 @@ def _is_git_repo(target: Path) -> bool:
 def _is_dirty(target: Path) -> bool:
     output = _git_output(target, "status", "--porcelain")
     return bool(output)
+
+
+def _is_ignored(target: Path, relative: str) -> bool:
+    completed = subprocess.run(
+        ["git", "-C", str(target), "check-ignore", "-q", "--", relative],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    return completed.returncode == 0
+
+
+def _local_only_managed_roots(target: Path) -> tuple[str, ...]:
+    roots = []
+    for relative in (".planning", ".agents"):
+        if (target / relative).exists() and _is_ignored(target, relative):
+            roots.append(relative)
+    return tuple(roots)
+
+
+def _is_local_only_consumer(target: Path) -> bool:
+    return bool(_local_only_managed_roots(target))
 
 
 def _load_user_config() -> dict[str, object]:
@@ -244,6 +273,83 @@ def command_adopt(args: argparse.Namespace) -> int:
     return 0
 
 
+def _load_answers_mapping(path: Path) -> dict[str, object]:
+    try:
+        data = _load_yaml(path)
+    except (OSError, yaml.YAMLError) as exc:
+        raise PlanningLiteError(f"Cannot parse {path}: {exc}") from exc
+    if not isinstance(data, dict):
+        raise PlanningLiteError(f"{path} is not a valid Copier answers mapping")
+    return data
+
+
+def _render_local_update_candidate(
+    *,
+    target: Path,
+    answers_data: dict[str, object],
+    vcs_ref: str | None,
+) -> tempfile.TemporaryDirectory[str]:
+    source = answers_data.get("_src_path")
+    project_name = answers_data.get("project_name")
+    agent = answers_data.get("agent_adapter")
+    if not isinstance(source, str) or not source.strip():
+        raise PlanningLiteError(f"{ANSWERS_FILE} does not contain a usable `_src_path`")
+    if not isinstance(project_name, str) or not project_name.strip():
+        project_name = target.name
+    if not isinstance(agent, str) or not agent.strip():
+        raise PlanningLiteError(f"{ANSWERS_FILE} does not contain a usable `agent_adapter`")
+
+    temporary = tempfile.TemporaryDirectory(prefix="planning-lite-local-update-candidate-")
+    candidate = Path(temporary.name)
+    code = _copy_template(
+        target=candidate,
+        source=source.strip(),
+        project_name=project_name.strip(),
+        agent=agent.strip(),
+        vcs_ref=vcs_ref,
+        quiet=True,
+    )
+    if code != 0:
+        temporary.cleanup()
+        raise PlanningLiteError("Cannot render the local-only update candidate.")
+    return temporary
+
+
+def _command_local_only_update(
+    *,
+    target: Path,
+    answers: Path,
+    vcs_ref: str | None,
+    dry_run: bool,
+) -> int:
+    answers_data = _load_answers_mapping(answers)
+    temporary = _render_local_update_candidate(
+        target=target,
+        answers_data=answers_data,
+        vcs_ref=vcs_ref,
+    )
+    try:
+        candidate = Path(temporary.name)
+        try:
+            plan = build_local_update_plan(target, candidate)
+        except LocalUpdateError as exc:
+            raise PlanningLiteError(str(exc)) from exc
+        print(format_local_update_plan(plan))
+        if dry_run:
+            print("Dry run: no files were written.")
+            return 0
+        try:
+            apply_local_update_plan(target, candidate, plan)
+        except LocalUpdateError as exc:
+            raise PlanningLiteError(str(exc)) from exc
+        print("Planning Lite local-only update applied atomically.")
+        print("Project-owned existing files were preserved byte-for-byte.")
+        print("Next: run `planning-lite doctor .` in this consumer and review the local-only plan receipt/output.")
+        return 0
+    finally:
+        temporary.cleanup()
+
+
 def command_update(args: argparse.Namespace) -> int:
     target = Path(args.target).resolve()
     _require_clean_git(target, args.allow_dirty)
@@ -251,6 +357,38 @@ def command_update(args: argparse.Namespace) -> int:
     if not answers.exists():
         raise PlanningLiteError(
             f"{ANSWERS_FILE} is missing. Adopt Planning Lite before running an update."
+        )
+
+    local_roots = _local_only_managed_roots(target)
+    requested_local = bool(getattr(args, "local_only", False))
+    if local_roots:
+        # A preview is always safe and should be informative. A real write needs
+        # an explicit opt-in so ordinary Copier update can never silently touch
+        # an ignored/untracked managed tree.
+        if args.dry_run:
+            print(
+                "Detected local-only Planning Lite managed roots: "
+                + ", ".join(local_roots)
+            )
+            return _command_local_only_update(
+                target=target, answers=answers, vcs_ref=args.vcs_ref, dry_run=True
+            )
+        if not requested_local:
+            raise PlanningLiteError(
+                "Planning Lite managed roots are Git-ignored/local-only: "
+                + ", ".join(local_roots)
+                + ". Ordinary Copier update is blocked because it can remove ignored managed files. "
+                "Run `planning-lite check ...` for a safe mutation plan, then rerun "
+                "`planning-lite update ... --local-only` to apply it."
+            )
+        return _command_local_only_update(
+            target=target, answers=answers, vcs_ref=args.vcs_ref, dry_run=False
+        )
+
+    if requested_local:
+        raise PlanningLiteError(
+            "`--local-only` was requested, but `.planning`/`.agents` are not detected as "
+            "Git-ignored local-only managed roots. Use the ordinary update path."
         )
 
     command = _copier_command(
@@ -432,6 +570,9 @@ def command_release(args: argparse.Namespace) -> int:
         template_test = target / "scripts" / "test_template_update.py"
         if template_test.exists():
             checks.append([sys.executable, str(template_test)])
+        local_only_test = target / "scripts" / "test_local_only_update.py"
+        if local_only_test.exists():
+            checks.append([sys.executable, str(local_only_test)])
         for command in checks:
             if _run(command, cwd=target) != 0:
                 raise PlanningLiteError(
@@ -598,12 +739,22 @@ def build_parser() -> argparse.ArgumentParser:
     update.add_argument("--vcs-ref")
     update.add_argument("--dry-run", action="store_true")
     update.add_argument("--allow-dirty", action="store_true")
+    update.add_argument(
+        "--local-only",
+        action="store_true",
+        help="Safely update Git-ignored .planning/.agents using ownership-aware atomic apply.",
+    )
     update.set_defaults(func=command_update)
 
     check = subparsers.add_parser("check", help="Preview a Planning Lite update without writing files.")
     check.add_argument("target", nargs="?", default=".")
     check.add_argument("--vcs-ref")
     check.add_argument("--allow-dirty", action="store_true")
+    check.add_argument(
+        "--local-only",
+        action="store_true",
+        help="Explicitly request local-only preview; auto-detected for ignored managed roots.",
+    )
     check.set_defaults(func=command_update, dry_run=True)
 
     doctor = subparsers.add_parser("doctor", help="Validate a Planning Lite installation.")

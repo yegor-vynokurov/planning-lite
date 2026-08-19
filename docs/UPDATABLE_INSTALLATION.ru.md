@@ -183,6 +183,44 @@ git diff --stat
 
 Повторно выполнять `configure` обычно не требуется.
 
+### Local-only consumer: `.planning` / `.agents` не хранятся в Git
+
+Некоторые проекты сознательно держат Planning Lite как локальный operational state и игнорируют `.planning/` и/или `.agents/` в Git. Для таких consumer-проектов обычный Copier update небезопасен: Git/Copier history не видит ignored managed tree и может интерпретировать существующие framework-файлы как удалённые.
+
+Planning Lite обнаруживает этот режим автоматически.
+
+Безопасный preview:
+
+```powershell
+planning-lite check . --vcs-ref <exact-ref>
+```
+
+`check` рендерит pristine candidate отдельно и показывает file-level mutation plan (`ADD_MANAGED`, `UPDATE_MANAGED`, `REMOVE_MANAGED`, `KEEP_PROJECT`, и т.д.) без записи в consumer.
+
+Обычная write-команда в local-only consumer блокируется fail-closed:
+
+```powershell
+planning-lite update . --vcs-ref <exact-ref>
+```
+
+После проверки preview применяйте явно:
+
+```powershell
+planning-lite update . --vcs-ref <exact-ref> --local-only
+planning-lite doctor .
+```
+
+Local-only updater:
+
+- обновляет только centrally managed files из pristine candidate;
+- сохраняет существующие project-owned files byte-for-byte;
+- создаёт новые project-owned first-class artifacts только если их ещё нет;
+- удаляет старый managed file только при подтверждённой ownership-lineage и фактическом отсутствии файла в новом candidate;
+- останавливается на unknown/unsafe ownership transition;
+- post-verify-ит writes и откатывает затронутые файлы при ошибке.
+
+`--local-only` не нужен и не разрешён для обычного tracked managed-tree consumer.
+
 ## 5. Необязательное переопределение источника
 
 По умолчанию используется официальный репозиторий:
@@ -225,6 +263,7 @@ uv sync
 uv run planning-lite --version
 uv run pytest
 uv run python scripts/test_template_update.py
+uv run python scripts/test_local_only_update.py
 ```
 
 Внутри центрального репозитория `configure` не нужен: CLI распознаёт локальные `copier.yml` и `template/`.

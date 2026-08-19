@@ -131,6 +131,8 @@ The complete policy is stored in:
 .planning/framework/OWNERSHIP.yml
 ```
 
+If a consumer intentionally keeps `.planning/` / `.agents/` Git-ignored, Planning Lite treats it as a **local-only consumer**. `planning-lite check` produces an ownership-aware file plan, ordinary `update` fails closed, and writes require explicit `planning-lite update --local-only`. Existing project-owned files are preserved byte-for-byte. See `docs/UPDATABLE_INSTALLATION.ru.md`.
+
 ## Central repository development
 
 Clone the repository only when you intend to modify Planning Lite itself:
@@ -141,9 +143,10 @@ cd planning-lite
 uv sync
 uv run pytest
 uv run python scripts/test_template_update.py
+uv run python scripts/test_local_only_update.py
 ```
 
-`planning-lite doctor .` is **not** a central-repository validation command. `doctor` validates an adopted/installed consumer project, where `.planning/`, `.agents/`, and `.copier-answers.planning-lite.yml` exist at the project root. The smoke test above creates such a temporary consumer and runs Doctor there.
+`planning-lite doctor .` is **not** a central-repository validation command. `doctor` validates an adopted/installed consumer project, where `.planning/`, `.agents/`, and `.copier-answers.planning-lite.yml` exist at the project root. The smoke tests above create temporary consumers and run Doctor there.
 
 Development, release automation, and template-update operations are documented separately in:
 

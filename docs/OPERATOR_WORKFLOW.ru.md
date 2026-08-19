@@ -11,9 +11,10 @@
    uv sync
    uv run pytest
    uv run python scripts/test_template_update.py
+   uv run python scripts/test_local_only_update.py
    ```
 
-   Последняя команда создаёт временный consumer-проект, выполняет adopt и запускает Doctor **в этом временном consumer**, а не в корне central repo.
+   Две smoke-команды создают временные consumer-проекты; обе проверяют consumer boundary, а не корень central repo. `test_template_update.py` проверяет обычный adopt, `test_local_only_update.py` — переход v4.2.0 local-only consumer на текущий HEAD.
 5. Закоммитить изменения.
 6. Перейти на чистую ветку `main`.
 7. Запустить `uv run planning-lite release patch|minor|major`.
@@ -28,13 +29,19 @@
 
 1. Завершить или checkpoint текущую агентную работу.
 2. Убедиться, что рабочее дерево чистое.
-3. Создать отдельную ветку обновления Planning Lite.
-4. Выполнить `planning-lite check .`.
-5. Выполнить `planning-lite update .`.
-6. Разрешить конфликты только в managed-файлах.
-7. Выполнить `planning-lite doctor .`.
-8. Проверить, что project-owned файлы сохранились.
-9. Закоммитить обновление отдельно от продуктового кода.
+3. Определить installation mode:
+   - managed `.planning/.agents` tracked → ordinary Copier update;
+   - managed `.planning/.agents` Git-ignored/local-only → ownership-aware local-only update.
+4. Выполнить `planning-lite check .` и прочитать preview. Для local-only consumer preview обязан быть file-level mutation plan.
+5. Применить соответствующий путь:
+   - tracked: `planning-lite update .`;
+   - local-only: `planning-lite update . --local-only`.
+6. Разрешать конфликты/ownership questions только до применения записи; unknown ownership должен остановить local-only update.
+7. Выполнить `planning-lite doctor .` в consumer.
+8. Проверить, что project-owned files сохранились. Local-only updater дополнительно проверяет их byte hashes автоматически.
+9. Для tracked consumer закоммитить framework update отдельно от продуктового кода. Для intentionally local-only consumer не добавлять `.planning/.agents` в Git только ради updater.
+
+> **Fail-closed boundary:** обычный `planning-lite update .` не имеет права молча применять Copier update к обнаруженному Git-ignored managed tree. Сначала `check`, затем явный `--local-only`.
 
 ## 3. Что редактировать где
 
