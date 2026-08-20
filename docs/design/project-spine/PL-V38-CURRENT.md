@@ -1,7 +1,7 @@
 # PL-V38 current operational checkpoint
 
 **Purpose:** compact resumable state for a new chat/agent. Read this file before reopening full roadmap/history.
-**Updated:** 2026-08-19
+**Updated:** 2026-08-20
 
 ## Central Planning Lite boundary
 
@@ -38,15 +38,15 @@ Post-PL-V38-04 docs/test-instructions hotfix: e51320b. No product/template seman
 ## Priority / stop gate
 
 ```text
-PRIMARY NEXT: start PILOT-PL-DIRECTION-002 scored Attempt 001 with the frozen `operator/ENTRY_PROMPT.txt`
-PRE_UPDATE_BASELINE: PASS / captured at Poker `f88a7fb9aeb5e6baa62cd362a9156fa4a943c063`
-PILOT PREPARATION: 1.1.2 / validation PASS
-REPAIRED DISPOSABLE PREVIEW: PASS / REMOVE_MANAGED=0 / Doctor OK / second plan zero mutations
-CANONICAL POKER MIGRATION: PASS / metadata-only commit `920dad303f8750b5bc65b38f3bace4f72cb2819c` on local branch `planning/continuation-baseline`
-PROJECT SPINE MATERIALIZATION: PASS
-PILOT_READY: PASS / receipt `runs/preflight/pilot-ready/PILOT_READY.json`
-REMOTE PILOT CANDIDATE: `pilot/pl-direction-002` → `c7a8cce...`
-SCORED ATTEMPT-001: NOT STARTED / attempts executed = 0
+PILOT-PL-DIRECTION-002: IN PROGRESS
+ATTEMPT-001 ENTRY: COMPLETE / B_VALID_RECONCILIATION_DETOUR
+ATTEMPT-001 FOLLOW-UP B: PASS / fact-only PROJECT_STATE_REFRESH
+ATTEMPT-001 CHANGE CREATION: 0
+ATTEMPT-001 PRODUCTION CHANGES: 0
+CURRENT POKER FIXTURE: HEAD 920dad3 / branch planning/continuation-baseline / tracked tree clean
+CURRENT DIRECTION: RM-PKR-001 remains NOW / GAP-PKR-002 and GAP-PKR-003 remain open
+ATTEMPT-002: NEXT / fresh agent session with unchanged frozen entry prompt after owner-aware readiness PASS
+FIELD RECOMMENDATION: REC-PL-DIRECTION-002-v1.md
 PLANNING LITE FEATURE EXPANSION: STOP before PL-V38-05
 ```
 
@@ -111,55 +111,60 @@ no PL-V38-05 before Poker field findings are reconciled
 
 ## Next — scored field gate
 
-All non-scored migration/materialization gates are complete. The repaired local-only updater has passed synthetic regression, disposable real-Poker replay, canonical read-only check, canonical atomic update, Doctor, and idempotence. The canonical scored fixture is clean and `PILOT_READY: PASS`.
+Attempt 001 is complete and closed at the reconciliation boundary.
 
-Start exactly one scored Attempt 001 with the frozen entry prompt from the Lab package:
+Observed:
 
 ```text
-operator/ENTRY_PROMPT.txt
+Entry → B_VALID_RECONCILIATION_DETOUR
+Follow-up B → PASS
+PROJECT_STATE_REFRESH → provenance-only / no reprioritization
+Change creation → none
+production change → none
 ```
 
-Do not add coaching before the entry turn. After the response, classify it using the frozen `operator/BRANCH_POLICY.md` (A–H). Only branch A permits the later frozen Follow-up A; genuine inconsistency follows branch B; premature write or historical-priority regression are hard failures.
+The agent correctly enforced the Current-State Consistency Gate, but this means the primary
+next-Change handoff hypothesis was not cleanly tested in Attempt 001. Pilot-readiness validation
+also exposed a harness weakness: machine checks must follow authoritative ownership and validate
+positive current assertions rather than scan long historical documents for forbidden old tokens.
 
-Expected Poker field state remains:
+The current reconciled Poker facts are:
 
 ```text
 fixture branch: planning/continuation-baseline
 fixture HEAD: 920dad303f8750b5bc65b38f3bace4f72cb2819c
 scientific parent: f88a7fb9aeb5e6baa62cd362a9156fa4a943c063
-CHG-0008 completed
-RM-PKR-001 still NOW
-GAP-PKR-002 open
-GAP-PKR-003 open
-Bayesian study protocol exists
-study implementation absent
-no active Change
+tracked tree: clean
+Planning Lite: v4.3.0-11-gc7a8cce
+active Change: none
 implementation authorized: No
+RM-PKR-001: NOW
+GAP-PKR-002: open
+GAP-PKR-003: open
 ```
 
-The field test should determine whether Planning Lite can correctly conclude roughly:
+Primary next:
 
 ```text
-completed protocol Change contributed to RM-PKR-001
-BUT RM-PKR-001 is not complete
-AND GAP-PKR-002 / GAP-PKR-003 remain open
-→ next governed step is bounded Change definition for implementation/evidence of the approved study protocol
+owner-aware ATTEMPT_002_READY validation
+→ fresh agent session
+→ unchanged operator/ENTRY_PROMPT.txt
+→ preserve first response
+→ frozen A–H adjudication
 ```
 
-Observe especially:
+Do not continue Attempt 001 into user slice selection. Attempt 002 is the clean test of whether
+Planning Lite can form a bounded next-step proposal from the accepted Roadmap while preserving
+human approval authority.
+
+Field findings are consolidated in:
 
 ```text
-repeating CHG-0008 protocol work
-premature Gap/Roadmap/Recommendation closure
-return to stale API-first priority
-production integration before study evidence
-one mega-Change that tries to finish RM-PKR-001 at once
-unnecessary broad history reload
-loss of exact completed-Change/recommendation-unit lineage
-failure to preserve protocol-first scientific boundaries
+REC-PL-DIRECTION-002-v1.md
 ```
 
-After Attempt 001, preserve the full agent response and branch classification before any recovery/diagnostic turn. Reconcile field findings before deciding whether PL-V38-05 should proceed unchanged, be amended, or be preceded by another repair change.
+Reconcile Attempt 002 before deciding whether PL-V38-05 proceeds unchanged or needs a bounded
+handoff-semantics repair.
 
 ## Research assets
 
@@ -195,6 +200,9 @@ research asset roles:
 
 consolidated recommendation:
   REC-PL-DIRECTION-001-v2.md
+
+field-derived consistency/readiness recommendation:
+  REC-PL-DIRECTION-002-v1.md
 
 local-only update corrective change:
   PL-V38-PREP-01-LOCAL-ONLY-UPDATE-SAFETY.md

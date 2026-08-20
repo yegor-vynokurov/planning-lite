@@ -1,7 +1,7 @@
 # Project Spine / Direction Workflows design track
 
 **Status:** tracked design source for the next Planning Lite direction work
-**Implementation status:** PL-V38-01 through PL-V38-04 plus PL-V38-PREP-01 (`c7a8cce`) implemented and locally verified; exact pilot candidate published at `pilot/pl-direction-002`; repaired non-scored Poker migration/materialization reached `PILOT_READY: PASS`; scored Attempt 001 is next; not released
+**Implementation status:** PL-V38-01 through PL-V38-04 plus PL-V38-PREP-01 (`c7a8cce`) implemented and locally verified; repaired Poker migration/materialization passed; Attempt 001 completed as a valid Branch-B reconciliation detour with no Change/production mutation; owner-aware Attempt-002 readiness is next; not released
 **Current alignment:** v3.8.7
 
 This directory preserves the Project Spine design work derived from the Poker field pilot and aligns it with the actual Planning Lite architecture and existing research assets.
@@ -24,12 +24,13 @@ Planning Lite roadmap v3.6.2
 → PL-V38-03 recommendation/history reconciliation
 → PL-V38-04 Roadmap synthesis + Change handoff
 → PL-V38-PREP-01 local-only consumer update safety
-→ v3.8.7 / repaired migration + PILOT_READY PASS → Poker Field Pilot 2 Attempt 001
+→ v3.8.7 / repaired migration + PILOT_READY PASS → Attempt 001 Branch-B reconciliation PASS → REC-PL-DIRECTION-002 v1 → Attempt 002
 ```
 
 ## Files
 
 - `REC-PL-DIRECTION-001-v2.md` — consolidated Project Spine recommendation.
+- `REC-PL-DIRECTION-002-v1.md` — field-derived authority-owned consistency, readiness, and bounded-handoff recommendation.
 - `PL-V38-CURRENT.md` — compact operational handoff; read first after a context reset.
 - `PLANNING-LITE-ROADMAP-v3.8.7.ru.md` — current implementation-facing roadmap.
 - `DIRECTION-WORKFLOW-PLAYBOOKS-v1.2.md` — normalized workflow semantics aligned to `template/.planning/control` and research-asset reuse boundaries.

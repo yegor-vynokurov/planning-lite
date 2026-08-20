@@ -270,11 +270,22 @@ Research-heavy outcomes explicitly consider protocol-first composition rather th
 
 # 7. FIELD — Poker Project Spine Field Pilot 2
 
-PL-V38-04 is complete and PL-V38-PREP-01 (`c7a8cce`) repairs the local-only update boundary found during non-scored preparation. Central tests, template smoke, local-only migration smoke, repaired disposable Poker preview, canonical metadata-only migration (`920dad3`), Doctor/idempotence, deterministic materialization, and `PILOT_READY` are PASS. **Stop Planning Lite feature expansion now**. Start scored Poker Attempt 001 with the frozen entry prompt; do not pre-create the next Change.
+PL-V38-04 and PL-V38-PREP-01 are complete. The repaired Poker fixture reached `PILOT_READY`; scored Attempt 001 then correctly stopped on a material current-state provenance inconsistency and completed fact-only reconciliation through `PROJECT_STATE_REFRESH`. No Change was created, production was not touched, and `RM-PKR-001` remained NOW.
 
-Use Planning Lite itself to derive the next bounded Bayesian implementation Change. Capture failures/overreads/authority mistakes as new Planning Lite evidence.
+**Stop Planning Lite feature expansion now.**
 
-Do not manually pre-create the Poker implementation Change before this pilot; that next-Change derivation is the field test.
+Next field operation:
+
+```text
+owner-aware ATTEMPT_002_READY
+→ fresh agent session
+→ unchanged frozen entry prompt
+→ adjudicate first response before any approval
+```
+
+Attempt 002 is now the clean next-Change derivation test. Capture whether the agent can propose a bounded next slice from the accepted `RM-PKR-001` while reserving approval to the user. Do not manually pre-create the Poker implementation Change or preselect the slice for the agent.
+
+Consolidate owner/provenance/readiness findings through `REC-PL-DIRECTION-002-v1.md` and reconcile them before PL-V38-05.
 
 ---
 
