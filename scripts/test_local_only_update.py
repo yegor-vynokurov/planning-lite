@@ -152,6 +152,7 @@ def main() -> None:
             str(target),
             "--vcs-ref",
             "HEAD",
+            "--allow-dirty",
             cwd=central,
             capture=True,
         )
