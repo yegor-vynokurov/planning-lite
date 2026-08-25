@@ -1,7 +1,7 @@
 # PILOT-PL-DIRECTION-002 — PREP-FINDING-001
 
-**Class:** consumer-update compatibility defect  
-**Stage:** non-scored preparation  
+**Class:** consumer-update compatibility defect
+**Stage:** non-scored preparation
 **Scored attempt started:** NO
 
 ## Condition

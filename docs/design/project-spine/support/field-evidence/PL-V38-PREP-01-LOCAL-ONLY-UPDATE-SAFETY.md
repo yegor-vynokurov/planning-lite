@@ -1,7 +1,7 @@
 # PL-V38-PREP-01 — Local-only consumer update safety
 
-**Status:** IMPLEMENTED CANDIDATE  
-**Parent:** `e51320bf4ebb9fc3eecd88d1eb8e52a12a803b3e`  
+**Status:** IMPLEMENTED CANDIDATE
+**Parent:** `e51320bf4ebb9fc3eecd88d1eb8e52a12a803b3e`
 **Trigger:** `PILOT-PL-DIRECTION-002` non-scored preparation finding
 
 ## Problem

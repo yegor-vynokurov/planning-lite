@@ -1,9 +1,9 @@
 # REC-PL-DIRECTION-002 v1 — Authority-owned consistency and evidence-safe readiness
 
-**Status:** `PROVISIONAL / FIELD-DERIVED / OPEN`  
-**Date:** 2026-08-20  
-**Source:** `PILOT-PL-DIRECTION-002`, non-scored preparation + scored Attempt 001  
-**Visibility:** `ACTIVE_DIRECTION` until the Poker field findings are reconciled  
+**Status:** `PROVISIONAL / FIELD-DERIVED / OPEN`
+**Date:** 2026-08-20
+**Source:** `PILOT-PL-DIRECTION-002`, non-scored preparation + scored Attempt 001
+**Visibility:** `ACTIVE_DIRECTION` until the Poker field findings are reconciled
 **Implementation authority:** none; this recommendation records field evidence and constraints
 
 ---

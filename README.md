@@ -88,14 +88,29 @@ The hidden Copier answers file is retained so that the project can later be move
 
 ## Current development design track
 
-The current unreleased Project Spine / Direction Workflows design and operational handoff are tracked in:
+Planning Lite's own unreleased development/design state has one stable entry point:
 
 ```text
-docs/design/project-spine/PL-V38-CURRENT.md
-docs/design/project-spine/
+docs/design/project-spine/CURRENT.md
 ```
 
-Read `PL-V38-CURRENT.md` first after a context reset. PL-V38-01 through PL-V38-04 now implement the Project Spine direction-to-Change handoff foundation. Planning Lite feature expansion is intentionally stopped before PL-V38-05; the next gate is Poker Field Pilot 2 (`PILOT-PL-DIRECTION-002`).
+Current development Roadmap:
+
+```text
+docs/design/project-spine/roadmap/ROADMAP.md
+```
+
+Deferred recommendation residue:
+
+```text
+docs/design/project-spine/recommendations/FUTURE-RESERVE.md
+```
+
+New development Discoveries and Recommendations have separate intake locations under
+`docs/design/project-spine/`.
+
+`PL-V38-CURRENT.md` remains as a compatibility/field checkpoint, but it is no longer
+the navigation root for the whole design track.
 
 ## Update-enabled installation
 
