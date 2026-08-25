@@ -1,5 +1,15 @@
 # PL-V38 current operational checkpoint
 
+<!-- PL_LEGACY_CURRENT_GUARD_V1:BEGIN -->
+> **LEGACY CHECKPOINT / NOT CURRENT RESUME AUTHORITY**
+>
+> This file is preserved for compatibility and historical evidence. For any
+> new chat, new agent, or current development decision, read
+> `docs/design/project-spine/CURRENT.md` first. The Resume Contract there
+> overrides current-looking historical wording in this checkpoint.
+<!-- PL_LEGACY_CURRENT_GUARD_V1:END -->
+
+
 **Purpose:** compact resumable state for a new chat/agent. Read this file before reopening full roadmap/history.
 **Updated:** 2026-08-20
 

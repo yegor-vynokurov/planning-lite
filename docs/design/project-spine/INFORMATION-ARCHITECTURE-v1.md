@@ -106,3 +106,24 @@ This is a documentation/design information-architecture normalization.
 
 The software package remains on its existing `v4.3.0` lineage until a governed
 product Change explicitly modifies released behavior.
+
+<!-- PL_PROJECT_SPINE_AUTHORITY_PRECEDENCE_V1:BEGIN -->
+## Authority precedence
+
+When current-looking sources disagree, use this precedence:
+
+1. **live Git checkout identity** establishes which repository/version is being inspected;
+2. `docs/design/project-spine/CURRENT.md` is the sole current resume/navigation authority;
+3. `docs/design/project-spine/roadmap/ROADMAP.md` is the current direction/sequencing authority;
+4. a tracked active Change or transition receipt explicitly referenced by `CURRENT.md` has bounded Change-specific authority;
+5. `checkpoints/**` and `support/**` provide evidence and historical rationale;
+6. `roadmap/archive/**` and `recommendations/archive/**` are historical lineage;
+7. `.planning-lab/**` is explicitly non-canonical research/experimental state.
+
+Lower layers **must not silently override** a higher authority. A higher layer
+may explicitly delegate a bounded decision to a referenced receipt. Missing
+referenced authority fails closed; do not fall back to a similarly named file.
+
+Dynamic Git facts are derived live and are not duplicated as mutable semantic
+state in `CURRENT.md`.
+<!-- PL_PROJECT_SPINE_AUTHORITY_PRECEDENCE_V1:END -->

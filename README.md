@@ -1,5 +1,36 @@
 # Planning Lite
 
+<!-- PL_CENTRAL_RESUME_ENTRY_V1:BEGIN -->
+## Central-source maintainer entry
+
+This repository is the **Planning Lite central source repository**. It is not an
+ordinary Planning Lite consumer project.
+
+Before resuming central development, especially in a new chat or with a new
+maintainer:
+
+```powershell
+git rev-parse --show-toplevel
+python scripts/maintainer_resume.py
+```
+
+Then follow the canonical resume authority:
+
+```text
+docs/design/project-spine/CURRENT.md
+```
+
+Repository identity comes from Git, not from the directory name. A source
+snapshot that merely contains `pyproject.toml`, `copier.yml`, `template/`, and
+Project Spine files is not a verified central checkout.
+
+Do not create or use a root consumer `.planning` lifecycle for central
+development, and do not run `planning-lite doctor .` at the central repository
+root. Consumer `doctor` checks belong in adopted target projects or disposable
+consumer fixtures.
+<!-- PL_CENTRAL_RESUME_ENTRY_V1:END -->
+
+
 Planning Lite is a repository-local set of planning prompts, agent instructions, skills, and project-state templates for coding agents.
 
 The normal installation is intentionally small: open a terminal in the project that should receive Planning Lite and run one command.

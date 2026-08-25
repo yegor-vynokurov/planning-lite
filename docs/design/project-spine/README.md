@@ -85,3 +85,25 @@ largest version number in the directory.
 `.planning-lab/` remains non-canonical experimental/research state. Historical
 files there may be referenced as evidence, but new current development Roadmaps,
 Discoveries, and Recommendations should use this tracked structure.
+
+<!-- PL_PROJECT_SPINE_RESUME_AUTHORITY_V1:BEGIN -->
+## Central resume authority
+
+For a new chat, new agent, or returning maintainer, start with:
+
+```text
+docs/design/project-spine/CURRENT.md
+```
+
+`CURRENT.md` contains the canonical semantic Resume Contract. Live repository
+facts such as Git root, branch, HEAD, `origin/main`, ahead/behind, and working
+tree status are derived by:
+
+```text
+scripts/maintainer_resume.py
+```
+
+Do not infer current authority from similarly named historical files.
+`PL-V38-CURRENT.md` is a legacy checkpoint, Roadmap archives are historical,
+`support/**` is evidence, and `.planning-lab/**` is non-canonical research state.
+<!-- PL_PROJECT_SPINE_RESUME_AUTHORITY_V1:END -->

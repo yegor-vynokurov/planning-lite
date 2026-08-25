@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added a read-only central repository resume contract and maintainer helper that verifies Git identity, makes `CURRENT.md` the canonical session-handoff authority, fails closed for non-Git snapshots, and keeps consumer/runtime behavior unchanged.
+
 - Add fail-closed ownership-aware updates for consumers that keep `.planning/` / `.agents/` Git-ignored, including file-level preview, atomic `--local-only` apply, project-owned hash preservation, and a v4.2.0 migration regression fixture.
 
 - Clarified maintainer verification: central source repos use pytest + template-update smoke; `planning-lite doctor .` is consumer-only.
@@ -52,7 +54,7 @@ proposal approved
 → readiness audit
 → direct execution authorization
 
-- also added 
+- also added
 Facts vs Decisions в critic mode;
 WAYFINDING.md for big tasks;
 CODEBASE_DESIGN.md;
@@ -71,7 +73,7 @@ new version of project glossary for canonical terms of the project (autho fillin
 
 ## 4.0.0 - 2026-07-16
 
-- big update to avoide duplications in the control prompts 
+- big update to avoide duplications in the control prompts
 - to clarify functional procedures for agents such as closure.
 
 ## 3.1.2 - 2026-07-15

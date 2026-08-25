@@ -1,5 +1,38 @@
 # Операторский workflow
 
+<!-- PL_CENTRAL_RESUME_WORKFLOW_V1:BEGIN -->
+## Resume / New Chat / New Maintainer
+
+Central development resume is a read-first workflow:
+
+```powershell
+git rev-parse --show-toplevel
+python scripts/maintainer_resume.py
+```
+
+If Git identity cannot be established, treat the directory as a snapshot, not
+as an implementation-ready central checkout. Do not repair that condition with
+an automatic `git init`.
+
+If the helper passes:
+
+1. use `docs/design/project-spine/CURRENT.md` as the sole resume/navigation authority;
+2. resolve the active Change and lifecycle gate from its Resume Contract block;
+3. use `docs/design/project-spine/roadmap/ROADMAP.md` only for current direction sequencing;
+4. load checkpoints, support evidence, archives, and `.planning-lab/**` only when needed;
+5. before implementation, require a clean or explicitly adjudicated working tree.
+
+**resume safety** and **implementation readiness** are different. A dirty
+checkout may still be readable for resume/navigation, but dirt must be reported
+and must not be silently treated as implementation-ready.
+
+The Planning Lite repository is the central source, not a consumer project.
+Do not use a root `.planning` lifecycle here and do not run
+`planning-lite doctor .` at the central repository root. The central
+verification contract uses the maintainer test/smoke commands instead.
+<!-- PL_CENTRAL_RESUME_WORKFLOW_V1:END -->
+
+
 ## 1. Изменение центрального Planning Lite
 
 1. Создать ветку в центральном репозитории.
