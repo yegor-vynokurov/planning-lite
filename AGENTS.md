@@ -44,6 +44,62 @@ The release command runs checks, finalizes the changelog, creates a release comm
 
 The built-in fallback source is `https://github.com/yegor-vynokurov/planning-lite`. Keep source resolution ordered from explicit overrides to the official fallback, and update the source-precedence tests whenever that behavior changes.
 
+## Cold start / resume
+
+For a fresh chat, coding agent, or maintainer session, do not reconstruct live
+state from conversation memory, old Roadmaps, or `.planning-lab/**`.
+
+Start from the Git-backed central checkout:
+
+```powershell
+git rev-parse --show-toplevel
+uv run --frozen python scripts/maintainer_resume.py
+```
+
+Then:
+
+1. treat `docs/design/project-spine/CURRENT.md` as the sole resume/navigation authority;
+2. follow its `next_permitted_action`;
+3. open `docs/design/project-spine/roadmap/ROADMAP.md` only when current direction sequencing is needed;
+4. load the referenced Change/checkpoint/evidence only as required by that action;
+5. if Git identity is missing, treat the directory as a snapshot, not an implementation-ready checkout;
+6. if the working tree is dirty, report/adjudicate the dirt before writes;
+7. do not run `planning-lite doctor .` at the central repository root.
+
+A consumer project uses a different entry path: read that project's `AGENTS.md`,
+then `.planning/control/ROOT_ROUTER.md`. Do not use the central
+`maintainer_resume.py` workflow inside ordinary consumer projects.
+
+## Verification economy
+
+Use the smallest evidence stack sufficient for the new behavior and blast radius.
+
+Preferred order:
+
+```text
+existing owner/product tests
+→ one focused acceptance probe for genuinely new behavior
+→ Git/write-boundary verification
+→ broader/full suite only at meaningful integration, completion, or release gates
+```
+
+Rules:
+
+- do not duplicate an invariant already owned by an existing test;
+- do not assert on CLI help wording, prose formatting, pytest rendering, or other
+  presentation text unless that literal representation is itself contractual;
+- derive structural facts directly from Git, filesystem state, manifests, or the
+  owning data structure when those are available;
+- do not parse a human-oriented failure rendering as machine-readable repository state;
+- when a custom verifier fails, adjudicate `product defect` versus `verifier defect`
+  before changing product code;
+- consumer/update smoke tests whose source identity depends on Git metadata must run
+  from a clean committed central source;
+- a read-only or documentation-only step should not inherit a full regression suite
+  merely because the suite exists.
+
+The goal is evidence quality, not assertion count.
+
 ## Verification
 
 Before declaring a framework change complete:

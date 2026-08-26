@@ -484,6 +484,34 @@ checklist
 
 ---
 
+
+## 4.10 Evidence-efficient verification
+
+Verification should use the smallest sufficient evidence set for the actual
+novelty and blast radius.
+
+Preferred evidence stack:
+
+```text
+existing owner/product tests
+→ one focused acceptance probe for genuinely new behavior
+→ Git/write-boundary verification
+→ broader/full suite at meaningful integration, completion, or release gates
+```
+
+Do not improve confidence by mechanically multiplying bespoke assertions.
+
+In particular:
+
+- direct repository state outranks presentation/rendering text when both express the same fact;
+- CLI help prose, pytest failure formatting, and human-oriented diagnostics are not APIs unless explicitly contracted as such;
+- an invariant already owned by an existing product test should normally be reused, not reimplemented in orchestration code;
+- a failed custom verifier is first classified as `PRODUCT_DEFECT` or `VERIFIER_DEFECT`;
+- consumer/update verification that depends on source revision identity runs from a clean committed source;
+- verification depth scales with semantic materiality and blast radius, not with the number of available tests.
+
+This is a cross-cutting evidence discipline, not a new workflow stage or testing subsystem.
+
 # 5. Current completed foundation
 
 The integrated roadmap preserves the completed v3.8.7 work.
