@@ -1,6 +1,6 @@
 # Planning Lite 4.x template `.planning` manifest
 
-Files: **152**.
+Files: **159**.
 
 ## Files
 
@@ -58,11 +58,13 @@ Files: **152**.
 - `.planning/control/CONTEXT_POLICY.md`
 - `.planning/control/CURRENT_CAPABILITY_ASSESSMENT.md`
 - `.planning/control/DIRECTION_INVENTORY.md`
+- `.planning/control/DISCOVERY_LIFECYCLE.md`
 - `.planning/control/DRIFT_POLICY.md`
 - `.planning/control/GIT_CHANGE_REVIEW.md`
 - `.planning/control/MODE_ROUTER.md`
 - `.planning/control/PROJECT_BOOTSTRAP.md`
 - `.planning/control/PROJECT_STATE_REFRESH.md`
+- `.planning/control/RECOMMENDATION_ABSORPTION.md`
 - `.planning/control/RECOMMENDATION_HISTORY_RECONCILIATION.md`
 - `.planning/control/RECOMMENDATION_LIFECYCLE.md`
 - `.planning/control/RECOVERY.md`
@@ -79,8 +81,13 @@ Files: **152**.
 - `.planning/decisions/TEMPLATE.md`
 - `.planning/disciplines/CODEBASE_DESIGN.md`
 - `.planning/disciplines/CODE_REVIEW.md`
+- `.planning/disciplines/CONTRACT_CLOSURE.md`
 - `.planning/disciplines/DELIVERY_SLICES.md`
 - `.planning/disciplines/DOMAIN_MODELING.md`
+- `.planning/discoveries/INDEX.md`
+- `.planning/discoveries/README.md`
+- `.planning/discoveries/TEMPLATE.md`
+- `.planning/discoveries/items/.gitkeep`
 - `.planning/docs/ARCHITECTURE.md`
 - `.planning/docs/MANIFEST_V4.md`
 - `.planning/docs/MIGRATION_V4.ru.md`
