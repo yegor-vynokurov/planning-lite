@@ -5,10 +5,10 @@ repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
 active_change: CHG-PL-FIELD-CONTROL-PACK-001
-lifecycle_gate: FORMAL_READINESS_COMPLETE
-implementation_authorized: NO
-blockers: USER_IMPLEMENTATION_AUTHORIZATION
-next_permitted_action: obtain_explicit_field_control_pack_implementation_authorization
+lifecycle_gate: IMPLEMENTATION_AUTHORIZED
+implementation_authorized: YES
+blockers: NONE
+next_permitted_action: execute_t01_ownership_and_discovery_foundation
 last_transition_receipt: docs/design/project-spine/checkpoints/PLANNING-LITE-R3-RECOVERY-CLOSEOUT-v1.md
 state_as_of: 2026-08-25
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
