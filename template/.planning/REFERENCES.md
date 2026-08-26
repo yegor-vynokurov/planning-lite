@@ -20,3 +20,25 @@
 | Checkpoint | `.planning/control/SESSION_CHECKPOINT.md` |
 | Project-state refresh | `.planning/control/PROJECT_STATE_REFRESH.md` |
 | Agent portability | `.planning/control/AGENT_PORTABILITY.md` |
+
+<!-- PL_FCP_RECOMMENDATION_REFERENCES_V1:BEGIN -->
+## Recommendation accounting references
+
+For observation-only durable evidence:
+
+```text
+.planning/control/DISCOVERY_LIFECYCLE.md
+.planning/discoveries/README.md
+```
+
+For Recommendation lifecycle and semantic residue:
+
+```text
+.planning/control/RECOMMENDATION_LIFECYCLE.md
+.planning/control/RECOMMENDATION_ABSORPTION.md
+.planning/control/RECOMMENDATION_HISTORY_RECONCILIATION.md
+```
+
+Absorption is subordinate to the existing Recommendation lifecycle and does not
+create a parallel state machine.
+<!-- PL_FCP_RECOMMENDATION_REFERENCES_V1:END -->

@@ -26,3 +26,23 @@ Use one entry point for one operation. Numbered prompts are optional shortcuts; 
 | Recover from wrong mode | Recovery | `prompts/13-recover-from-wrong-mode.md` | `control/RECOVERY.md` |
 
 A recommendation semantic unit is not a Gap, Roadmap outcome, or Change. A recommendation is not a change. An approved proposal is not an approved plan. A `Ready` verdict is not execution authorization. Completed implementation is not closure. A checkpoint preserves state without advancing the lifecycle.
+
+<!-- PL_FCP_RECOMMENDATION_WORKFLOW_V1:BEGIN -->
+## Manual Recommendation Absorption
+
+When an existing Recommendation has material semantic residue, use:
+
+```text
+.planning/control/RECOMMENDATION_ABSORPTION.md
+```
+
+The workflow must account for every in-scope durable RecommendationUnit using
+the canonical lifecycle vocabulary, preserve lineage, and explicitly place
+surviving residue.
+
+Material placement ambiguity blocks that semantic decision. It must not be
+resolved by inventing an owner.
+
+Absorption does not automatically mutate Roadmap priority, create a Change, or
+authorize Execution.
+<!-- PL_FCP_RECOMMENDATION_WORKFLOW_V1:END -->

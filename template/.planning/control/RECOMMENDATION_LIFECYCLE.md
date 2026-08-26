@@ -122,3 +122,28 @@ Use `RECOMMENDATION_HISTORY_RECONCILIATION.md` for broad recommendation + Roadma
 ## Integrity
 
 The individual recommendation item is authoritative. The index is a discovery summary. Resolve missing items, duplicate IDs/unit IDs, invalid transitions, item/index disagreements, unaccounted semantic residue, and source-text changes that invalidate a prior unit ledger before using reconciliation as current direction evidence.
+
+<!-- PL_FCP_RECOMMENDATION_ABSORPTION_V1:BEGIN -->
+## Recommendation Absorption integration
+
+Manual unit-aware absorption is defined by:
+
+```text
+.planning/control/RECOMMENDATION_ABSORPTION.md
+```
+
+Absorption reuses the RecommendationUnit reconciliation states already defined
+in this lifecycle. It MUST NOT invent a second state vocabulary.
+
+Keep these layers separate:
+
+```text
+lifecycle Status
+RecommendationUnit reconciliation state
+parent reconciliation state
+```
+
+Absorption must account for all in-scope durable unit residue, but it does not
+silently change lifecycle Status, Roadmap priority, Change approval, or
+implementation authority.
+<!-- PL_FCP_RECOMMENDATION_ABSORPTION_V1:END -->

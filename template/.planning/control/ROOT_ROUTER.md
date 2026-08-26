@@ -30,3 +30,26 @@ If a repository skill is selected and effective configuration enables usage logg
 - Do not repeat approved plans, unchanged facts, full diffs, or obvious next steps.
 - Preserve exact paths, commands, errors, evidence, assumptions, uncertainty, failed checks, and non-obvious rationale. Expand only when they affect a decision.
 - Ask before destructive, irreversible, security-sensitive, externally billed, or scope-expanding actions.
+
+<!-- PL_FCP_RECOMMENDATION_ROUTING_V1:BEGIN -->
+## Recommendation / Discovery routing refinement
+
+Use this distinction before choosing recommendation work:
+
+```text
+observation only
+→ .planning/control/DISCOVERY_LIFECYCLE.md
+
+new proposed action or durable recommendation
+→ existing Recommendation capture/lifecycle
+
+existing Recommendation with material semantic residue to reconcile
+→ .planning/control/RECOMMENDATION_ABSORPTION.md
+```
+
+Recommendation Absorption is manual accounting. It does not auto-create a
+Roadmap item or executable Change.
+
+If material semantic ownership of surviving residue is ambiguous, stop that
+absorption decision for adjudication rather than guessing.
+<!-- PL_FCP_RECOMMENDATION_ROUTING_V1:END -->
