@@ -8,7 +8,7 @@ active_change: CHG-PL-FIELD-CONTROL-PACK-001
 lifecycle_gate: IMPLEMENTATION_IN_PROGRESS
 implementation_authorized: YES
 blockers: NONE
-next_permitted_action: execute_t04_execution_control
+next_permitted_action: execute_t05_deterministic_foundation_tests_and_integrity_regeneration
 last_transition_receipt: docs/design/project-spine/checkpoints/PLANNING-LITE-R3-RECOVERY-CLOSEOUT-v1.md
 state_as_of: 2026-08-26
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
