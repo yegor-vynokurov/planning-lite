@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add the Field Control Pack foundations: a non-executable Discovery lifecycle and durable registry; manual Recommendation Absorption with exhaustive residue accounting; conditional Contract Closure plus exhaustive Readiness and bounded Execution controls; managed Discovery README/TEMPLATE with project-owned INDEX/items preserved across updates; and deterministic foundation/integrity coverage. Independent Task Closure Review, user-invoked bounded CONVERGE, and controlled-realistic behavioral fixtures remain pilot-only pending bounded validation.
+
 - Added a read-only central repository resume contract and maintainer helper that verifies Git identity, makes `CURRENT.md` the canonical session-handoff authority, fails closed for non-Git snapshots, and keeps consumer/runtime behavior unchanged.
 
 - Add fail-closed ownership-aware updates for consumers that keep `.planning/` / `.agents/` Git-ignored, including file-level preview, atomic `--local-only` apply, project-owned hash preservation, and a v4.2.0 migration regression fixture.
