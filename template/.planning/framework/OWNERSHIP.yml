@@ -23,6 +23,8 @@ managed:
 - .planning/prompts/**
 - .planning/recommendations/README.md
 - .planning/recommendations/TEMPLATE.md
+- .planning/discoveries/README.md
+- .planning/discoveries/TEMPLATE.md
 - .planning/skills/**
 - .planning/templates/**
 project_owned:
@@ -40,6 +42,8 @@ project_owned:
 - .planning/drift/reviews/*.md
 - .planning/recommendations/INDEX.md
 - .planning/recommendations/items/**
+- .planning/discoveries/INDEX.md
+- .planning/discoveries/items/**
 - .planning/observability/**
 installer_metadata:
 - .copier-answers.planning-lite.yml

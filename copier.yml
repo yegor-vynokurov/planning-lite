@@ -40,6 +40,8 @@ _skip_if_exists:
   - .planning/drift/reviews/*.md
   - .planning/recommendations/INDEX.md
   - .planning/recommendations/items/**
+  - .planning/discoveries/INDEX.md
+  - .planning/discoveries/items/**
 
 project_name:
   type: str
