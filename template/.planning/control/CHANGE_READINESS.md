@@ -32,3 +32,90 @@ Record evidence and one verdict in `readiness.md`:
 `Ready` sets lifecycle state to `Readiness / Ready` and permits the user to authorize execution. It does not itself authorize execution.
 
 On `Needs revision`, return to `Planning / In progress`. On `Blocked`, keep the narrowest defensible stage and record the blocking decision and next permitted action.
+
+<!-- PL_FCP_EXHAUSTIVE_READINESS_V1:BEGIN -->
+## Exhaustive-within-scope Readiness
+
+Readiness audits the **full approved scope** before producing its final verdict.
+
+Do not stop after the first independent blocker.
+
+For every required slice or contract:
+
+1. inspect it;
+2. record each material finding;
+3. identify the dependency boundary of each blocker;
+4. continue across independent slices that remain auditable;
+5. record independent legal work that remains permitted;
+6. produce the final verdict only after the required bounded pass is complete.
+
+The Readiness result must expose the complete known in-scope blocker set, not
+merely the earliest blocker encountered.
+
+### Shared Contract Closure
+
+Where contract dimensions are material, use:
+
+```text
+.planning/disciplines/CONTRACT_CLOSURE.md
+```
+
+Evaluate conditionally:
+
+```text
+SHAPE
+SEMANTICS
+ENCODING
+OWNERSHIP
+```
+
+Record each applicable dimension as:
+
+```text
+CLOSED
+BLOCKED
+N/A
+```
+
+`N/A` is explicit and legal for immaterial dimensions. Simple leaf work must be
+allowed to remain light.
+
+### Determinacy
+
+Where exact identity, bytes, canonical encoding, evidence, persistence, or
+interface representation is material, include a determinacy check.
+
+Do not impose determinacy machinery where representation is immaterial.
+
+### Materiality / Simplicity challenge
+
+For non-trivial corrective mechanisms, verify that the mechanism is materially
+required and that a simpler bounded repair would not close the same approved
+contract.
+
+Do not import future/downstream responsibility merely to satisfy a current
+verification sentence.
+
+### Blocker accounting
+
+Readiness must distinguish:
+
+```text
+blocked slice
+independent legal work
+shared contract blocker
+```
+
+Two independent blockers must both be reportable in the same Readiness pass.
+
+A shared blocker may block the whole Change only when its dependency boundary
+actually makes the approved Change unsafe.
+
+### Authority boundary
+
+```text
+Readiness PASS != Execution authorization
+```
+
+A Ready verdict never substitutes for explicit implementation authorization.
+<!-- PL_FCP_EXHAUSTIVE_READINESS_V1:END -->
