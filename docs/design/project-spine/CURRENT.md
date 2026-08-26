@@ -5,12 +5,12 @@ repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
 active_change: CHG-PL-FIELD-CONTROL-PACK-001
-lifecycle_gate: IMPLEMENTATION_AUTHORIZED
+lifecycle_gate: IMPLEMENTATION_IN_PROGRESS
 implementation_authorized: YES
 blockers: NONE
-next_permitted_action: execute_t01_ownership_and_discovery_foundation
+next_permitted_action: execute_t02_recommendation_absorption_and_routing
 last_transition_receipt: docs/design/project-spine/checkpoints/PLANNING-LITE-R3-RECOVERY-CLOSEOUT-v1.md
-state_as_of: 2026-08-25
+state_as_of: 2026-08-26
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
 > **Resume authority:** the block below is the canonical session-handoff state. Historical prose later in this file may preserve earlier checkpoints and must not override it.
