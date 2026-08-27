@@ -4,12 +4,12 @@
 repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
-active_change: CHG-PL-V39-05-A-SHAPING-FOUNDATION-001
-lifecycle_gate: EXECUTION_IN_PROGRESS
-implementation_authorized: YES
+active_change: NONE
+lifecycle_gate: DISCOVERY_READY
+implementation_authorized: NO
 blockers: NONE
-next_permitted_action: request_pl_v39_05_a_closure_authorization
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-05-A-T06-COMPLETION-REVIEW-v1.md
+next_permitted_action: plan_next_pl_v39_05_slice
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-05-A-SHAPING-FOUNDATION-CLOSEOUT-v1.md
 state_as_of: 2026-08-27
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
@@ -397,3 +397,19 @@ release/push: NOT AUTHORIZED
 
 Completion review does not itself close the central Change. The next permitted action is an explicit user closure decision.
 <!-- PL_V39_05_A_T06_V1:END -->
+
+<!-- PL_V39_05_A_CLOSEOUT_V1:BEGIN -->
+## PL-V39-05-A closeout
+
+```text
+Change: CHG-PL-V39-05-A-SHAPING-FOUNDATION-001
+completion verdict: COMPLETED
+closure: AUTHORIZED AND RECORDED
+active_change: NONE
+implementation_authorized: NO
+release: NOT AUTHORIZED
+tag/merge/push: NOT PERFORMED
+```
+
+This closeout ends the bounded PL-V39-05-A execution cycle and returns the central repository to discovery/planning readiness for the next PL-V39-05 slice.
+<!-- PL_V39_05_A_CLOSEOUT_V1:END -->
