@@ -8,8 +8,8 @@ active_change: CHG-PL-V39-05-A-SHAPING-FOUNDATION-001
 lifecycle_gate: EXECUTION_IN_PROGRESS
 implementation_authorized: YES
 blockers: NONE
-next_permitted_action: execute_pl_v39_05_a_t06
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-05-A-T05-UPDATE-SAFETY-v1.md
+next_permitted_action: request_pl_v39_05_a_closure_authorization
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-05-A-T06-COMPLETION-REVIEW-v1.md
 state_as_of: 2026-08-27
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
@@ -379,3 +379,21 @@ No live external consumer was mutated.
 
 Next permitted task: `T-06`.
 <!-- PL_V39_05_A_T05_V1:END -->
+
+<!-- PL_V39_05_A_T06_V1:BEGIN -->
+## PL-V39-05-A T-06 completion review
+
+```text
+T-01 Project Survey: COMPLETED
+T-02 Bounded Clarification Sweep: COMPLETED
+T-03 Documentation / integrity seam: COMPLETED
+T-04 Focused product acceptance: COMPLETED
+T-05 Consumer update-safety acceptance: COMPLETED
+T-06 Completion review: PASS
+completion verdict: COMPLETED
+closure authorization: NOT YET GRANTED
+release/push: NOT AUTHORIZED
+```
+
+Completion review does not itself close the central Change. The next permitted action is an explicit user closure decision.
+<!-- PL_V39_05_A_T06_V1:END -->
