@@ -5,11 +5,11 @@ repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
 active_change: CHG-PL-V39-05-A-SHAPING-FOUNDATION-001
-lifecycle_gate: PLANNING_IN_PROGRESS
+lifecycle_gate: FORMAL_READINESS_IN_PROGRESS
 implementation_authorized: NO
-blockers: PLAN_AND_FORMAL_READINESS_PENDING
-next_permitted_action: prepare_pl_v39_05_a_implementation_plan
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-05-A-DEFINITION-ACTIVATION-v1.md
+blockers: FORMAL_READINESS_VERDICT_PENDING
+next_permitted_action: review_pl_v39_05_a_formal_readiness
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-05-A-PLAN-APPROVAL-READINESS-ENTRY-v1.md
 state_as_of: 2026-08-27
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
@@ -177,3 +177,35 @@ CURRENT FIELD GATE
 → PL-V39-08 Evaluation / Learning / PromptOps
 → PL-V39-09 Context Compiler experiment / Safe Orchestration / Release
 ```
+
+<!-- PL_V39_05_A_PLAN_APPROVAL_V1:BEGIN -->
+## PL-V39-05-A Plan approval / Formal Readiness
+
+The user explicitly approved:
+
+```text
+CHG-PL-V39-05-A-SHAPING-FOUNDATION-001-CENTRAL-PLAN-001
+```
+
+Approved Plan:
+
+```text
+docs/design/project-spine/checkpoints/PL-V39-05-A-APPROVED-PLAN-v1.md
+```
+
+Readiness-entry receipt:
+
+```text
+docs/design/project-spine/checkpoints/PL-V39-05-A-PLAN-APPROVAL-READINESS-ENTRY-v1.md
+```
+
+Current gate:
+
+```text
+FORMAL_READINESS_IN_PROGRESS
+implementation_authorized = NO
+```
+
+Formal Readiness is read-only with respect to product/template/src/test surfaces.
+A Readiness PASS still requires separate explicit user Execution authorization.
+<!-- PL_V39_05_A_PLAN_APPROVAL_V1:END -->
