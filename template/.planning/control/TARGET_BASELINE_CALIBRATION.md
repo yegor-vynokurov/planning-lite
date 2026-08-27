@@ -1,7 +1,7 @@
 # Target baseline calibration and Capability Model foundation
 
 - Workflow ID: `PW-DIR-003`
-- Workflow version: `1.0.0`
+- Workflow version: `1.1.0`
 - Source lineage: `REC-PL-DIRECTION-001-v2` / Poker Project Spine pilot
 - Mode: Planning
 
@@ -25,9 +25,70 @@ Every unresolved material question must be assigned exactly one owner class:
 - `CAPABILITY_DESIGN_QUESTION`: the Target can remain stable while implementation/interface/design choices remain open inside one capability;
 - `RESEARCH_QUESTION`: the Target can remain stable while evidence must determine whether a hypothesis, model, method, or intervention works.
 
-Only `TARGET_BOUNDARY_QUESTION` blocks Target convergence.
+Only `TARGET_BOUNDARY_QUESTION` blocks eligibility for `PROVISIONAL_TARGET_BASELINE`.
+
+Within this workflow, **Target convergence** means eligibility for
+`PROVISIONAL_TARGET_BASELINE`; it is not a new Target status or lifecycle gate.
 
 Do not keep the whole project in Target discovery merely because capability design or research remains uncertain.
+
+## Bounded Clarification Sweep
+
+Run this sweep only when Target text contains **material ambiguity**. It is a
+conditional calibration step inside `PW-DIR-003`, not a new workflow, lifecycle
+stage, or conversational requirement.
+
+Check only ambiguity that can materially affect one or more of:
+
+- goal / explicit non-goal boundary;
+- unstated assumptions that change required completed-state behavior;
+- edge cases that change the Target boundary;
+- term meaning when different meanings could change the completed project;
+- acceptance/evidence meaning for a Target property;
+- semantic ownership of an unresolved material question.
+
+Use the determinacy test:
+
+```text
+Can two reasonable implementers build materially different things
+while both satisfying the text?
+```
+
+If `NO`, do not prolong clarification merely to make prose more exhaustive.
+
+If `YES`, classify the ambiguity by its semantic owner:
+
+```text
+changes accepted Target boundary
+→ TARGET_BOUNDARY_QUESTION
+
+Target remains stable; implementation/interface/design choice remains open
+→ CAPABILITY_DESIGN_QUESTION
+
+Target remains stable; evidence must determine whether a hypothesis/model/method/intervention works
+→ RESEARCH_QUESTION
+```
+
+Only the first class keeps the Target from becoming eligible for
+`PROVISIONAL_TARGET_BASELINE`.
+
+Clarification stops when every material Target-boundary ambiguity is either:
+
+```text
+RESOLVED
+or
+represented by an explicit TARGET_BOUNDARY_QUESTION
+```
+
+Do not continue clarification merely because downstream capability design or
+research remains unresolved.
+
+Use the existing `.planning/project/GLOSSARY.md` only when meaningful term drift
+exists. Do not require glossary population for ordinary vocabulary and do not
+create a second Project Lexicon.
+
+`RESEARCH_QUESTION` classification and preservation do not imply that a generic
+governed research execution workflow exists in this stage.
 
 ## Target statuses
 
@@ -100,15 +161,16 @@ Current satisfaction, `PARTIAL`, `SATISFIED`, evidence confidence, and causal Ga
 ## Procedure
 
 1. Read the current direction inventory, Target draft, charter/completion criteria, and only targeted evidence needed to adjudicate Target-boundary questions.
-2. Reclassify every material unresolved question by owner class.
-3. Remove implementation detail that accidentally entered the Target.
-4. Verify explicit non-goals against known historical scope pressure.
-5. If any Target-boundary question remains, keep `DRAFT` and stop before presenting the Target as a baseline.
-6. If no Target-boundary question remains, set `PROVISIONAL_TARGET_BASELINE`.
-7. Derive or refresh `CAPABILITY_MODEL.md` from the calibrated Target.
-8. Present the calibrated Target and Capability Model as the direction baseline. If the user explicitly accepts the Target, record evidence and set Target status `ACCEPTED`. If the user explicitly accepts the Capability Model, record evidence and set its status `CURRENT_BASELINE`.
-9. Downstream Current Capability Assessment requires both an `ACCEPTED` Target and a `CURRENT_BASELINE` Capability Model.
-10. Do not assess current coverage or derive Gaps.
+2. If Target text contains material ambiguity, run the bounded Clarification Sweep and apply the determinacy test.
+3. Reclassify every material unresolved question by owner class.
+4. Remove implementation detail that accidentally entered the Target.
+5. Verify explicit non-goals against known historical scope pressure.
+6. If any Target-boundary question remains, keep `DRAFT` and stop before presenting the Target as a baseline.
+7. If no Target-boundary question remains, set `PROVISIONAL_TARGET_BASELINE`.
+8. Derive or refresh `CAPABILITY_MODEL.md` from the calibrated Target.
+9. Present the calibrated Target and Capability Model as the direction baseline. If the user explicitly accepts the Target, record evidence and set Target status `ACCEPTED`. If the user explicitly accepts the Capability Model, record evidence and set its status `CURRENT_BASELINE`.
+10. Downstream Current Capability Assessment requires both an `ACCEPTED` Target and a `CURRENT_BASELINE` Capability Model.
+11. Do not assess current coverage or derive Gaps.
 
 ## Hard checks
 
@@ -119,7 +181,11 @@ Current satisfaction, `PARTIAL`, `SATISFIED`, evidence confidence, and causal Ga
 - `CHK-TARGET-CALIBRATION-005`: current implementation status is absent from Capability Model semantics.
 - `CHK-TARGET-CALIBRATION-006`: `CURRENT_BASELINE` Capability Model has explicit user acceptance evidence.
 - `CHK-TARGET-CALIBRATION-007`: Target flow-back requires explicit authority or `TARGET_STATE_SIGNAL`.
+- `CHK-TARGET-CALIBRATION-008`: material Target ambiguity is tested for implementation determinacy before baseline presentation.
+- `CHK-TARGET-CALIBRATION-009`: Clarification stops when every material Target-boundary ambiguity is resolved or represented by an explicit `TARGET_BOUNDARY_QUESTION`.
+- `CHK-TARGET-CALIBRATION-010`: `CAPABILITY_DESIGN_QUESTION` and `RESEARCH_QUESTION` do not hold Target eligibility open merely because downstream resolution is incomplete.
+- `CHK-TARGET-CALIBRATION-011`: `Target convergence` is only a shorthand for eligibility for `PROVISIONAL_TARGET_BASELINE`; no new `CONVERGED`, `TARGET_CONVERGED`, or `SHAPING_READY` status is introduced.
 
 ## Output contract
 
-Report Target status, Target-boundary question count, downstream design/research questions, Capability Model path and capability count, acceptance evidence when present, and the next permitted action. Do not derive Gaps or create a Change.
+Report Target status, Target-boundary question count, downstream design/research questions, material clarification result when a sweep was required, Capability Model path and capability count, acceptance evidence when present, and the next permitted action. Do not derive Gaps, create a new clarification workflow, or create a Change.

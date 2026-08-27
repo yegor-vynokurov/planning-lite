@@ -8,8 +8,8 @@ active_change: CHG-PL-V39-05-A-SHAPING-FOUNDATION-001
 lifecycle_gate: EXECUTION_IN_PROGRESS
 implementation_authorized: YES
 blockers: NONE
-next_permitted_action: execute_pl_v39_05_a_t02
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-05-A-T01-PROJECT-SURVEY-v1.md
+next_permitted_action: execute_pl_v39_05_a_t03
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-05-A-T02-CLARIFICATION-SWEEP-v1.md
 state_as_of: 2026-08-27
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
@@ -276,3 +276,37 @@ T-01 added only `template/.planning/assessments/PROJECT_SURVEY_TEMPLATE.md` and 
 `MANIFEST_V4.md` and `SHA256SUMS.txt` remain intentionally pending until T-03,
 as required by the approved Plan.
 <!-- PL_V39_05_A_T01_V1:END -->
+
+<!-- PL_V39_05_A_T02_V1:BEGIN -->
+## PL-V39-05-A T-02 completion
+
+```text
+T-01 Project Survey: COMPLETED
+T-02 Bounded Clarification Sweep: COMPLETED
+T-03 Documentation / integrity seam: NOT STARTED
+```
+
+T-02 modified only:
+
+```text
+template/.planning/control/TARGET_BASELINE_CALIBRATION.md
+```
+
+No router, prompt, skill, project-state, Python runtime, ownership, Copier, or
+integrity file was changed.
+
+The exact expected pre-T03 integrity debt is:
+
+```text
+MANIFEST missing:
+.planning/assessments/PROJECT_SURVEY_TEMPLATE.md
+
+SHA receipts stale:
+.planning/control/CURRENT_CAPABILITY_ASSESSMENT.md
+.planning/control/TARGET_BASELINE_CALIBRATION.md
+```
+
+The first stale receipt originates from T-01; the second from T-02.
+
+Next permitted task: `T-03`.
+<!-- PL_V39_05_A_T02_V1:END -->
