@@ -4,37 +4,55 @@
 repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
-active_change: NONE
-lifecycle_gate: DISCOVERY_READY
+active_change: CHG-PL-V39-05-A-SHAPING-FOUNDATION-001
+lifecycle_gate: PLANNING_IN_PROGRESS
 implementation_authorized: NO
-blockers: NONE
-next_permitted_action: review_pl_v39_05_project_shaping_entry_contract
-last_transition_receipt: docs/design/project-spine/checkpoints/PLANNING-LITE-FIELD-CONTROL-PACK-CLOSEOUT-v1.md
-state_as_of: 2026-08-26
+blockers: PLAN_AND_FORMAL_READINESS_PENDING
+next_permitted_action: prepare_pl_v39_05_a_implementation_plan
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-05-A-DEFINITION-ACTIVATION-v1.md
+state_as_of: 2026-08-27
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
 > **Resume authority:** the block below is the canonical session-handoff state. Historical prose later in this file may preserve earlier checkpoints and must not override it.
 
-<!-- PL_FCP_CLOSEOUT_CURRENT_NOTE_V1:BEGIN -->
-## Current Field Control Pack closeout
+<!-- PL_V39_05_A_CENTRAL_ACTIVATION_V1:BEGIN -->
+## Current PL-V39-05-A central Change
 
-`CHG-PL-FIELD-CONTROL-PACK-001` is **Completed and closed**.
+The user explicitly approved Definition `CHG-PL-V39-05-A-SHAPING-FOUNDATION-001`.
 
-Canonical closeout:
+Approved Definition:
 
 ```text
-docs/design/project-spine/checkpoints/PLANNING-LITE-FIELD-CONTROL-PACK-CLOSEOUT-v1.md
+docs/design/project-spine/checkpoints/PL-V39-05-A-APPROVED-DEFINITION-v1.md
 ```
 
-The bounded behavioral pilot finished `6/6 PASS` with verdict
-`release-candidate`.
+Central activation receipt:
 
-Release has **not** been authorized or started.
+```text
+docs/design/project-spine/checkpoints/PL-V39-05-A-DEFINITION-ACTIVATION-v1.md
+```
 
-The central repository now has no active Change. The next permitted activity is
-review of the `PL-V39-05 Project Shaping / Target Reality` entry contract.
-That review does not itself authorize PL-V39-05 implementation.
-<!-- PL_FCP_CLOSEOUT_CURRENT_NOTE_V1:END -->
+This central-source repository does **not** use a consumer-style root
+`.planning/changes/active/...` folder for its own development Change state.
+
+Current lifecycle:
+
+```text
+Planning / In progress
+implementation_authorized = NO
+```
+
+The approved Definition permits preparation of the bounded implementation Plan
+and subsequent Formal Readiness only.
+
+T-01 has not started.
+
+Next permitted action:
+
+```text
+prepare_pl_v39_05_a_implementation_plan
+```
+<!-- PL_V39_05_A_CENTRAL_ACTIVATION_V1:END -->
 
 
 **Updated:** 2026-08-26
