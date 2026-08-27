@@ -5,11 +5,11 @@ repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
 active_change: CHG-PL-V39-05-A-SHAPING-FOUNDATION-001
-lifecycle_gate: READINESS_PASS_AWAITING_EXECUTION_AUTHORIZATION
-implementation_authorized: NO
+lifecycle_gate: EXECUTION_IN_PROGRESS
+implementation_authorized: YES
 blockers: NONE
-next_permitted_action: request_pl_v39_05_a_execution_authorization
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-05-A-FORMAL-READINESS-VERDICT-v1.md
+next_permitted_action: execute_pl_v39_05_a_t01
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-05-A-EXECUTION-AUTHORIZATION-v1.md
 state_as_of: 2026-08-27
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
@@ -247,3 +247,18 @@ Next gate:
 explicit user Execution authorization for PL-V39-05-A
 ```
 <!-- PL_V39_05_A_READINESS_VERDICT_V1:END -->
+
+<!-- PL_V39_05_A_EXECUTION_AUTH_V1:BEGIN -->
+## PL-V39-05-A Execution authorization
+
+The user explicitly authorized Execution of `CHG-PL-V39-05-A-SHAPING-FOUNDATION-001` within the approved
+Definition and Plan.
+
+```text
+implementation_authorized = YES
+lifecycle = EXECUTION_IN_PROGRESS
+first permitted task = T-01
+```
+
+Release, merge and push remain unauthorized.
+<!-- PL_V39_05_A_EXECUTION_AUTH_V1:END -->
