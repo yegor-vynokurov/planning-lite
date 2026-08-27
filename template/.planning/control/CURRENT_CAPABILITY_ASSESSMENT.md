@@ -27,7 +27,8 @@ If the accepted Target or Capability Model changed after the current direction i
 May update only:
 
 - `.planning/assessments/current/CURRENT_CAPABILITY_ASSESSMENT.md`;
-- `.planning/assessments/archive/` when an older current capability assessment must be preserved before replacement;
+- `.planning/assessments/current/PROJECT_SURVEY.md` only when the conditional Survey trigger below is satisfied;
+- `.planning/assessments/archive/` when an older current assessment or Survey must be preserved before replacement;
 - `.planning/ACTIVE.md` for the next permitted direction action or a blocker.
 
 Target, Capability Model, Gap Map, Roadmap, recommendations, Changes, and production code are read-only in this workflow.
@@ -45,6 +46,56 @@ Start with:
 7. targeted repository/code/test/data/documentation/Git evidence for the capability currently being assessed.
 
 Use `CONTEXT_POLICY.md`. Do not load broad recommendation history, old Roadmaps, or all completed Changes by default. Historical Change evidence may be opened only when a current capability claim depends on that exact evidence or provenance.
+
+## Conditional Project Survey
+
+Project Survey is optional bounded AS-IS evidence, not another Project Spine
+authority.
+
+Use or refresh `.planning/assessments/current/PROJECT_SURVEY.md` from
+`.planning/assessments/PROJECT_SURVEY_TEMPLATE.md` only when **all three** are
+true:
+
+```text
+material brownfield/current-state work
+AND
+the assessment depends on repository/runtime structure
+AND
+existing current evidence is not sufficiently bounded/fresh
+```
+
+Routine or small work may bypass Project Survey.
+
+The Survey must preserve this boundary:
+
+```text
+SURVEY = AS-IS EVIDENCE
+TARGET = TO-BE ACCEPTED INTENT
+```
+
+It must not become a second owner of `CURRENT_STATE`,
+`CURRENT_CAPABILITY_ASSESSMENT`, `CAPABILITY_MODEL`, `GAP_MAP`, `TARGET_STATE`,
+or `ROADMAP`.
+
+A usable Survey records:
+
+```text
+Reflects revision
+Survey scope
+Evidence sources
+```
+
+Reuse it only while those fields remain adequate for the active assessment.
+Refresh or narrow it when material repository/runtime drift occurs or active work
+leaves the surveyed scope. Unrelated minor drift does not automatically invalidate
+the whole Survey.
+
+Within the Survey, distinguish `OBSERVED` evidence from `INFERRED` interpretation
+and use `UNKNOWN` when evidence is absent or outside scope. Do not infer historical
+intent from observed implementation.
+
+Survey completion does not imply capability completeness, formal Gap readiness,
+or Target acceptance.
 
 ## Two-axis assessment model
 
@@ -175,14 +226,15 @@ Formal-Gap derivation readiness: READY | BLOCKED
 
 1. Verify the accepted Target, current Capability Model baseline, and direction-inventory consistency boundary.
 2. Freeze the assessment repository revision/scope.
-3. For each Capability ID, identify the exact completed-state properties to test.
-4. Inspect only the evidence needed for that capability, expanding history only for concrete provenance questions.
-5. Assign Coverage independently from EvidenceConfidence.
-6. For `PARTIAL`, separate satisfied properties, missing properties, and evidence limitations.
-7. Record bounded evidence references and downstream design/research questions without answering them unless required for coverage.
-8. Check cross-capability consistency: the same demonstrated property should not be simultaneously treated as present and absent without explanation.
-9. Write/refresh `.planning/assessments/current/CURRENT_CAPABILITY_ASSESSMENT.md`, archiving a superseded snapshot when needed. Set status `CURRENT` only when every baseline capability has a complete judgment bound to the stated assessment boundary.
-10. Set `Formal-Gap derivation readiness` and the next permitted action. Do not derive formal Gaps in the same turn.
+3. Evaluate the conditional Project Survey trigger. If all three conditions are true, create, reuse, refresh, or narrow the bounded Survey before capability-by-capability inspection. Otherwise bypass it.
+4. For each Capability ID, identify the exact completed-state properties to test.
+5. Inspect only the evidence needed for that capability, expanding history only for concrete provenance questions.
+6. Assign Coverage independently from EvidenceConfidence.
+7. For `PARTIAL`, separate satisfied properties, missing properties, and evidence limitations.
+8. Record bounded evidence references and downstream design/research questions without answering them unless required for coverage.
+9. Check cross-capability consistency: the same demonstrated property should not be simultaneously treated as present and absent without explanation.
+10. Write/refresh `.planning/assessments/current/CURRENT_CAPABILITY_ASSESSMENT.md`, archiving a superseded snapshot when needed. Set status `CURRENT` only when every baseline capability has a complete judgment bound to the stated assessment boundary.
+11. Set `Formal-Gap derivation readiness` and the next permitted action. Do not derive formal Gaps in the same turn.
 
 ## Hard checks
 
@@ -196,6 +248,9 @@ Formal-Gap derivation readiness: READY | BLOCKED
 - `CHK-CAP-ASSESS-008`: broad recommendation/Roadmap history was not loaded without a concrete evidence/provenance reason.
 - `CHK-CAP-ASSESS-009`: formal Gap derivation is `BLOCKED` if a proposed missing property depends only on unresolved evidence uncertainty.
 - `CHK-CAP-ASSESS-010`: `CURRENT` assessment status covers every accepted baseline Capability ID and is bound to the stated repository/Target/Capability baseline.
+- `CHK-CAP-ASSESS-011`: Project Survey is created/used only when all three conditional trigger terms are satisfied; routine/small work may bypass it.
+- `CHK-CAP-ASSESS-012`: any Project Survey records revision, scope, evidence sources, and remains evidence-only rather than a competing Project Spine authority.
+- `CHK-CAP-ASSESS-013`: Survey refresh is required for material drift or scope escape, not unrelated minor drift.
 
 ## Stop conditions
 
