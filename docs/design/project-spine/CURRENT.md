@@ -8,8 +8,8 @@ active_change: CHG-PL-V39-05-A-SHAPING-FOUNDATION-001
 lifecycle_gate: EXECUTION_IN_PROGRESS
 implementation_authorized: YES
 blockers: NONE
-next_permitted_action: execute_pl_v39_05_a_t03
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-05-A-T02-CLARIFICATION-SWEEP-v1.md
+next_permitted_action: execute_pl_v39_05_a_t04
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-05-A-T03-DOCS-INTEGRITY-v1.md
 state_as_of: 2026-08-27
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
@@ -310,3 +310,35 @@ The first stale receipt originates from T-01; the second from T-02.
 
 Next permitted task: `T-03`.
 <!-- PL_V39_05_A_T02_V1:END -->
+
+<!-- PL_V39_05_A_T03_V1:BEGIN -->
+## PL-V39-05-A T-03 completion
+
+```text
+T-01 Project Survey: COMPLETED
+T-02 Bounded Clarification Sweep: COMPLETED
+T-03 Documentation / ownership / integrity seam: COMPLETED
+T-04 Focused product acceptance: NOT STARTED
+```
+
+T-03 modified product surfaces only:
+
+```text
+template/.planning/assessments/README.md
+template/.planning/docs/MANIFEST_V4.md
+template/.planning/framework/SHA256SUMS.txt
+```
+
+`OWNERSHIP.yml` and `copier.yml` were verified read-only and remained unchanged.
+
+Integrity is fully reconciled:
+
+```text
+template files = 160
+MANIFEST entries = 160
+SHA receipts = 159
+canonical-LF SHA mismatches = 0
+```
+
+Next permitted task: `T-04`.
+<!-- PL_V39_05_A_T03_V1:END -->
