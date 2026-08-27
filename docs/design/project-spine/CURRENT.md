@@ -8,8 +8,8 @@ active_change: CHG-PL-V39-05-A-SHAPING-FOUNDATION-001
 lifecycle_gate: EXECUTION_IN_PROGRESS
 implementation_authorized: YES
 blockers: NONE
-next_permitted_action: execute_pl_v39_05_a_t04
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-05-A-T03-DOCS-INTEGRITY-v1.md
+next_permitted_action: execute_pl_v39_05_a_t05
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-05-A-T04-FOCUSED-ACCEPTANCE-v1.md
 state_as_of: 2026-08-27
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
@@ -342,3 +342,21 @@ canonical-LF SHA mismatches = 0
 
 Next permitted task: `T-04`.
 <!-- PL_V39_05_A_T03_V1:END -->
+
+<!-- PL_V39_05_A_T04_V1:BEGIN -->
+## PL-V39-05-A T-04 completion
+
+```text
+T-01 Project Survey: COMPLETED
+T-02 Bounded Clarification Sweep: COMPLETED
+T-03 Documentation / integrity seam: COMPLETED
+T-04 Focused deterministic product acceptance: COMPLETED
+T-05 Consumer update-safety acceptance: NOT STARTED
+```
+
+T-04 added `tests/test_project_shaping_foundation.py` with 17 focused semantic/structural tests.
+
+Verifier notes: optional Markdown bold is accepted, and test count is derived from Python AST rather than pytest presentation output.
+
+Next permitted task: `T-05`.
+<!-- PL_V39_05_A_T04_V1:END -->
