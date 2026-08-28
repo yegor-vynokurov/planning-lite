@@ -15,6 +15,10 @@ ROOT_ROUTER = PLANNING / "control/ROOT_ROUTER.md"
 MODE_ROUTER = PLANNING / "control/MODE_ROUTER.md"
 MANIFEST = PLANNING / "docs/MANIFEST_V4.md"
 SHA_RECEIPTS = PLANNING / "framework/SHA256SUMS.txt"
+BROWNFIELD_RECOVERY = PLANNING / "assessments/BROWNFIELD_RECOVERY_TEMPLATE.md"
+OUTCOME_LADDER = PLANNING / "assessments/OUTCOME_LADDER_TEMPLATE.md"
+DIRECTION_INVENTORY = PLANNING / "control/DIRECTION_INVENTORY.md"
+TARGET_EXPLORER = PLANNING / "control/TARGET_STATE_EXPLORER.md"
 
 
 def read(path: Path) -> str:
@@ -271,3 +275,41 @@ def test_project_survey_is_registered_in_manifest_and_receipts():
     assert rel in listed
     assert rel in receipts
     assert canonical_sha(SURVEY) == receipts[rel]
+
+def test_pl_v39_05_b_brownfield_recovery_contract():
+    r=collapsed(BROWNFIELD_RECOVERY); i=collapsed(DIRECTION_INVENTORY)
+    for x in ("REUSE_CURRENT_ACCEPTED_DIRECTION","RECOVERED_DIRECTION_CANDIDATE / PROVISIONAL","BLOCKED_DIRECTION_CONFLICT","INSUFFICIENT_DIRECTION_EVIDENCE"):
+        assert x in r
+    for x in ("BR-STOP-01","BR-STOP-02","BR-STOP-03","BR-STOP-04"):
+        assert x in r and x in i
+    assert "Recovery alone must never promote this candidate to accepted Target intent." in i
+    assert "Historical recovery is not required merely because older artifacts exist." in i
+    assert "Do not silently merge conflicting authorities." in r
+
+def test_pl_v39_05_b_outcome_ladder_contract():
+    l=collapsed(OUTCOME_LADDER); e=collapsed(TARGET_EXPLORER)
+    assert "The ladder never has greater authority than its grounding direction." in l
+    assert "If the grounding direction is provisional, the ladder is provisional." in e
+    assert "What observable project outcome is true at this level?" in e
+    assert "What should we implement next?" in e
+    for x in ("implement API","add tests","write docs"): assert x in l
+    assert "They are not ladder levels." in l
+    assert "Minimum useful stopping level" in l
+
+def test_pl_v39_05_b_later_shaping_remains_deferred():
+    e=re.sub(r"\s+"," ",collapsed(TARGET_EXPLORER))
+    for x in ("Adaptive Engagement","Strategy Portfolio","Target Skeleton","Executable Target Contract"):
+        assert x in e
+
+def test_pl_v39_05_b_docs_and_integrity_registration():
+    d=collapsed(ASSESSMENTS_README)
+    listed,_=manifest_paths(); receipts=sha_receipts()
+    for rel,path in (
+        (".planning/assessments/BROWNFIELD_RECOVERY_TEMPLATE.md",BROWNFIELD_RECOVERY),
+        (".planning/assessments/OUTCOME_LADDER_TEMPLATE.md",OUTCOME_LADDER),
+    ):
+        assert rel in d and rel in listed and rel in receipts
+        assert canonical_sha(path)==receipts[rel]
+    for rel in (".planning/assessments/current/BROWNFIELD_RECOVERY.md",".planning/assessments/current/OUTCOME_LADDER.md"):
+        assert rel in d
+    assert "must be preserved by update behavior" in d

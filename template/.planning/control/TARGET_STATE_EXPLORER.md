@@ -29,7 +29,7 @@ May update only:
 If the user decision also requires a charter/completion-criteria rewrite, record that decision and route the durable-document refresh separately instead of broadening this workflow.
 
 Do not edit `.planning/project/CAPABILITY_MODEL.md` in this workflow.
-
+- `.planning/assessments/current/OUTCOME_LADDER.md` only when the conditional Outcome Ladder trigger below is satisfied;
 ## Deliverable class first
 
 Establish the intended deliverable class before expanding detailed Target properties. Examples include:
@@ -99,6 +99,72 @@ Every material Target claim must carry one source class:
 `INFERRED` claims are draft synthesis only. They do not become accepted project authority merely because they are written into the draft.
 
 Repository evidence may establish feasibility or current facts, but current implementation does not automatically define the desired Target.
+
+## Conditional Outcome Ladder
+
+Outcome Ladder is bounded shaping evidence between accepted/recovered direction
+and later Target/strategy shaping. It is not a new lifecycle stage.
+
+Materialize when a useful success-strength gradient would improve Target shaping:
+
+```text
+.planning/assessments/current/OUTCOME_LADDER.md
+```
+
+from:
+
+```text
+.planning/assessments/OUTCOME_LADDER_TEMPLATE.md
+```
+
+### Grounding
+
+The ladder must be grounded in either:
+
+```text
+current accepted direction
+or
+RECOVERED_DIRECTION_CANDIDATE / PROVISIONAL
+```
+
+If the grounding direction is provisional, the ladder is provisional.
+
+The ladder cannot raise authority, accept Target intent, authorize a Change, or
+select Roadmap order.
+
+### Outcome test
+
+Each ladder level must answer:
+
+```text
+What observable project outcome is true at this level?
+```
+
+A level must not primarily answer:
+
+```text
+What should we implement next?
+```
+
+Reject or reframe task lists, component decompositions, implementation phases,
+and DoD-shaped content that masquerades as ladder levels.
+
+### Minimum useful stop
+
+Identify a minimum useful stopping level.
+
+A stronger level must add observable project value, not merely more implementation detail.
+
+### Boundary
+
+If a material unresolved `TARGET_BOUNDARY_QUESTION` changes the meaning of the
+ladder, stop and return to clarification rather than freezing the ladder.
+
+Open `CAPABILITY_DESIGN_QUESTION` and `RESEARCH_QUESTION` items may remain downstream
+when Target meaning is stable.
+
+Adaptive Engagement, Strategy Portfolio, Target Skeleton, Executable Target
+Contract, Roadmap synthesis, and Change planning remain later work.
 
 ## Procedure
 

@@ -1,6 +1,6 @@
 # Planning Lite 4.x template `.planning` manifest
 
-Files: **160**.
+Files: **162**.
 
 ## Files
 
@@ -22,8 +22,10 @@ Files: **160**.
 - `.planning/adapters/registry.yml`
 - `.planning/adapters/scripts/README.md`
 - `.planning/adapters/scripts/materialize_adapter.py`
+- `.planning/assessments/BROWNFIELD_RECOVERY_TEMPLATE.md`
 - `.planning/assessments/CURRENT_CAPABILITY_ASSESSMENT_TEMPLATE.md`
 - `.planning/assessments/DIRECTION_HISTORY_RECONCILIATION_TEMPLATE.md`
+- `.planning/assessments/OUTCOME_LADDER_TEMPLATE.md`
 - `.planning/assessments/PROJECT_SURVEY_TEMPLATE.md`
 - `.planning/assessments/README.md`
 - `.planning/assessments/ROADMAP_SYNTHESIS_TEMPLATE.md`

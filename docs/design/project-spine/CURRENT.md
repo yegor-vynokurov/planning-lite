@@ -413,3 +413,20 @@ tag/merge/push: NOT PERFORMED
 
 This closeout ends the bounded PL-V39-05-A execution cycle and returns the central repository to discovery/planning readiness for the next PL-V39-05 slice.
 <!-- PL_V39_05_A_CLOSEOUT_V1:END -->
+
+## PL-V39-05-B closed
+
+- Slice: `PL-V39-05-B / Brownfield Recovery + Outcome Ladder`
+- Implementation: `COMPLETED`
+- Field validation: `PASS BY ADJUDICATION`
+- Material product defect open: `NO`
+- Formal closeout: `COMPLETED / OWNER APPROVED`
+- Brownfield Recovery: bounded/provisional recovery with provenance, conflict stop rules, and no silent authority promotion.
+- Outcome Ladder: observable outcomes with inherited authority ceiling, minimum useful stopping level, and anti-task semantics.
+- Persistent scenarios `S1..S5`: `PASS`.
+- Central full regression: `PASS`.
+- Real brownfield consumer: `math_drill_generator`; current-candidate projection and Doctor `PASS`; live consumer unchanged.
+- `D-09` legacy `v3.1.0 -> current` ownership transition remains a separate migration-compatibility follow-up, outside this slice.
+- Roadmap: unchanged intentionally.
+- Release/tag/push: `NOT AUTHORIZED`.
+- Next: select the next bounded shaping slice inside `PL-V39-05`; do not jump directly to `PL-V39-06`.

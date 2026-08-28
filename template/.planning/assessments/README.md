@@ -61,3 +61,32 @@ project-owned:
 The managed template may update with Planning Lite. A materialized current Survey
 belongs to the consumer project and must be preserved by update behavior.
 <!-- PL_V39_05_A_PROJECT_SURVEY_DOC_V1:END -->
+
+
+<!-- PL_V39_05_B_RECOVERY_LADDER_DOC_V1:BEGIN -->
+## Brownfield Recovery + Outcome Ladder
+
+Managed templates:
+```text
+.planning/assessments/BROWNFIELD_RECOVERY_TEMPLATE.md
+.planning/assessments/OUTCOME_LADDER_TEMPLATE.md
+```
+
+Project-owned materializations:
+```text
+.planning/assessments/current/BROWNFIELD_RECOVERY.md
+.planning/assessments/current/OUTCOME_LADDER.md
+```
+
+Brownfield Recovery is bounded provenance/direction evidence. It supports
+`REUSE_CURRENT_ACCEPTED_DIRECTION` or a
+`RECOVERED_DIRECTION_CANDIDATE / PROVISIONAL`, and it never accepts Target intent
+by itself. Recovery stops on `BR-STOP-01` through `BR-STOP-04`.
+
+Outcome Ladder describes increasingly strong observable project outcomes. It
+inherits the authority ceiling of its grounding direction, is not a Roadmap or
+task sequence, and records a minimum useful stopping level.
+
+Managed templates may update with Planning Lite. Materialized current artifacts
+belong to the consumer project and must be preserved by update behavior.
+<!-- PL_V39_05_B_RECOVERY_LADDER_DOC_V1:END -->

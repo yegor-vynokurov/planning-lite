@@ -17,7 +17,7 @@ May update only:
 - `.planning/ACTIVE.md` when the audit itself changes the next permitted planning action or records a blocker.
 
 `CURRENT_STATE.md`, Roadmap, Changes, recommendations, and project direction files are read-only in this workflow. If stale facts require repair, stop and route to `PROJECT_STATE_REFRESH.md` as a separate operation.
-
+- `.planning/assessments/current/BROWNFIELD_RECOVERY.md` only when the conditional Brownfield Recovery trigger below is satisfied;
 ## Required starting reads
 
 Start with:
@@ -78,6 +78,78 @@ Return exactly one gate state:
 - `CHK-DIR-CONSISTENCY-004`: known stale or historical direction is not silently treated as current authority.
 
 On `FAIL` or material `UNCERTAIN`, stop before Target exploration. Report the exact conflict and route to a bounded reconciliation or project-state refresh. Do not repair the conflict implicitly.
+
+## Conditional Brownfield Recovery
+
+Brownfield Recovery is a bounded conditional extension of Direction Inventory.
+It is not a second entry workflow.
+
+Use or refresh:
+
+```text
+.planning/assessments/current/BROWNFIELD_RECOVERY.md
+```
+
+from:
+
+```text
+.planning/assessments/BROWNFIELD_RECOVERY_TEMPLATE.md
+```
+
+only when current direction authority is insufficient for safe downstream shaping
+and bounded prior/historical provenance is materially needed.
+
+### Bypass
+
+If a current accepted and sufficiently determinate Target/direction already exists:
+
+```text
+REUSE_CURRENT_ACCEPTED_DIRECTION
+```
+
+Historical recovery is not required merely because older artifacts exist.
+
+### Recovery authority ceiling
+
+If no sufficient accepted direction exists but bounded evidence supports a usable direction:
+
+```text
+RECOVERED_DIRECTION_CANDIDATE / PROVISIONAL
+```
+
+Recovery alone must never promote this candidate to accepted Target intent.
+
+### Stop rules
+
+Stop recovery at the first applicable material boundary:
+
+```text
+BR-STOP-01
+sufficient current accepted authority exists
+
+BR-STOP-02
+bounded provenance is sufficient for downstream shaping
+
+BR-STOP-03
+material live authority conflict remains unresolved
+
+BR-STOP-04
+bounded available evidence is exhausted
+```
+
+For `BR-STOP-03`, surface the conflict and route to clarification/user decision.
+Do not silently normalize competing authorities.
+
+For `BR-STOP-04`, record insufficient evidence. Do not invent direction.
+
+### Bounded evidence discipline
+
+Read only history/provenance that can materially affect current direction shaping.
+
+Do not infer user intent from repository structure, age, document volume, or implementation presence.
+
+The materialized recovery artifact is project-owned assessment evidence under
+`.planning/assessments/current/**`; it is not canonical Target authority.
 
 ## Procedure
 
