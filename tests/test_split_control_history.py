@@ -73,6 +73,42 @@ def test_control_init_requires_outer_ignore(tmp_path: Path) -> None:
         control_init(root, project_id="demo", home=tmp_path / "home")
 
 
+@pytest.mark.parametrize(
+    "ignore_text",
+    [
+        "/.planning/*\n!/.planning/project/\n!/.planning/project/**\n",
+        "/.planning/*\n!/.planning/control/\n!/.planning/control/**\n",
+    ],
+)
+def test_control_init_rejects_partial_planning_ignore_without_mutation(
+    tmp_path: Path, ignore_text: str
+) -> None:
+    root = _fixture(tmp_path)
+    (root / ".gitignore").write_text(ignore_text, encoding="utf-8")
+    before_head = _git(root, "rev-parse", "HEAD")
+    before_ignore = (root / ".gitignore").read_bytes()
+    home = tmp_path / "home"
+
+    with pytest.raises(WorkspaceError, match="ignore .planning completely"):
+        control_init(root, project_id="demo", home=home)
+
+    assert _git(root, "rev-parse", "HEAD") == before_head
+    assert (root / ".gitignore").read_bytes() == before_ignore
+    assert not (root / ".planning" / ".git").exists()
+    assert not (home / "control" / "demo.git").exists()
+
+
+def test_control_init_accepts_root_planning_ignore(tmp_path: Path) -> None:
+    root = _fixture(tmp_path)
+    (root / ".gitignore").write_text(".planning\n", encoding="utf-8")
+
+    result = control_init(root, project_id="demo", home=tmp_path / "home")
+
+    assert result["already_initialized"] is False
+    assert Path(result["git_dir"]).is_dir()
+    assert (root / ".planning" / ".git").is_file()
+
+
 def test_control_init_rejects_external_dir_inside_product(tmp_path: Path) -> None:
     root = _fixture(tmp_path)
     with pytest.raises(WorkspaceError, match="outside"):

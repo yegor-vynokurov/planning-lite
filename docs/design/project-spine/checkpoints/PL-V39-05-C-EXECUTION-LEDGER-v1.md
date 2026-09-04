@@ -439,3 +439,121 @@ Poker/mood: LIVE PROJECTS UNCHANGED
 checkpoint commit: ALREADY EXISTS at abce23b7a4afb0336c48e67b0f334c5b46bbe11a
 new corrective commit: REQUIRED AFTER PRE-COMMIT GATES
 ```
+
+## T-07 — Poker Disposable Consumer Proof Rerun — 2026-09-04
+
+```text
+status: PASS
+frozen implementation ref: abce23b7a4afb0336c48e67b0f334c5b46bbe11a
+disposable mode/topology: split-control external control Git with local-only
+  update path; disposable target and home removed after evidence
+
+key assertions:
+  registration / effective policy: PASS (paused; telemetry enabled)
+  product/control Git separation: PASS
+    disposable product HEAD: 75f26c97c2a8521b773eba7b2695af902809f5cc
+    disposable control HEAD: c0e38855e19f54b6805ab49f9e68d82296f8fce4
+  inspect / Doctor: PASS
+  explicit --template-source D:\documents\planning-lite: PASS
+  explicit --vcs-ref abce23b7a4afb0336c48e67b0f334c5b46bbe11a: PASS
+  .planning/drift/reviews/.gitkeep present and managed: PASS
+  genuinely unknown candidate path remains fail-closed: PASS
+  local-only preview and apply: PASS
+  project-owned Planning preservation: PASS
+  forbidden-read guard: PASS
+  repeated check/update idempotence: PASS
+  all-null RunReceipt in disposable home: PASS
+  disposable product/control commits only: PASS
+
+live Poker before/after:
+  HEAD: f7b1db0ebd6db936450d49ce177caf0e8f37bf4c / unchanged
+  status: one expected untracked handoff / unchanged
+LIVE_POKER_MUTATION: NONE
+
+field findings: 0
+recommendations created: 0
+T-08: authorized to start
+```
+
+## T-08 — mood Disposable Consumer Proof — 2026-09-04
+
+```text
+status: BLOCKED
+frozen implementation ref: abce23b7a4afb0336c48e67b0f334c5b46bbe11a
+disposable mode/topology: fresh mood-derived unborn product fixture
+
+key assertions:
+  selective-ignore baseline reproduced: PASS
+  exposed project-owned discriminator:
+    .planning/project/CURRENT_STATE.md is not ignored: PASS
+  control-init refusal before an unambiguous full .planning ignore: BLOCKED
+
+material blocker:
+  control-init accepted the selective-ignore baseline because its current
+  outer-ignore check treats the directory path .planning/ as ignored when a
+  child-glob matches, even though project-owned .planning/project/** remains
+  exposed. This violates the accepted requirement that split-control setup
+  wait for an unambiguous full .planning ignore.
+  NEXT_DISCRIMINATOR_FOUND
+
+source rebind / update / Doctor / receipt: NOT RUN after blocker
+live mood before/after:
+  HEAD: unborn / unchanged
+  status: 50 untracked baseline paths / unchanged
+LIVE_MOOD_MUTATION: NONE
+
+field findings: 1 material accepted-AC blocker
+recommendations created: 0
+T-08: STOPPED
+```
+
+## T-08 CONTROL-INIT SELECTIVE-IGNORE CORRECTIVE PASS — 2026-09-04
+
+```text
+T-07: PASS
+original T-08 status: BLOCKED
+blocker:
+  control-init accepted a selective-ignore baseline because the outer-ignore
+  validation checked only selected .planning spellings; .planning/project/**
+  could remain exposed while .planning/ was reported ignored.
+
+root cause:
+  IGNORE_VALIDATION_CHECKS_ONLY_SELECTED_PATHS
+
+correction:
+  narrowed the existing _outer_ignores_planning seam to require effective Git
+  ignore coverage for the .planning root, representative project/control
+  paths, and every existing top-level planning child. No .gitignore auto-write,
+  partial acceptance, or second authority was introduced.
+
+focused regression:
+  uv run --frozen pytest -q tests/test_split_control_history.py
+  tests/test_workspace_registry.py -rA — PASS — 23 passed
+  selective-ignore project/** and control/** cases: FAIL CLOSED
+  full-ignore (.planning/) and root-ignore (.planning) cases: PASS
+  rejection mutation guard: PASS (no control Git, product HEAD unchanged,
+  product .gitignore unchanged)
+
+disposable invalid case: PASS — selective-ignore fixture rejected fail-closed
+disposable valid case: PASS — fully ignored fixture initialized split control
+
+applicable smokes:
+  uv run --frozen python scripts/test_template_update.py — PASS
+  uv run --frozen python scripts/test_local_only_update.py — PASS
+
+full regression:
+  uv run --frozen pytest
+  PASS — 263 passed, 88 warnings in 17.24s
+
+git diff --check: PASS (LF-to-CRLF warnings only)
+scope audit: PASS — only src/planning_lite/workspace.py,
+  tests/test_split_control_history.py, and this ledger changed
+
+live Poker: UNCHANGED
+live mood: UNCHANGED
+T-08: REQUIRES RERUN
+T-09: NOT STARTED
+original implementation checkpoint:
+  abce23b7a4afb0336c48e67b0f334c5b46bbe11a
+corrective commit authorization: bounded and satisfied after all gates
+```

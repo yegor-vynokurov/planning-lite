@@ -249,11 +249,24 @@ def resolve_control_git_dir(planning_root: str | Path) -> Path | None:
 
 
 def _outer_ignores_planning(product_root: Path) -> bool:
-    for relative in (".planning", ".planning/"):
+    planning_root = product_root / ".planning"
+    probes = [
+        ".planning",
+        ".planning/",
+        ".planning/.planning-lite-control-init-probe",
+        ".planning/project/.planning-lite-control-init-probe",
+    ]
+    try:
+        for child in sorted(planning_root.iterdir(), key=lambda path: path.name):
+            if child.name != ".git":
+                probes.append(f".planning/{child.name}/.planning-lite-control-init-probe")
+    except OSError:
+        return False
+    for relative in probes:
         result = product_git(product_root, "check-ignore", "-q", "--", relative)
-        if result.returncode == 0:
-            return True
-    return False
+        if result.returncode != 0:
+            return False
+    return True
 
 
 def _safe_project_id(project_id: str) -> str:
@@ -299,7 +312,7 @@ def plan_control_init(
     if product_git(product_root, "rev-parse", "--show-toplevel").returncode != 0:
         raise WorkspaceError(f"Product root is not a Git repository: {product_root}")
     if not _outer_ignores_planning(product_root):
-        raise WorkspaceError("Outer product Git must already ignore .planning before control-init")
+        raise WorkspaceError("Outer product Git must already ignore .planning completely before control-init")
     safe_id = _safe_project_id(project_id)
     home_root = resolve_home(home)
     metadata = (Path(git_dir).expanduser() if git_dir else home_root / "control" / f"{safe_id}.git").resolve()
