@@ -258,3 +258,47 @@ final state:
   Poker/mood: UNCHANGED
   tag/push/merge/release: NOT DONE
 ```
+
+## CANONICAL STATE ALIGNMENT / CENTRAL CANDIDATE GATE — 2026-09-04
+
+```text
+implementation checkpoint:
+abce23b7a4afb0336c48e67b0f334c5b46bbe11a
+
+checkpoint staged-manifest audit:
+PASS
+
+committed paths:
+32 authorized paths
+
+excluded incoming/history:
+not included in implementation checkpoint
+
+recommendation inbox housekeeping:
+PASS
+
+recommendation inbox Git exclusion:
+PASS
+
+literal clean committed candidate:
+YES
+
+Central Candidate Gate:
+READY
+
+T-07:
+NOT STARTED
+
+T-08:
+NOT STARTED
+
+consumer-proof authorization:
+NOT GRANTED IN THIS STEP
+```
+
+`docs/design/project-spine/recommendations/inbox/**` is treated as local
+noncanonical operational intake and is excluded through repository-local Git
+exclude.
+
+Future discovery/intake architecture is deferred through:
+`PL-REC-OUT-OF-GIT-OPERATIONAL-INTAKE-DISCOVERY-001`.

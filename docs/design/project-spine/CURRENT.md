@@ -7,10 +7,23 @@ current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
 active_change: CHG-PL-V39-05-C-CONSUMER-CONTROL-TOPOLOGY-001
 lifecycle_gate: PLANNING_IN_PROGRESS
 implementation_authorized: YES
+implementation_state: T-01…T-06 PASS
+corrective_state: C-01…C-07 CLOSED
+implementation_checkpoint: abce23b7a4afb0336c48e67b0f334c5b46bbe11a
+checkpoint_commit_audit: PASS
+literal_clean_committed_candidate: YES
+central_candidate_gate: READY
+recommendation_inbox_housekeeping: PASS
+recommendation_inbox: docs/design/project-spine/recommendations/inbox/**
+recommendation_inbox_semantics: local operational intake / noncanonical / locally Git-excluded
+future_intake_design: PL-REC-OUT-OF-GIT-OPERATIONAL-INTAKE-DISCOVERY-001
 blockers: NONE
-next_permitted_action: separate_owner_checkpoint_commit_authorization
+T-07: NOT_STARTED
+T-08: NOT_STARTED
+T-07_T-08_authorized: NO
+next_permitted_action: OWNER_AUTHORIZATION_FOR_T07_T08_DISPOSABLE_CONSUMER_PROOFS
 last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-05-C-EXECUTION-LEDGER-v1.md
-state_as_of: 2026-09-03
+state_as_of: 2026-09-04
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
 > **Resume authority:** the block below is the canonical session-handoff state. Historical prose later in this file may preserve earlier checkpoints and must not override it.
@@ -49,19 +62,21 @@ USER / EXPLICIT — 2026-09-03
 Current lifecycle:
 
 ```text
-Execution / T-05 PASS / Central Candidate Gate
+Execution / T-01…T-06 PASS / Central Candidate Gate READY
 implementation_authorized = YES (bounded T-01…T-06 only)
+implementation_checkpoint = abce23b7a4afb0336c48e67b0f334c5b46bbe11a
 ```
 
 Next permitted action:
 
 ```text
-separate_owner_checkpoint_commit_authorization
+OWNER_AUTHORIZATION_FOR_T07_T08_DISPOSABLE_CONSUMER_PROOFS
 ```
 
-The owner separately authorized bounded Execution for T-01…T-06. T-07/T-08,
-checkpoint commit, live consumer migration, Git history operations, and release
-remain separately unauthorized.
+The owner separately authorized bounded Execution for T-01…T-06 and the central
+checkpoint commit now exists at the recorded implementation checkpoint.
+T-07/T-08, live consumer migration, Git history operations, and release remain
+separately unauthorized.
 <!-- PL_V39_05_C_CENTRAL_ACTIVATION_V1:END -->
 
 <!-- PL_V39_05_C_FORMAL_READINESS_V1:BEGIN -->
@@ -87,8 +102,8 @@ adjudicated pre-execution baseline; T-01 must capture its exact live HEAD,
 status, and changed paths.
 
 The Central Candidate Gate is unchanged: separate owner authorization for a
-central checkpoint commit and a clean committed candidate are required before
-T-07/T-08 only.
+central checkpoint commit and a clean committed candidate are now satisfied;
+separate owner authorization remains required before T-07/T-08 only.
 
 Execution authorization is bounded to T-01…T-06 in the approved Plan order.
 T-01 PASS is recorded in:
@@ -100,11 +115,11 @@ docs/design/project-spine/checkpoints/PL-V39-05-C-EXECUTION-LEDGER-v1.md
 Next permitted action:
 
 ```text
-separate_owner_checkpoint_commit_authorization
+OWNER_AUTHORIZATION_FOR_T07_T08_DISPOSABLE_CONSUMER_PROOFS
 ```
 
-Do not begin T-07/T-08, checkpoint commit, or live consumer migration before
-their separate owner gates.
+Do not begin T-07/T-08 or live consumer migration before their separate owner
+gate.
 <!-- PL_V39_05_C_FORMAL_READINESS_V1:END -->
 
 <!-- PL_V39_05_A_CENTRAL_ACTIVATION_V1:BEGIN -->
