@@ -7,20 +7,7 @@ current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
 active_change: CHG-PL-V39-05-C-CONSUMER-CONTROL-TOPOLOGY-001
 lifecycle_gate: PLANNING_IN_PROGRESS
 implementation_authorized: YES
-implementation_state: T-01…T-06 PASS
-corrective_state: C-01…C-07 CLOSED
-implementation_checkpoint: abce23b7a4afb0336c48e67b0f334c5b46bbe11a
-checkpoint_commit_audit: PASS
-literal_clean_committed_candidate: YES
-central_candidate_gate: READY
-recommendation_inbox_housekeeping: PASS
-recommendation_inbox: docs/design/project-spine/recommendations/inbox/**
-recommendation_inbox_semantics: local operational intake / noncanonical / locally Git-excluded
-future_intake_design: PL-REC-OUT-OF-GIT-OPERATIONAL-INTAKE-DISCOVERY-001
 blockers: NONE
-T-07: NOT_STARTED
-T-08: NOT_STARTED
-T-07_T-08_authorized: NO
 next_permitted_action: OWNER_AUTHORIZATION_FOR_T07_T08_DISPOSABLE_CONSUMER_PROOFS
 last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-05-C-EXECUTION-LEDGER-v1.md
 state_as_of: 2026-09-04

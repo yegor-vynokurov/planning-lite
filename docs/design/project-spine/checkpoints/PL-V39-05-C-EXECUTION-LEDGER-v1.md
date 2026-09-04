@@ -302,3 +302,140 @@ exclude.
 
 Future discovery/intake architecture is deferred through:
 `PL-REC-OUT-OF-GIT-OPERATIONAL-INTAKE-DISCOVERY-001`.
+
+## T-07 — Poker Disposable Consumer Proof — 2026-09-04
+
+```text
+status: BLOCKED
+central implementation identity: abce23b7a4afb0336c48e67b0f334c5b46bbe11a
+central state-alignment HEAD: 302d7eba2093bf5ae06c7bec72f61e79b8a1ecc2
+disposable target: D:\documents\_planning_lite_disposable\poker-proof (removed after evidence)
+mode/topology exercised: local-only; .planning/.agents Git-ignored; control Git not configured
+
+registration and effective policy: PASS
+registry topology/locators only: PASS
+product/control Git separation: PASS (product Git explicit; control Git NOT CONFIGURED)
+inspect: PASS
+Doctor: PASS
+local-only update preview: BLOCKED
+stop-gate: Candidate template contains unclassified files: .planning/drift/reviews/.gitkeep
+RunReceipt: NOT RUN — proof stopped before the applicable receipt seam
+
+live Poker baseline/result:
+  HEAD before: f7b1db0ebd6db936450d49ce177caf0e8f37bf4c
+  HEAD after:  f7b1db0ebd6db936450d49ce177caf0e8f37bf4c
+  status after: unchanged single expected untracked handoff
+LIVE_POKER_MUTATION: NONE
+
+field findings: 0
+recommendations created: 0
+T-08: NOT STARTED
+```
+
+The disposable update path failed closed before mutation because the Copier-
+rendered candidate ownership manifest omitted the existing `.gitkeep`
+classification. No implementation correction was attempted.
+
+## T-07 BLOCKER CORRECTIVE PASS — 2026-09-04
+
+```text
+original T-07 status: BLOCKED
+blocker:
+  .planning/drift/reviews/.gitkeep ownership mismatch
+
+root cause:
+  OTHER_MATERIAL_CAUSE — the disposable proof rendered from the local central
+  source without an explicit --vcs-ref, so Copier selected latest tag v4.3.0.
+  That tag contains the .gitkeep artifact but predates its ownership entry.
+  Frozen ref 302d7eba2093bf5ae06c7bec72f61e79b8a1ecc2 contains both.
+
+correction:
+  no runtime or template correction was required; the canonical local-only
+  discriminator now explicitly asserts that the rendered .gitkeep is present
+  and classified as managed. The proof rerun must bind Copier to the frozen
+  central ref rather than implicitly selecting latest tag.
+
+discriminator: PASS
+  default Copier resolution: artifact present, ownership_classified=False
+  frozen ref 302d7eba2093bf5ae06c7bec72f61e79b8a1ecc2: artifact present,
+  ownership_classified=True
+  genuinely unknown candidate path remains fail-closed: PASS
+
+focused verification:
+  uv run --frozen pytest tests/test_local_only_update.py tests/test_template.py -rA
+  18 passed in 5.87s
+
+full regression:
+  uv run --frozen pytest
+  FAIL — 2 failed, 258 passed, 88 warnings in 15.40s
+  NEXT_DISCRIMINATOR_FOUND: existing maintainer_resume/CURRENT semantic
+  contract mismatch (tests/test_central_resume_contract.py); unrelated to
+  the T-07 ownership seam and not corrected in this bounded pass.
+
+template/local-only smoke:
+  uv run --frozen python scripts/test_template_update.py — PASS
+  uv run --frozen python scripts/test_local_only_update.py — PASS
+
+disposable reproduction:
+  previous unknown-path blocker closed with explicit frozen ref; local-only
+  preview passed beyond the blocker; no independent T-07 blocker observed.
+
+live Poker: UNCHANGED
+live mood: UNCHANGED
+T-07: REQUIRES RERUN
+T-08: NOT STARTED
+checkpoint commit: NOT PERFORMED
+new corrective commit: NOT PERFORMED
+T-09: NOT STARTED
+```
+
+## CURRENT / MAINTAINER RESUME CONTRACT CORRECTIVE PASS — 2026-09-04
+
+```text
+trigger:
+  2 full-regression failures after canonical state alignment
+
+root cause:
+  A_CURRENT_ALIGNMENT_EXCEEDED_EXISTING_SCHEMA — state alignment added
+  implementation_state, corrective_state, implementation_checkpoint,
+  checkpoint_commit_audit, literal_clean_committed_candidate,
+  central_candidate_gate, recommendation_inbox_housekeeping,
+  recommendation_inbox, recommendation_inbox_semantics, future_intake_design,
+  T-07, T-08, and T-07_T-08_authorized to the Resume Contract v1 block.
+  The existing canonical parser/allowlist permits only its established ten
+  keys; it correctly rejected these additions.
+
+correction:
+  removed only the 13 non-contract keys from docs/design/project-spine/CURRENT.md.
+  Their already-established evidence remains in the surrounding CURRENT prose
+  and the Execution Ledger. No permissive parser or new schema vocabulary was
+  introduced.
+
+central resume focused:
+  uv run --frozen pytest tests/test_central_resume_contract.py -rA
+  PASS — 14 passed in 1.33s
+
+local-only discriminator:
+  uv run --frozen pytest tests/test_local_only_update.py tests/test_template.py -rA
+  PASS — 18 passed in 5.53s
+
+template/local-only smokes:
+  uv run --frozen python scripts/test_template_update.py — PASS
+  uv run --frozen python scripts/test_local_only_update.py — PASS
+
+full regression:
+  uv run --frozen pytest
+  PASS — 260 passed, 88 warnings in 13.84s
+
+runtime/template delta from implementation checkpoint:
+  NONE — abce23b7a4afb0336c48e67b0f334c5b46bbe11a contains the drift-review
+  .gitkeep and managed ownership declaration; current src/** and template/**
+  are unchanged relative to that checkpoint.
+
+T-07 previous .gitkeep blocker: CLOSED
+T-07: READY_FOR_RERUN
+T-08: NOT STARTED
+Poker/mood: LIVE PROJECTS UNCHANGED
+checkpoint commit: ALREADY EXISTS at abce23b7a4afb0336c48e67b0f334c5b46bbe11a
+new corrective commit: REQUIRED AFTER PRE-COMMIT GATES
+```

@@ -172,6 +172,8 @@ def test_current_template_is_fully_classified_for_local_only_update() -> None:
     assert classify_path(ANSWERS_FILE, policy) == "installer_metadata"
     assert classify_path(".planning/AGENT_PROFILE.yml", policy) == "project_owned"
     assert unknown == []
+    assert ".planning/drift/reviews/.gitkeep" in iter_files(ROOT / "template")
+    assert classify_path(".planning/drift/reviews/.gitkeep", policy) == "managed"
     assert classify_path(".planning/drift/reviews/TEMPLATE.md", policy) == "managed"
 
 
