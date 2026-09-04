@@ -51,6 +51,18 @@ CONFIG.yml               содержит только локальные overri
 
 Эффективная конфигурация получается рекурсивным merge.
 
+## PL-V39-05-C: topology and policy boundary
+
+Effective `project_policy` is a single namespaced configuration block: managed
+defaults are merged with project-owned `CONFIG.yml`. The home registry stores
+only project locators and topology metadata. Project documents, lifecycle
+history, and receipts remain in their owning project paths.
+
+In `split-control` mode, `.planning` is an explicit control work tree with an
+external Git metadata directory. Product Git and control Git are separate
+contexts and must be reported independently; no command stages or commits
+either repository automatically.
+
 ## Версионирование
 
 Git tag является единственным источником релизной версии:

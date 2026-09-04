@@ -25,6 +25,7 @@ Each fact has one primary home.
 | `project/ROADMAP.md` | accepted current Roadmap outcome identities, sequence positions, Gap/capability lineage, exit conditions, exclusions, and accepted preferred direction; not Change authorization |
 | project documents | current durable facts, not session history |
 | skill usage CSV | optional best-effort frequency log; never authoritative project state |
+| `project_policy` in effective configuration | topology/safety policy resolved from managed defaults plus project-owned `CONFIG.yml`; never lifecycle or history |
 
 ## Duplication rules
 
@@ -33,3 +34,5 @@ Each fact has one primary home.
 - `progress.md` records evidence; it does not redefine tasks.
 - Indexes are summaries, not independent status authorities.
 - When duplicate state disagrees, repair it before closure or handoff.
+- The home registry stores locators only; it never becomes a second home for
+  project documents, recommendations, Changes, or receipt history.

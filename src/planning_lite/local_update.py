@@ -3,8 +3,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from fnmatch import fnmatchcase
 import hashlib
+import os
 from pathlib import Path
+import re
 import shutil
+import subprocess
 import tempfile
 from typing import Iterable, Literal
 
@@ -12,6 +15,7 @@ import yaml
 
 ANSWERS_FILE = ".copier-answers.planning-lite.yml"
 OWNERSHIP_FILE = ".planning/framework/OWNERSHIP.yml"
+TOPOLOGY_METADATA = {".planning/.git", ".planning/.gitignore"}
 
 OwnershipClass = Literal["managed", "project_owned", "installer_metadata", "unknown"]
 Action = Literal[
@@ -133,11 +137,94 @@ def classify_path(path: str, policy: OwnershipPolicy) -> OwnershipClass:
     )
 
 
-def iter_files(root: Path) -> dict[str, Path]:
+def _forbidden_read(root: Path, relative: str, patterns: Iterable[str]) -> bool:
+    relative = _normalize(relative)
+    absolute = _normalize(root / relative)
+    for raw in patterns:
+        pattern = _normalize(raw).rstrip("/")
+        if not pattern:
+            continue
+        candidates = [pattern]
+        if pattern.endswith("/**"):
+            candidates.append(pattern[:-3].rstrip("/"))
+        if (
+            any(fnmatchcase(relative, candidate) for candidate in candidates)
+            or any(fnmatchcase(absolute, candidate) for candidate in candidates)
+            or any(
+                relative == candidate or relative.startswith(candidate + "/")
+                for candidate in candidates
+            )
+            or any(
+                absolute == candidate or absolute.startswith(candidate + "/")
+                for candidate in candidates
+            )
+        ):
+            return True
+    return False
+
+
+def _is_link_or_reparse(path: Path) -> bool:
+    """Detect links and Windows reparse directories without new dependencies."""
+
+    try:
+        if path.is_symlink():
+            return True
+        isjunction = getattr(os.path, "isjunction", None)
+        if callable(isjunction) and isjunction(path):
+            return True
+        if os.name == "nt":
+            return bool(getattr(path.lstat(), "st_reparse_tag", 0))
+    except (OSError, RuntimeError) as exc:
+        raise LocalUpdateError(f"Cannot inspect symlink/reparse path: {path}") from exc
+    return False
+
+
+def _check_link_containment(root: Path, path: Path, relative: str) -> bool:
+    if not _is_link_or_reparse(path):
+        return False
+    try:
+        path.resolve().relative_to(root)
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise LocalUpdateError(f"Symlink/reparse path escapes update root: {relative}") from exc
+    return True
+
+
+def iter_files(root: Path, *, forbidden_read_paths: Iterable[str] = ()) -> dict[str, Path]:
+    """Walk bounded files, pruning Git metadata before entering it."""
+
+    root = root.resolve()
+    patterns = tuple(forbidden_read_paths)
     files: dict[str, Path] = {}
-    for path in root.rglob("*"):
-        if path.is_file():
-            files[path.relative_to(root).as_posix()] = path
+    for current, dirnames, filenames in os.walk(root, topdown=True, followlinks=False):
+        current_path = Path(current)
+        kept_dirs: list[str] = []
+        for name in sorted(dirnames):
+            child = current_path / name
+            relative = child.relative_to(root).as_posix()
+            is_link_or_reparse = _check_link_containment(root, child, relative)
+            if name == ".git":
+                continue
+            if is_link_or_reparse:
+                # Do not follow symlink/reparse directories, even when they
+                # resolve inside the root; bounded scans remain deterministic.
+                continue
+            if _forbidden_read(root, relative, patterns):
+                raise LocalUpdateError(f"Forbidden read path intersects scan: {relative}")
+            kept_dirs.append(name)
+        dirnames[:] = kept_dirs
+        for name in sorted(filenames):
+            path = current_path / name
+            relative = path.relative_to(root).as_posix()
+            parts = relative.split("/")
+            if ".git" in parts or relative in TOPOLOGY_METADATA:
+                continue
+            if _forbidden_read(root, relative, patterns):
+                raise LocalUpdateError(f"Forbidden read path intersects scan: {relative}")
+            if _check_link_containment(root, path, relative):
+                # Do not read link/reparse files through an alternate path.
+                continue
+            if path.is_file():
+                files[relative] = path
     return files
 
 
@@ -145,6 +232,55 @@ def _same_bytes(left: Path, right: Path) -> bool:
     if left.stat().st_size != right.stat().st_size:
         return False
     return hashlib.sha256(left.read_bytes()).digest() == hashlib.sha256(right.read_bytes()).digest()
+
+
+def _same_installer_metadata(left: Path, right: Path) -> bool:
+    """Treat equivalent Copier answers formatting/path separators as unchanged."""
+
+    if _same_bytes(left, right):
+        return True
+    try:
+        old = yaml.safe_load(left.read_text(encoding="utf-8"))
+        new = yaml.safe_load(right.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, yaml.YAMLError):
+        return False
+    if not isinstance(old, dict) or not isinstance(new, dict):
+        return False
+    for data in (old, new):
+        source = data.get("_src_path")
+        if isinstance(source, str):
+            data["_src_path"] = source.replace("\\", "/")
+    # Copier materializes a dirty local source through an ephemeral commit;
+    # its pseudo-ref changes on every render even when the rendered bytes do
+    # not.  Do not turn that non-semantic identity churn into UPDATE_METADATA.
+    if old == new:
+        return True
+    old_ref = old.get("_commit")
+    new_ref = new.get("_commit")
+    source = old.get("_src_path")
+    if (
+        isinstance(source, str)
+        and isinstance(old_ref, str)
+        and isinstance(new_ref, str)
+        and re.search(r"-[0-9]+-g[0-9a-f]+$", old_ref)
+        and re.search(r"-[0-9]+-g[0-9a-f]+$", new_ref)
+        and _local_source_is_dirty(source)
+    ):
+        old["_commit"] = new["_commit"]
+    return old == new
+
+
+def _local_source_is_dirty(source: str) -> bool:
+    parsed = Path(source).expanduser()
+    if not parsed.is_dir() or not (parsed / ".git").exists():
+        return False
+    result = subprocess.run(
+        ["git", "-C", str(parsed), "status", "--porcelain"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    return result.returncode == 0 and bool(result.stdout.strip())
 
 
 def _classify_candidate(
@@ -166,13 +302,19 @@ def _classify_candidate(
     return classified
 
 
-def build_local_update_plan(target: Path, candidate: Path) -> LocalUpdatePlan:
+def build_local_update_plan(
+    target: Path, candidate: Path, *, forbidden_read_paths: Iterable[str] = ()
+) -> LocalUpdatePlan:
     target = target.resolve()
     candidate = candidate.resolve()
+    patterns = tuple(forbidden_read_paths)
+    for root in (target, candidate):
+        if _forbidden_read(root, OWNERSHIP_FILE, patterns):
+            raise LocalUpdateError(f"Forbidden read path intersects scan: {OWNERSHIP_FILE}")
     old_policy = load_ownership_policy(target)
     new_policy = load_ownership_policy(candidate)
-    target_files = iter_files(target)
-    candidate_files = iter_files(candidate)
+    target_files = iter_files(target, forbidden_read_paths=patterns)
+    candidate_files = iter_files(candidate, forbidden_read_paths=patterns)
     candidate_classes = _classify_candidate(candidate_files, new_policy)
 
     mutations: list[Mutation] = []
@@ -206,7 +348,7 @@ def build_local_update_plan(target: Path, candidate: Path) -> LocalUpdatePlan:
         elif ownership == "project_owned":
             mutations.append(Mutation("KEEP_PROJECT" if exists else "ADD_PROJECT", relative))
         elif ownership == "installer_metadata":
-            if exists and _same_bytes(destination, source):
+            if exists and _same_installer_metadata(destination, source):
                 mutations.append(Mutation("KEEP_METADATA", relative))
             else:
                 mutations.append(Mutation("UPDATE_METADATA", relative))
@@ -233,9 +375,11 @@ def build_local_update_plan(target: Path, candidate: Path) -> LocalUpdatePlan:
     return LocalUpdatePlan(tuple(mutations))
 
 
-def _project_owned_hashes(target: Path, policy: OwnershipPolicy) -> dict[str, str]:
+def _project_owned_hashes(
+    target: Path, policy: OwnershipPolicy, *, forbidden_read_paths: Iterable[str] = ()
+) -> dict[str, str]:
     result: dict[str, str] = {}
-    for relative, path in iter_files(target).items():
+    for relative, path in iter_files(target, forbidden_read_paths=forbidden_read_paths).items():
         if classify_path(relative, policy) == "project_owned":
             result[relative] = hashlib.sha256(path.read_bytes()).hexdigest()
     return result
@@ -252,11 +396,23 @@ def _verify_applied_plan(target: Path, candidate: Path, plan: LocalUpdatePlan) -
             raise LocalUpdateError(f"Removed managed path still exists: {mutation.path}")
 
 
-def apply_local_update_plan(target: Path, candidate: Path, plan: LocalUpdatePlan) -> None:
+def apply_local_update_plan(
+    target: Path,
+    candidate: Path,
+    plan: LocalUpdatePlan,
+    *,
+    forbidden_read_paths: Iterable[str] = (),
+) -> None:
     target = target.resolve()
     candidate = candidate.resolve()
+    patterns = tuple(forbidden_read_paths)
+    for root in (target, candidate):
+        if _forbidden_read(root, OWNERSHIP_FILE, patterns):
+            raise LocalUpdateError(f"Forbidden read path intersects scan: {OWNERSHIP_FILE}")
     new_policy = load_ownership_policy(candidate)
-    before_project = _project_owned_hashes(target, new_policy)
+    before_project = _project_owned_hashes(
+        target, new_policy, forbidden_read_paths=patterns
+    )
     changed = plan.changed()
 
     with tempfile.TemporaryDirectory(prefix="planning-lite-local-update-backup-") as temporary:
@@ -283,7 +439,9 @@ def apply_local_update_plan(target: Path, candidate: Path, plan: LocalUpdatePlan
                 shutil.copy2(source, destination)
 
             _verify_applied_plan(target, candidate, plan)
-            after_project = _project_owned_hashes(target, new_policy)
+            after_project = _project_owned_hashes(
+                target, new_policy, forbidden_read_paths=patterns
+            )
             for relative, digest in before_project.items():
                 if after_project.get(relative) != digest:
                     raise LocalUpdateError(

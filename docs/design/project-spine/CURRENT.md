@@ -4,16 +4,108 @@
 repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
-active_change: NONE
-lifecycle_gate: DISCOVERY_READY
-implementation_authorized: NO
+active_change: CHG-PL-V39-05-C-CONSUMER-CONTROL-TOPOLOGY-001
+lifecycle_gate: PLANNING_IN_PROGRESS
+implementation_authorized: YES
 blockers: NONE
-next_permitted_action: plan_next_pl_v39_05_slice
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-05-A-SHAPING-FOUNDATION-CLOSEOUT-v1.md
-state_as_of: 2026-08-27
+next_permitted_action: separate_owner_checkpoint_commit_authorization
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-05-C-EXECUTION-LEDGER-v1.md
+state_as_of: 2026-09-03
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
 > **Resume authority:** the block below is the canonical session-handoff state. Historical prose later in this file may preserve earlier checkpoints and must not override it.
+
+<!-- PL_V39_05_C_CENTRAL_ACTIVATION_V1:BEGIN -->
+## Current PL-V39-05-C central Change
+
+The user explicitly approved Definition
+`CHG-PL-V39-05-C-CONSUMER-CONTROL-TOPOLOGY-001` and authorized canonical
+activation plus preparation of its bounded Plan.
+
+Approved Definition:
+
+```text
+docs/design/project-spine/checkpoints/PL-V39-05-C-CONSUMER-CONTROL-TOPOLOGY-CHANGE-DEFINITION-v1.md
+```
+
+Activation receipt:
+
+```text
+docs/design/project-spine/checkpoints/PL-V39-05-C-DEFINITION-ACTIVATION-v1.md
+```
+
+Approved Plan:
+
+```text
+docs/design/project-spine/checkpoints/PL-V39-05-C-IMPLEMENTATION-PLAN-v1.md
+```
+
+Plan approval:
+
+```text
+USER / EXPLICIT — 2026-09-03
+```
+
+Current lifecycle:
+
+```text
+Execution / T-05 PASS / Central Candidate Gate
+implementation_authorized = YES (bounded T-01…T-06 only)
+```
+
+Next permitted action:
+
+```text
+separate_owner_checkpoint_commit_authorization
+```
+
+The owner separately authorized bounded Execution for T-01…T-06. T-07/T-08,
+checkpoint commit, live consumer migration, Git history operations, and release
+remain separately unauthorized.
+<!-- PL_V39_05_C_CENTRAL_ACTIVATION_V1:END -->
+
+<!-- PL_V39_05_C_FORMAL_READINESS_V1:BEGIN -->
+## PL-V39-05-C Formal Readiness
+
+Readiness artifact:
+
+```text
+docs/design/project-spine/checkpoints/PL-V39-05-C-FORMAL-READINESS-VERDICT-v1.md
+```
+
+Verdict:
+
+```text
+READY
+implementation_authorized = YES (bounded T-01…T-06 only)
+```
+
+The prior clean-committed-baseline blocker was adjudicated unsupported by the
+approved Definition, Definition Activation, Implementation Start Contract, and
+approved Plan sequencing. The known dirty Planning/incoming state remains the
+adjudicated pre-execution baseline; T-01 must capture its exact live HEAD,
+status, and changed paths.
+
+The Central Candidate Gate is unchanged: separate owner authorization for a
+central checkpoint commit and a clean committed candidate are required before
+T-07/T-08 only.
+
+Execution authorization is bounded to T-01…T-06 in the approved Plan order.
+T-01 PASS is recorded in:
+
+```text
+docs/design/project-spine/checkpoints/PL-V39-05-C-EXECUTION-LEDGER-v1.md
+```
+
+Next permitted action:
+
+```text
+separate_owner_checkpoint_commit_authorization
+```
+
+Do not begin T-07/T-08, checkpoint commit, or live consumer migration before
+their separate owner gates.
+<!-- PL_V39_05_C_FORMAL_READINESS_V1:END -->
 
 <!-- PL_V39_05_A_CENTRAL_ACTIVATION_V1:BEGIN -->
 ## Current PL-V39-05-A central Change

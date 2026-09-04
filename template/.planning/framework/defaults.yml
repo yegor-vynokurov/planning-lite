@@ -65,3 +65,19 @@ observability:
     enabled: false
     path: .planning/observability/SKILL_USAGE.csv
     log_implicit: false
+project_policy:
+  schema_version: 1
+  project_id: null
+  planning_root: .planning
+  agents_root: .agents
+  control_history_mode: null
+  language: null
+  intermediate_data_policy: project_defined
+  secret_storage: prohibited
+  forbidden_read_paths: []
+  product_commit:
+    planning_vocabulary_required: false
+  public_changelog:
+    mode: optional
+  telemetry:
+    enabled: false

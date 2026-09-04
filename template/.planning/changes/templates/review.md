@@ -9,6 +9,12 @@
 
 ## Delivered outcome
 
+Product commit SHA(s): []
+
+Control commit SHA(s): []
+
+Public changelog Planning ref: null
+
 ## Pass 1: specification conformance
 
 | Criterion | Result | Evidence | Notes |

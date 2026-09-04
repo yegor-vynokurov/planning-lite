@@ -9,4 +9,7 @@ Append meaningful implementation and verification events. Do not redefine task s
 - Checked:
 - Result:
 - Commit or working-tree reference:
+- Product commit SHA(s): []
+- Control commit SHA(s): []
+- Public changelog Planning ref: null
 - Blocker or follow-up:

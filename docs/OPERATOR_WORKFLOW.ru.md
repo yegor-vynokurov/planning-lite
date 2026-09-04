@@ -58,6 +58,15 @@ verification contract uses the maintainer test/smoke commands instead.
 
 Номера версий в `pyproject.toml`, `__init__.py` и template-файлах вручную не редактируются: единственным источником является Git tag.
 
+## PL-V39-05-C: product/control boundary
+
+The effective `project_policy` is resolved from framework defaults plus the
+project-owned `.planning/CONFIG.yml`. Registering a project records locators
+in the Planning Lite home registry; it does not copy project history or
+documents. In split-control mode, inspect product Git and control Git as two
+independent contexts. Leave staging and commits to the operator and to the
+separate lifecycle gates.
+
 ## 2. Обновление одного рабочего проекта
 
 1. Завершить или checkpoint текущую агентную работу.

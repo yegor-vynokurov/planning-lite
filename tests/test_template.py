@@ -18,6 +18,24 @@ def test_project_config_does_not_copy_defaults() -> None:
     assert "quick_fix:" in defaults
 
 
+def test_project_policy_defaults_are_namespaced_and_receipt_linkage_is_explicit() -> None:
+    root = Path(__file__).resolve().parents[1]
+    defaults = (root / "template/.planning/framework/defaults.yml").read_text(encoding="utf-8")
+    progress = (root / "template/.planning/changes/templates/progress.md").read_text(encoding="utf-8")
+    review = (root / "template/.planning/changes/templates/review.md").read_text(encoding="utf-8")
+    for value in (
+        "project_policy:",
+        "control_history_mode: null",
+        "secret_storage: prohibited",
+        "telemetry:",
+    ):
+        assert value in defaults
+    for text in (progress, review):
+        assert "Product commit SHA(s): []" in text
+        assert "Control commit SHA(s): []" in text
+        assert "Public changelog Planning ref: null" in text
+
+
 def test_no_unexpected_template_suffixes() -> None:
     root = Path(__file__).resolve().parents[1] / "template"
     allowed = {

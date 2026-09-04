@@ -150,6 +150,22 @@ uv tool list --show-version-specifiers --show-paths
 
 ### Обновить один проект
 
+## PL-V39-05-C: explicit topology operations
+
+For an enrolled project, use the read-only registry and inspection commands:
+
+```powershell
+planning-lite projects --json
+planning-lite inspect . --json
+```
+
+`control-init` is the explicit split-control topology operation. It requires
+the product repository to already ignore `.planning`, creates external control
+Git metadata, and never stages or commits. Use `register` only after the
+selected history mode is deliberate. A stale or unavailable update source must
+be repaired with an explicit `--template-source`; silent source substitution is
+not allowed.
+
 Перейдите в проект и убедитесь, что дерево чистое:
 
 ```powershell

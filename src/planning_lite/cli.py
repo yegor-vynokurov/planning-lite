@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tomllib
 import tempfile
+from urllib.parse import urlparse
 from datetime import date
 from pathlib import Path
 from typing import Iterable
@@ -22,6 +23,22 @@ from .local_update import (
     build_local_update_plan,
     format_local_update_plan,
 )
+from .workspace import (
+    ALLOWED_MODES,
+    ALLOWED_PROJECT_STATUSES,
+    WorkspaceError,
+    control_git,
+    control_init,
+    inspect_project,
+    load_effective_policy,
+    load_registry,
+    plan_registration,
+    register_project,
+    registry_json,
+    resolve_control_git_dir,
+    plan_control_init,
+)
+from .telemetry import ReceiptError, collect_receipt
 
 ANSWERS_FILE = ".copier-answers.planning-lite.yml"
 CONFIG_ENV = "PLANNING_LITE_TEMPLATE"
@@ -40,6 +57,10 @@ Do not preload the entire `.planning/` tree.
 
 class PlanningLiteError(RuntimeError):
     """User-facing command failure."""
+
+
+def _workspace_error(exc: WorkspaceError) -> PlanningLiteError:
+    return PlanningLiteError(str(exc))
 
 
 def _run(command: list[str], *, cwd: Path | None = None) -> int:
@@ -112,6 +133,29 @@ def _save_template_source(source: str) -> None:
 
 def _looks_like_template_repo(path: Path) -> bool:
     return (path / "copier.yml").is_file() and (path / "template").is_dir()
+
+
+def _local_template_source_path(source: str) -> Path | None:
+    """Return a local source path, preserving Windows drive-letter paths."""
+
+    value = source.strip()
+    if not value or value.startswith("git@"):
+        return None
+    # ``urlparse`` treats ``C:\\work\\template`` as URL scheme ``c``.
+    if re.match(r"^[A-Za-z]:[\\/]", value):
+        return Path(value).expanduser()
+    parsed = urlparse(value)
+    if parsed.scheme:
+        return None
+    return Path(value).expanduser()
+
+
+def _validate_template_source(source: str) -> None:
+    path = _local_template_source_path(source)
+    if path is not None and (
+        not path.exists() or not path.is_dir() or not _looks_like_template_repo(path)
+    ):
+        raise PlanningLiteError(f"Template source is unavailable or invalid: {source}")
 
 
 def _discover_template_source(explicit: str | None) -> str:
@@ -288,12 +332,15 @@ def _render_local_update_candidate(
     target: Path,
     answers_data: dict[str, object],
     vcs_ref: str | None,
+    template_source: str | None = None,
 ) -> tempfile.TemporaryDirectory[str]:
-    source = answers_data.get("_src_path")
+    source = template_source or answers_data.get("_src_path")
     project_name = answers_data.get("project_name")
     agent = answers_data.get("agent_adapter")
     if not isinstance(source, str) or not source.strip():
         raise PlanningLiteError(f"{ANSWERS_FILE} does not contain a usable `_src_path`")
+    source = source.strip()
+    _validate_template_source(source)
     if not isinstance(project_name, str) or not project_name.strip():
         project_name = target.name
     if not isinstance(agent, str) or not agent.strip():
@@ -303,7 +350,7 @@ def _render_local_update_candidate(
     candidate = Path(temporary.name)
     code = _copy_template(
         target=candidate,
-        source=source.strip(),
+        source=source,
         project_name=project_name.strip(),
         agent=agent.strip(),
         vcs_ref=vcs_ref,
@@ -320,18 +367,29 @@ def _command_local_only_update(
     target: Path,
     answers: Path,
     vcs_ref: str | None,
+    template_source: str | None,
     dry_run: bool,
 ) -> int:
     answers_data = _load_answers_mapping(answers)
+    try:
+        project_policy = load_effective_policy(target)["project_policy"]
+    except WorkspaceError as exc:
+        raise _workspace_error(exc) from exc
+    forbidden = project_policy.get("forbidden_read_paths", [])
+    if not isinstance(forbidden, list) or not all(isinstance(item, str) for item in forbidden):
+        raise PlanningLiteError("project_policy.forbidden_read_paths must be a list of strings")
     temporary = _render_local_update_candidate(
         target=target,
         answers_data=answers_data,
         vcs_ref=vcs_ref,
+        template_source=template_source,
     )
     try:
         candidate = Path(temporary.name)
         try:
-            plan = build_local_update_plan(target, candidate)
+            plan = build_local_update_plan(
+                target, candidate, forbidden_read_paths=forbidden
+            )
         except LocalUpdateError as exc:
             raise PlanningLiteError(str(exc)) from exc
         print(format_local_update_plan(plan))
@@ -339,7 +397,9 @@ def _command_local_only_update(
             print("Dry run: no files were written.")
             return 0
         try:
-            apply_local_update_plan(target, candidate, plan)
+            apply_local_update_plan(
+                target, candidate, plan, forbidden_read_paths=forbidden
+            )
         except LocalUpdateError as exc:
             raise PlanningLiteError(str(exc)) from exc
         print("Planning Lite local-only update applied atomically.")
@@ -371,7 +431,11 @@ def command_update(args: argparse.Namespace) -> int:
                 + ", ".join(local_roots)
             )
             return _command_local_only_update(
-                target=target, answers=answers, vcs_ref=args.vcs_ref, dry_run=True
+                target=target,
+                answers=answers,
+                vcs_ref=args.vcs_ref,
+                template_source=getattr(args, "template_source", None),
+                dry_run=True,
             )
         if not requested_local:
             raise PlanningLiteError(
@@ -382,13 +446,29 @@ def command_update(args: argparse.Namespace) -> int:
                 "`planning-lite update ... --local-only` to apply it."
             )
         return _command_local_only_update(
-            target=target, answers=answers, vcs_ref=args.vcs_ref, dry_run=False
+            target=target,
+            answers=answers,
+            vcs_ref=args.vcs_ref,
+            template_source=getattr(args, "template_source", None),
+            dry_run=False,
         )
 
     if requested_local:
         raise PlanningLiteError(
             "`--local-only` was requested, but `.planning`/`.agents` are not detected as "
             "Git-ignored local-only managed roots. Use the ordinary update path."
+        )
+
+    source_backup: bytes | None = None
+    source_override = getattr(args, "template_source", None)
+    if source_override:
+        _validate_template_source(source_override)
+        source_backup = answers.read_bytes()
+        answers_data = _load_answers_mapping(answers)
+        answers_data["_src_path"] = source_override
+        answers.write_text(
+            yaml.safe_dump(answers_data, sort_keys=False, allow_unicode=True),
+            encoding="utf-8",
         )
 
     command = _copier_command(
@@ -402,7 +482,149 @@ def command_update(args: argparse.Namespace) -> int:
     if args.vcs_ref:
         command.extend(["--vcs-ref", args.vcs_ref])
 
-    return _run(command, cwd=target)
+    try:
+        code = _run(command, cwd=target)
+    except Exception:
+        if source_backup is not None:
+            answers.write_bytes(source_backup)
+        raise
+    if source_backup is not None and (code != 0 or args.dry_run):
+        answers.write_bytes(source_backup)
+    return code
+
+
+def _registration_preview(args: argparse.Namespace) -> dict[str, object]:
+    try:
+        plan = plan_registration(
+            args.target,
+            project_id=getattr(args, "project_id", None),
+            mode=args.mode,
+            status=args.status,
+            telemetry=bool(getattr(args, "telemetry", False)),
+            home=getattr(args, "home", None),
+        )
+    except WorkspaceError as exc:
+        raise _workspace_error(exc) from exc
+    entry = plan["entry"]
+    target = Path(args.target).expanduser().resolve()
+    return {
+        "project_id": entry["project_id"],
+        "project_root": str(target),
+        "mode": entry["control_history"]["mode"],
+        "project_status": entry["project_status"],
+        "home": str(Path(plan["registry_path"]).parent),
+        "config_path": str(plan["config_path"]),
+        "registry_path": str(plan["registry_path"]),
+        "telemetry": bool(getattr(args, "telemetry", False)),
+        "already_registered": bool(plan["already_registered"]),
+        "writes": []
+        if plan["already_registered"]
+        else [str(plan["config_path"]), str(plan["registry_path"])],
+    }
+
+
+def command_register(args: argparse.Namespace) -> int:
+    preview = _registration_preview(args)
+    if args.dry_run:
+        print(yaml.safe_dump({"action": "register", **preview}, sort_keys=False, allow_unicode=True), end="")
+        print("Dry run: no files were written.")
+        return 0
+    try:
+        entry = register_project(
+            args.target,
+            project_id=getattr(args, "project_id", None),
+            mode=args.mode,
+            status=args.status,
+            telemetry=bool(getattr(args, "telemetry", False)),
+            home=getattr(args, "home", None),
+        )
+    except WorkspaceError as exc:
+        raise _workspace_error(exc) from exc
+    print(yaml.safe_dump(entry, sort_keys=False, allow_unicode=True), end="")
+    return 0
+
+
+def command_projects(args: argparse.Namespace) -> int:
+    try:
+        registry = load_registry(getattr(args, "home", None))
+    except WorkspaceError as exc:
+        raise _workspace_error(exc) from exc
+    if args.json:
+        print(registry_json(registry))
+    else:
+        print(yaml.safe_dump(registry, sort_keys=False, allow_unicode=True), end="")
+    return 0
+
+
+def command_inspect(args: argparse.Namespace) -> int:
+    try:
+        result = inspect_project(args.target, home=getattr(args, "home", None))
+    except WorkspaceError as exc:
+        raise _workspace_error(exc) from exc
+    if args.json:
+        print(registry_json(result))
+    else:
+        print(yaml.safe_dump(result, sort_keys=False, allow_unicode=True), end="")
+    return 0
+
+
+def command_control_init(args: argparse.Namespace) -> int:
+    try:
+        proposal = plan_control_init(
+            args.target,
+            project_id=args.project_id,
+            home=args.home,
+            git_dir=getattr(args, "git_dir", None),
+        )
+        if args.dry_run:
+            visible = {
+                "action": "control-init",
+                "project_id": proposal["project_id"],
+                "product_root": str(proposal["product_root"]),
+                "planning_root": str(proposal["planning_root"]),
+                "git_dir": str(proposal["git_dir"]),
+                "gitfile": str(proposal["gitfile"]),
+                "gitignore": str(proposal["gitignore"]),
+                "already_initialized": proposal["already_initialized"],
+                "writes": [str(proposal["gitfile"]), str(proposal["gitignore"]), str(Path(args.target).resolve() / ".planning" / "CONFIG.yml")],
+            }
+            print(yaml.safe_dump(visible, sort_keys=False, allow_unicode=True), end="")
+            print("Dry run: no files were written.")
+            return 0
+        result = control_init(
+            args.target,
+            project_id=args.project_id,
+            home=args.home,
+            git_dir=getattr(args, "git_dir", None),
+        )
+    except WorkspaceError as exc:
+        raise _workspace_error(exc) from exc
+    print(f"Split-control initialized for {result['project_id']}.")
+    print(f"External control Git: {result['git_dir']}")
+    print("No files were staged or committed.")
+    return 0
+
+
+def command_receipt(args: argparse.Namespace) -> int:
+    try:
+        info = inspect_project(args.target, home=getattr(args, "home", None))
+        policy = load_effective_policy(args.target)["project_policy"]
+        telemetry = policy.get("telemetry") or {}
+        enabled = bool(telemetry.get("enabled")) if isinstance(telemetry, dict) else False
+        receipt_path = (info.get("telemetry") or {}).get("receipt_path")
+        if not enabled or not isinstance(receipt_path, str) or not receipt_path:
+            raise ReceiptError("Telemetry is disabled or has no registered receipt path")
+        appended = collect_receipt(
+            args.input,
+            project_root=args.target,
+            receipt_path=receipt_path,
+            registered_project_id=str(info["project_id"]),
+            enabled=enabled,
+        )
+    except (WorkspaceError, ReceiptError) as exc:
+        raise PlanningLiteError(str(exc)) from exc
+    print("RunReceipt recorded." if appended else "RunReceipt already recorded (identical duplicate).")
+    return 0
 
 
 def _version_from_tag(tag: str) -> Version:
@@ -659,10 +881,30 @@ def command_doctor(args: argparse.Namespace) -> int:
     if unrendered:
         failures.append(f"unrendered template files found: {len(unrendered)}")
 
-    if not _is_git_repo(target):
+    product_git_ok = _is_git_repo(target)
+    if not product_git_ok:
         warnings.append("target is not a Git repository")
     elif _is_dirty(target):
         warnings.append("working tree is not clean")
+    print(f"Product Git: {'OK' if product_git_ok else 'UNAVAILABLE'}")
+
+    planning_root = target / ".planning"
+    try:
+        control_dir = resolve_control_git_dir(planning_root)
+    except WorkspaceError as exc:
+        failures.append(str(exc))
+        control_dir = None
+    if control_dir is None:
+        print("Control Git: NOT CONFIGURED")
+    else:
+        control_status = control_git(planning_root, control_dir, "status", "--porcelain")
+        control_head = control_git(planning_root, control_dir, "rev-parse", "HEAD")
+        if control_status.returncode != 0 or control_head.returncode != 0:
+            failures.append("control Git context is unavailable")
+            print("Control Git: UNAVAILABLE")
+        else:
+            print(f"Control Git: {'DIRTY' if control_status.stdout.strip() else 'CLEAN'}")
+            print(f"Control HEAD: {control_head.stdout.strip()}")
 
     installed_ref = "unknown"
     if answers_data is not None:
@@ -737,6 +979,7 @@ def build_parser() -> argparse.ArgumentParser:
     update = subparsers.add_parser("update", help="Update managed files from the central template.")
     update.add_argument("target", nargs="?", default=".")
     update.add_argument("--vcs-ref")
+    update.add_argument("--template-source")
     update.add_argument("--dry-run", action="store_true")
     update.add_argument("--allow-dirty", action="store_true")
     update.add_argument(
@@ -749,6 +992,7 @@ def build_parser() -> argparse.ArgumentParser:
     check = subparsers.add_parser("check", help="Preview a Planning Lite update without writing files.")
     check.add_argument("target", nargs="?", default=".")
     check.add_argument("--vcs-ref")
+    check.add_argument("--template-source")
     check.add_argument("--allow-dirty", action="store_true")
     check.add_argument(
         "--local-only",
@@ -756,6 +1000,43 @@ def build_parser() -> argparse.ArgumentParser:
         help="Explicitly request local-only preview; auto-detected for ignored managed roots.",
     )
     check.set_defaults(func=command_update, dry_run=True)
+
+    control_init = subparsers.add_parser(
+        "control-init", help="Create an external split-control Git work tree."
+    )
+    control_init.add_argument("target", nargs="?", default=".")
+    control_init.add_argument("--project-id", required=True)
+    control_init.add_argument("--home")
+    control_init.add_argument("--git-dir")
+    control_init.add_argument("--dry-run", action="store_true")
+    control_init.set_defaults(func=command_control_init)
+
+    register = subparsers.add_parser("register", help="Register a project in the Planning Lite home.")
+    register.add_argument("target", nargs="?", default=".")
+    register.add_argument("--project-id")
+    register.add_argument("--mode", required=True, choices=tuple(sorted(ALLOWED_MODES)))
+    register.add_argument("--status", required=True, choices=tuple(sorted(ALLOWED_PROJECT_STATUSES)))
+    register.add_argument("--telemetry", action="store_true")
+    register.add_argument("--home")
+    register.add_argument("--dry-run", action="store_true")
+    register.set_defaults(func=command_register)
+
+    projects = subparsers.add_parser("projects", help="List registered Planning Lite projects.")
+    projects.add_argument("--home")
+    projects.add_argument("--json", action="store_true")
+    projects.set_defaults(func=command_projects)
+
+    inspect = subparsers.add_parser("inspect", help="Inspect one registered project.")
+    inspect.add_argument("target", nargs="?", default=".")
+    inspect.add_argument("--home")
+    inspect.add_argument("--json", action="store_true")
+    inspect.set_defaults(func=command_inspect)
+
+    receipt = subparsers.add_parser("receipt", help="Record an external RunReceipt.")
+    receipt.add_argument("target", nargs="?", default=".")
+    receipt.add_argument("--input", required=True)
+    receipt.add_argument("--home")
+    receipt.set_defaults(func=command_receipt)
 
     doctor = subparsers.add_parser("doctor", help="Validate a Planning Lite installation.")
     doctor.add_argument("target", nargs="?", default=".")

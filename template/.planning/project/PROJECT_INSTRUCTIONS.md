@@ -15,3 +15,7 @@ Examples:
 - directories that must not be modified;
 - domain-specific safety constraints;
 - generated files and their source of truth.
+
+Project topology and control-history mode are resolved through the effective
+`project_policy` configuration. Do not place secrets in Planning Lite state;
+keep product and control Git operations explicit and separately reviewable.

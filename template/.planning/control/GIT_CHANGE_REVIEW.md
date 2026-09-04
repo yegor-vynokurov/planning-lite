@@ -20,3 +20,7 @@ Do not load an unbounded raw repository diff by default.
 ## Verdict
 
 Record findings, evidence, impact, affected criterion or standard, and one verdict: `Pass`, `Pass with findings`, or `Block`.
+
+For split-control projects, report product Git and control Git independently.
+A clean product tree does not imply a clean control tree, and no review or
+Planning Lite command stages or commits either repository automatically.

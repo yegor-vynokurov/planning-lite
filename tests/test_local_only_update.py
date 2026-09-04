@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -331,6 +332,143 @@ def test_candidate_unknown_path_fails_closed(tmp_path: Path) -> None:
 
     with pytest.raises(LocalUpdateError, match="unclassified"):
         build_local_update_plan(target, candidate)
+
+
+def test_local_update_never_scans_nested_git_metadata(tmp_path: Path) -> None:
+    target = tmp_path / "target"
+    candidate = tmp_path / "candidate"
+    target.mkdir()
+    candidate.mkdir()
+    (target / ANSWERS_FILE).write_text("_commit: old\n", encoding="utf-8")
+    _write_minimal_target(target)
+    _write_minimal_candidate(candidate)
+    (target / ".planning/.git").mkdir(parents=True)
+    (target / ".planning/.git/objects").mkdir()
+    (target / ".planning/.git/objects/secret").write_text("metadata\n", encoding="utf-8")
+    (candidate / ".planning/.git").mkdir(parents=True)
+    (candidate / ".planning/.git/config").write_text("metadata\n", encoding="utf-8")
+
+    plan = build_local_update_plan(target, candidate)
+    assert all(".git/" not in item.path for item in plan.mutations)
+
+
+def test_local_update_prunes_nested_git_before_scandir(tmp_path: Path, monkeypatch) -> None:
+    root = tmp_path / "root"
+    (root / ".planning/.git/objects").mkdir(parents=True)
+    (root / ".planning/.git/objects/secret").write_text("must not be read\n", encoding="utf-8")
+    (root / ".planning/allowed.txt").write_text("allowed\n", encoding="utf-8")
+    original_scandir = os.scandir
+
+    def guarded_scandir(path):  # type: ignore[no-untyped-def]
+        if Path(path).name == ".git":
+            raise AssertionError("iter_files descended into nested .git")
+        return original_scandir(path)
+
+    monkeypatch.setattr(os, "scandir", guarded_scandir)
+    files = iter_files(root)
+    assert ".planning/allowed.txt" in files
+    assert all(".git" not in path for path in files)
+
+
+@pytest.mark.skipif(os.name != "nt", reason="Windows junction discriminator")
+def test_local_update_prunes_windows_junction_and_rejects_escape(tmp_path: Path) -> None:
+    isjunction = getattr(os.path, "isjunction", None)
+    if not callable(isjunction):
+        pytest.skip("runtime cannot detect Windows junctions")
+
+    root = tmp_path / "root"
+    root.mkdir()
+    (root / "normal").mkdir()
+    (root / "normal/allowed.txt").write_text("allowed\n", encoding="utf-8")
+    junction_target = root / "junction-target"
+    junction_target.mkdir()
+    (junction_target / "secret.txt").write_text("must not be read\n", encoding="utf-8")
+    junction = root / "junction"
+    created = subprocess.run(
+        ["cmd.exe", "/c", "mklink", "/J", str(junction), str(junction_target)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if created.returncode != 0 or not isjunction(junction):
+        if isjunction(junction):
+            subprocess.run(
+                ["cmd.exe", "/c", "rmdir", str(junction)],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+        pytest.skip("host cannot create/detect a Windows junction")
+
+    escaping = root / "escaping"
+    try:
+        files = iter_files(root)
+        assert "normal/allowed.txt" in files
+        assert not any(path.startswith("junction/") for path in files)
+
+        outside = tmp_path / "outside"
+        outside.mkdir()
+        (outside / "secret.txt").write_text("outside\n", encoding="utf-8")
+        escaped = subprocess.run(
+            ["cmd.exe", "/c", "mklink", "/J", str(escaping), str(outside)],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if escaped.returncode != 0 or not isjunction(escaping):
+            pytest.skip("host cannot create a second Windows junction")
+        with pytest.raises(LocalUpdateError, match="escapes update root"):
+            iter_files(root)
+    finally:
+        for link in (escaping, junction):
+            if isjunction(link):
+                subprocess.run(
+                    ["cmd.exe", "/c", "rmdir", str(link)],
+                    check=False,
+                    capture_output=True,
+                    text=True,
+                )
+
+
+def test_local_update_forbidden_scan_fails_closed(tmp_path: Path) -> None:
+    target = tmp_path / "target"
+    candidate = tmp_path / "candidate"
+    target.mkdir()
+    candidate.mkdir()
+    (target / ANSWERS_FILE).write_text("_commit: old\n", encoding="utf-8")
+    _write_minimal_target(target)
+    _write_minimal_candidate(candidate)
+    (target / ".planning/private").mkdir(parents=True)
+    (target / ".planning/private/secret.txt").write_text("secret\n", encoding="utf-8")
+    with pytest.raises(LocalUpdateError, match="Forbidden read path"):
+        build_local_update_plan(
+            target, candidate, forbidden_read_paths=[".planning/private/**"]
+        )
+    allowed = build_local_update_plan(
+        target, candidate, forbidden_read_paths=[".planning/other/**"]
+    )
+    assert allowed.mutations
+
+
+def test_explicit_update_source_is_passed_to_local_candidate(tmp_path: Path, monkeypatch) -> None:
+    target = tmp_path / "repo"
+    candidate = tmp_path / "candidate"
+    _init_local_only_repo(target)
+    _write_minimal_target(target)
+    candidate.mkdir()
+    _write_minimal_candidate(candidate)
+    selected: dict[str, object] = {}
+
+    def render(**kwargs):  # type: ignore[no-untyped-def]
+        selected.update(kwargs)
+        return _CandidateHandle(candidate)
+
+    monkeypatch.setattr(cli, "_render_local_update_candidate", render)
+    args = cli.build_parser().parse_args(
+        ["check", str(target), "--template-source", str(ROOT)]
+    )
+    assert cli.command_update(args) == 0
+    assert selected["template_source"] == str(ROOT)
 
 
 def test_project_owned_to_managed_transition_fails_closed(tmp_path: Path) -> None:
