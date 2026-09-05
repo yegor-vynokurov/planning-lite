@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Add a bounded read-only consumer `planning-lite resume` projection with
+  authority-first selection, exact expansion guards, freshness outcomes, and
+  in-memory HandoffV1 validation; no context store or consumer writes are
+  introduced.
+
 - Add bounded project-policy, topology registry, explicit split-control Git
   contexts, topology-aware local updates, source rebind, and external RunReceipt
   v1 collection while preserving project-owned state and separate authorization

@@ -1,6 +1,9 @@
 # CHG-PL-V39-06-CONTEXT-MEMORY-HANDOFF-001 — Implementation Plan v1
 
 - Status: `APPROVED BY OWNER`
+- Amendment status: `APPROVED BY OWNER` — bounded M-01/M-02 contract adjudication, 2026-09-05
+- M-01: oversize explicit expansion is a structured derived result, not a fatal resume failure
+- M-02: `HandoffV1.active_context_path` is bound to the authoritative active-context pointer
 - Date: `2026-09-05`
 - Change: `CHG-PL-V39-06-CONTEXT-MEMORY-HANDOFF-001`
 - Definition: `APPROVED BY OWNER`
@@ -120,6 +123,9 @@ The implementation is split only where responsibility is already distinct:
 | `src/planning_lite/workspace.py` | Reuse/expose existing root containment, forbidden-read, effective-policy, and product Git identity primitives; no semantic state ownership |
 | `src/planning_lite/cli.py` | Parse the single `resume` command and render deterministic YAML/JSON stdout |
 
+The derived resume surface also reports bounded explicit-expansion outcomes in
+memory; this does not add persistence, a second authority, or a new file/tree.
+
 No campaign-specific `ResumeCapsule` or review handoff is generalized. Those
 contracts keep their existing domain ownership.
 
@@ -160,7 +166,9 @@ Structural bounds:
 - an explicit selector is `repo-relative-path` for identity/hash only or
   `repo-relative-path#exact-heading` for one Markdown section;
 - one expanded section is limited to `4,096` characters; oversize content is
-  not truncated and returns a safe `EXPANSION_TOO_LARGE` result with its path;
+  not truncated and returns a safe structured `EXPANSION_TOO_LARGE` result with
+  `path`, `section`, and `limit_chars`; the resume operation itself remains
+  usable and the offending expansion is not counted as selected content;
 - paths must remain under the resolved product root, must not traverse `.git`,
   and must pass effective `forbidden_read_paths` checks.
 
@@ -192,8 +200,15 @@ current_state
 bootstrap
 selected_sources
 handoff
+expansion_results[] {status, path, section, limit_chars}
 context_trace
 ```
+
+`expansion_results` is a bounded derived field. For an oversize explicit
+expansion it contains exactly one non-selected result with status
+`EXPANSION_TOO_LARGE`, the normalized repository-relative path, the exact
+heading (or `null`), and the approved character limit. The body is neither
+returned nor truncated, and the result is never persisted.
 
 `bootstrap` contains only:
 
@@ -244,6 +259,13 @@ and the governing ACTIVE tuple:
  implementation_authorized, next_permitted_action, active_context_path)
 ```
 
+`HandoffV1` records the observed `active_context_path` as a nullable,
+normalized repository-relative identity. A handoff is `SUPERSEDED` whenever
+that pointer differs from the current authoritative pointer, including a
+null/non-null transition, even when the older file and hash remain valid.
+Freshness outcomes have one primary status with this precedence:
+`MISSING_OWNER_ARTIFACT` → `SUPERSEDED` → `STALE` → `CURRENT`.
+
 `validate_resume_context` and optional handoff validation produce exactly:
 
 | Result | Condition | Behavior |
@@ -264,6 +286,7 @@ condition. An unborn Git repository is valid and recorded as `UNBORN`.
 schema_version
 project_id
 change_id | null
+active_context_path | null
 changed_paths[]
 lifecycle_stage
 stage_status
@@ -277,12 +300,13 @@ source_revision {head | null, state}
 ```
 
 Bounds are: at most 64 changed paths, 32 verification entries, 16 dispositions,
-and 16 artifact refs; paths are normalized, relative, and contained. Unknown or
-missing keys fail closed. `implementation_authorized` must agree with current
-authority; the handoff cannot elevate it. Current project/change identity,
-ACTIVE tuple, and referenced hashes are resolved before any handoff value is
-included. Full Definition/Plan/Ledger/raw-log bodies have no schema field and
-therefore cannot be duplicated into the handoff.
+and 16 artifact refs; paths, including `active_context_path` when non-null, are
+normalized, relative, and contained. Unknown or missing keys fail closed.
+`implementation_authorized` must agree with current authority; the handoff
+cannot elevate it. Current project/change identity, ACTIVE tuple including the
+active-context pointer, and referenced hashes are resolved before any handoff
+value is included. Full Definition/Plan/Ledger/raw-log bodies have no schema
+field and therefore cannot be duplicated into the handoff.
 
 ### 3.7 ContextTrace and structural efficiency
 
@@ -325,11 +349,11 @@ existing lifecycle explicitly retains it.
 | AC-01 | ACTIVE/CURRENT_STATE parser and bootstrap model | Fresh fixture resumes from max 3 default sources; no Change/blocker fixture yields nulls, not invented objects | Ledger focused results | T-01, T-03, T-09 |
 | AC-02 | Ordered selector and source identities | Permuted filesystem creation order produces byte-equivalent JSON; stage/history cannot outrank ACTIVE | Ledger hashes/results | T-02, T-03 |
 | AC-03 | Derived-only output and ownership docs | Command leaves target/home bytes and status unchanged; forbidden second-store path audit | Ledger scope audit | T-03, T-05, T-06 |
-| AC-04 | Hash/ACTIVE-tuple validator | Changed hash=`STALE`; changed active tuple=`SUPERSEDED`; absent/forbidden owner path=`MISSING_OWNER_ARTIFACT` | Ledger discriminator table | T-04 |
+| AC-04 | Hash/ACTIVE-tuple validator | Changed hash=`STALE`; changed active tuple or active-context pointer=`SUPERSEDED`; absent/forbidden owner path=`MISSING_OWNER_ARTIFACT` | Ledger discriminator table | T-04 |
 | AC-05 | Exact `HandoffV1` validator | Extra full-body/log fields rejected; conflicting authorization/identity/hash rejected; current authority wins | Ledger handoff results | T-01, T-04 |
 | AC-06 | Exact storage classifier | All five classes covered; inbox path remains local/noncanonical and cannot be selected even explicitly | Ledger classification results | T-02 |
 | AC-07 | Two distinct disposable fixtures | Poker-shaped mature and mood-shaped early/unborn tests prove different state/history conditions | Ledger consumer proof sections | T-07, T-08 |
-| AC-08 | Bounded exact selector and ContextTrace | Default max 3, total max 8, exact heading only, no glob/search; fixture history skipped and metrics explain selection | Ledger efficiency comparison | T-03, T-06, T-07 |
+| AC-08 | Bounded exact selector and ContextTrace | Default max 3, total max 8, exact heading only, no glob/search; oversize expansion yields structured `EXPANSION_TOO_LARGE` without truncation/fatal failure; fixture history skipped and metrics explain selection | Ledger efficiency comparison | T-03, T-06, T-07 |
 | AC-09 | Direct-target read-only CLI | Resume works without home/registration/control Git; before/after target and live consumer state unchanged | Ledger scope/consumer proof | T-05, T-07, T-08 |
 
 ## 5. Task Graph
@@ -411,22 +435,24 @@ dependent tasks unless a task hits a stop condition.
 - Read surfaces: resolved authority files only.
 - ACs: AC-01, AC-02, AC-03, AC-08.
 - Tests/evidence: default/total caps, deterministic ordering/JSON, heading-only
-  expansion, oversize fail-soft, no history scan, trace reasons/counts/characters,
-  target/home no-write guard.
+  expansion, structured oversize `EXPANSION_TOO_LARGE` result with path/section/
+  limit and no fatal failure or truncation, no history scan, trace
+  reasons/counts/characters, target/home no-write guard.
 - Stop: meeting the criteria requires tokens, model inference, keyword search,
   semantic scoring, persistence, or unbounded content.
 
 ### T-04 — Freshness, stale/missing behavior, and handoff
 
-- Purpose: validate source hashes/ACTIVE tuple and optional exact HandoffV1
-  against current authority.
+- Purpose: validate source hashes/ACTIVE tuple including the active-context
+  pointer and optional exact HandoffV1 against current authority.
 - Dependencies: T-03 PASS.
 - Write surfaces: `src/planning_lite/context.py`, focused tests, ledger.
 - Read surfaces: selected source paths and optional handoff input only.
 - ACs: AC-04, AC-05.
-- Tests/evidence: CURRENT/STALE/SUPERSEDED/MISSING_OWNER_ARTIFACT; missing active
-  context; valid no-Change/no-blocker; handoff identity/auth/hash conflict;
-  anti-duplication extra-field rejection.
+- Tests/evidence: CURRENT/STALE/SUPERSEDED/MISSING_OWNER_ARTIFACT with primary
+  precedence; active-context pointer mismatch including null/non-null transition;
+  missing active context; valid no-Change/no-blocker; handoff identity/auth/hash
+  conflict; anti-duplication extra-field rejection.
 - Stop: handoff needs authority precedence over ACTIVE/CURRENT_STATE or a new
   durable handoff repository.
 
@@ -775,7 +801,7 @@ material finding.
 Current state after this Plan preparation:
 
 ```text
-Plan: APPROVED BY OWNER
+Plan: APPROVED BY OWNER (M-01/M-02 amendment)
 planning authority checkpoint: REQUIRED IN THIS GOVERNANCE STEP
 Formal Readiness: NOT RUN
 implementation_authorized: NO

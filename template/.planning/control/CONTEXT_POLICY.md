@@ -76,3 +76,7 @@ These profiles refine Tier 1-3 loading; they do not authorize a Context Compiler
 ## Context packet
 
 The active change `context.md` is the resumable packet. Keep it compact and update it at meaningful checkpoints, decisions, amendments, stage transitions, or before a new session.
+
+The consumer `planning-lite resume` command is a read-only derived view. It
+loads only the bounded authority-first inputs named by the command contract;
+its output is reconstructable and is never a replacement context store.

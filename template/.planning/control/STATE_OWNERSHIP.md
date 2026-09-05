@@ -27,6 +27,10 @@ Each fact has one primary home.
 | skill usage CSV | optional best-effort frequency log; never authoritative project state |
 | `project_policy` in effective configuration | topology/safety policy resolved from managed defaults plus project-owned `CONFIG.yml`; never lifecycle or history |
 
+Resume/bootstrap output and ContextTrace are derived projections. They do not
+own lifecycle, handoff, or history facts and are not persisted by the resume
+command.
+
 ## Duplication rules
 
 - `ACTIVE.md` points to detail; it does not repeat plans or progress history.

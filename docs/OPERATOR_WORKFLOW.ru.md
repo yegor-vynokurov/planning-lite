@@ -32,6 +32,25 @@ Do not use a root `.planning` lifecycle here and do not run
 verification contract uses the maintainer test/smoke commands instead.
 <!-- PL_CENTRAL_RESUME_WORKFLOW_V1:END -->
 
+## Read-only consumer resume
+
+For an adopted or early consumer project, the bounded resume view is derived
+from the existing `.planning/ACTIVE.md`, the `CURRENT_STATE.md` preamble, and
+the named active context packet. It does not use the Planning Lite home,
+registration, control Git, receipts, or a persistent context store:
+
+```powershell
+planning-lite resume .
+planning-lite resume . --json
+planning-lite resume . --include .planning/changes/active/CHANGE/plan.md#Acceptance
+```
+
+`--include` accepts only exact repository-relative paths or exact Markdown
+headings (up to five expansions). The command is read-only; history,
+`recommendations/inbox`, `.git`, and paths outside the product root are not
+selected automatically and are rejected when unsafe. Optional handoff JSON is
+validated in memory against current authority and is never persisted.
+
 
 ## 1. Изменение центрального Planning Lite
 

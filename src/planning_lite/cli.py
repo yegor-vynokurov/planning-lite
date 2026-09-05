@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
 import shutil
@@ -17,6 +18,7 @@ import yaml
 from packaging.version import InvalidVersion, Version
 
 from . import __version__
+from .context import ContextError, build_resume_context
 from .local_update import (
     LocalUpdateError,
     apply_local_update_plan,
@@ -568,6 +570,27 @@ def command_inspect(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_resume(args: argparse.Namespace) -> int:
+    handoff = None
+    if args.handoff:
+        try:
+            with Path(args.handoff).expanduser().open("r", encoding="utf-8") as handle:
+                handoff = json.load(handle)
+        except (OSError, json.JSONDecodeError) as exc:
+            raise PlanningLiteError(f"Cannot read handoff input {args.handoff}: {exc}") from exc
+    try:
+        result = build_resume_context(
+            Path(args.target).resolve(), include=args.include or (), handoff=handoff
+        )
+    except ContextError as exc:
+        raise PlanningLiteError(str(exc)) from exc
+    if args.json:
+        print(json.dumps(result, sort_keys=True, ensure_ascii=False, separators=(",", ":")))
+    else:
+        print(yaml.safe_dump(result, sort_keys=False, allow_unicode=True), end="")
+    return 0
+
+
 def command_control_init(args: argparse.Namespace) -> int:
     try:
         proposal = plan_control_init(
@@ -1037,6 +1060,21 @@ def build_parser() -> argparse.ArgumentParser:
     receipt.add_argument("--input", required=True)
     receipt.add_argument("--home")
     receipt.set_defaults(func=command_receipt)
+
+    resume = subparsers.add_parser(
+        "resume", help="Render a bounded, read-only resume context for a project."
+    )
+    resume.add_argument("target", nargs="?", default=".")
+    resume.add_argument(
+        "--include",
+        action="append",
+        default=[],
+        metavar="PATH[#HEADING]",
+        help="Include one exact repository-relative artifact or Markdown heading.",
+    )
+    resume.add_argument("--handoff", metavar="INPUT.json")
+    resume.add_argument("--json", action="store_true")
+    resume.set_defaults(func=command_resume)
 
     doctor = subparsers.add_parser("doctor", help="Validate a Planning Lite installation.")
     doctor.add_argument("target", nargs="?", default=".")

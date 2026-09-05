@@ -41,3 +41,14 @@ def test_release_command_accepts_short_bump() -> None:
     args = parser.parse_args(["release", "patch", "--dry-run"])
     assert args.version == "patch"
     assert args.dry_run is True
+
+
+def test_resume_command_accepts_bounded_inputs() -> None:
+    parser = build_parser()
+    args = parser.parse_args(
+        ["resume", "consumer", "--include", ".planning/ACTIVE.md", "--handoff", "handoff.json", "--json"]
+    )
+    assert args.command == "resume"
+    assert args.include == [".planning/ACTIVE.md"]
+    assert args.handoff == "handoff.json"
+    assert args.json is True
