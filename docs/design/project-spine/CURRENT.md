@@ -4,12 +4,12 @@
 repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
-active_change: NONE
-lifecycle_gate: DISCOVERY_READY
+active_change: CHG-PL-V39-06-CONTEXT-MEMORY-HANDOFF-001
+lifecycle_gate: PLANNING_IN_PROGRESS
 implementation_authorized: NO
 blockers: NONE
-next_permitted_action: OWNER_AUTHORIZATION_FOR_PL_V39_06
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-05-C-EXECUTION-LEDGER-v1.md
+next_permitted_action: RUN_PL_V39_06_FORMAL_READINESS
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-06-DEFINITION-ACTIVATION-v1.md
 state_as_of: 2026-09-05
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
