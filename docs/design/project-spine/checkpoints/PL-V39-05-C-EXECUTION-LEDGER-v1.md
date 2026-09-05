@@ -557,3 +557,70 @@ original implementation checkpoint:
   abce23b7a4afb0336c48e67b0f334c5b46bbe11a
 corrective commit authorization: bounded and satisfied after all gates
 ```
+
+## T-08 — mood Disposable Consumer Proof Rerun — 2026-09-04
+
+```text
+status: PASS
+corrected implementation ref: b33e76249989a952eb0995ba7062a345d4ec2935
+disposable topology/mode:
+  mood-derived split-control consumer; telemetry enabled; generic agent;
+  external control Git and local-only update path
+
+registration / topology / bounded registry locators: PASS
+template-source rebind:
+  PASS — explicit --template-source D:\documents\planning-lite and
+  --vcs-ref b33e76249989a952eb0995ba7062a345d4ec2935
+  dry-run and failed source operations did not persist a temporary override
+control-init selective-ignore discriminator:
+  REJECTED — .planning/project/** and selected exposed paths fail closed;
+  no product mutation, control Git initialization, or control-tree mutation
+full Planning ignore: PASS — effective .planning and .planning/ forms accepted
+product/control Git separation: PASS
+project-owned preservation: PASS — local-only update preserved owner content;
+  .git traversal was not performed
+forbidden-read constraints: PASS — inspect suppressed product/control status
+  under .planning/project/** restriction
+inspect / Doctor: PASS — product and control Git reported independently;
+  unavailable/forbidden status remained explicit
+RunReceipt: PASS — one external receipt appended, identical duplicate idempotent,
+  conflicting same-id content rejected; token facts remained unavailable/null
+
+live mood before/after:
+  HEAD unborn / unchanged
+  status 50 untracked paths / unchanged
+MOOD_LIVE_MUTATION: NONE
+disposable cleanup: PASS — target, home, control Git, and receipt inputs removed
+field findings: 0
+recommendations created: 0
+gate result: PASS
+T-07: PASS / unchanged
+T-08: PASS
+T-09: NOT STARTED
+```
+
+## T-09 — Completion Review — 2026-09-05
+
+```text
+status: PASS
+completion review: PL-V39-05-C-COMPLETION-REVIEW-v1.md
+final corrected implementation candidate: b33e76249989a952eb0995ba7062a345d4ec2935
+owner closure decision: PENDING
+T-01…T-08: PASS
+Poker/mood live mutation: NONE
+T-09 does not close the Change or modify CURRENT/ROADMAP.
+```
+
+## OWNER CLOSURE — 2026-09-05
+
+```text
+T-09: PASS
+Completion Review: PASS
+owner decision: CLOSE PL-V39-05-C
+final corrected implementation candidate: b33e76249989a952eb0995ba7062a345d4ec2935
+Change state: CLOSED / COMPLETE
+Poker live: UNCHANGED
+mood live: UNCHANGED
+next planned slice: PL-V39-06 — Context / Memory / Handoffs
+PL-V39-06: NOT STARTED / NOT AUTHORIZED
+```

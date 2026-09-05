@@ -4,13 +4,13 @@
 repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
-active_change: CHG-PL-V39-05-C-CONSUMER-CONTROL-TOPOLOGY-001
-lifecycle_gate: PLANNING_IN_PROGRESS
-implementation_authorized: YES
+active_change: NONE
+lifecycle_gate: DISCOVERY_READY
+implementation_authorized: NO
 blockers: NONE
-next_permitted_action: OWNER_AUTHORIZATION_FOR_T07_T08_DISPOSABLE_CONSUMER_PROOFS
+next_permitted_action: OWNER_AUTHORIZATION_FOR_PL_V39_06
 last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-05-C-EXECUTION-LEDGER-v1.md
-state_as_of: 2026-09-04
+state_as_of: 2026-09-05
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
 > **Resume authority:** the block below is the canonical session-handoff state. Historical prose later in this file may preserve earlier checkpoints and must not override it.
@@ -108,6 +108,30 @@ OWNER_AUTHORIZATION_FOR_T07_T08_DISPOSABLE_CONSUMER_PROOFS
 Do not begin T-07/T-08 or live consumer migration before their separate owner
 gate.
 <!-- PL_V39_05_C_FORMAL_READINESS_V1:END -->
+
+<!-- PL_V39_05_C_CLOSEOUT_V1:BEGIN -->
+## PL-V39-05-C closeout
+
+```text
+Change: CHG-PL-V39-05-C-CONSUMER-CONTROL-TOPOLOGY-001
+state: CLOSED / COMPLETE
+completion verdict: PASS
+completion review: docs/design/project-spine/checkpoints/PL-V39-05-C-COMPLETION-REVIEW-v1.md
+final corrected implementation candidate: b33e76249989a952eb0995ba7062a345d4ec2935
+closure: AUTHORIZED AND RECORDED
+```
+
+The bounded 05-C Change is complete. T-01…T-09 passed, all corrective findings
+are closed, and Poker and mood live consumers remain unchanged. This closeout
+does not alter historical Definition or Plan content.
+
+Next planned slice:
+
+```text
+PL-V39-06 — Context / Memory / Handoffs
+PL-V39-06 execution: NOT STARTED / NOT AUTHORIZED
+```
+<!-- PL_V39_05_C_CLOSEOUT_V1:END -->
 
 <!-- PL_V39_05_A_CENTRAL_ACTIVATION_V1:BEGIN -->
 ## Current PL-V39-05-A central Change
