@@ -110,3 +110,103 @@ Lineage: initial implementation PASS -> independent review BLOCKED on M-01/M-02
 - template surface changed by correction: NO; prior smoke evidence retained
 - central candidate gate: READY_FOR_REVIEW_RERUN
 - corrective implementation authorization: CONSUMED
+
+## T-07 — Poker-shaped mature disposable consumer proof
+
+- candidate: `b20f0d3ad2a2d59b8f9d8a86a40258e9c299e9c6`
+- fixture: disposable `D:\Temp\pl-v39-06-poker-proof-20260905-195753`
+- fixture shape: active Change/context, six controlled completed/decision
+  history artifacts including ledger, accepted decision, stale candidate, and
+  raw historical noise
+- default command: `uv run --frozen planning-lite resume <fixture> --json`
+- default result: `CURRENT`; selected artifacts `3`; sections `0`; explicit
+  expansions `0`; selected characters `642`
+- default selected paths: `ACTIVE.md`, `CURRENT_STATE.md`, active context only;
+  completed history, ledgers, stale candidate, and raw noise were not selected
+- one lineage expansion: `--include .planning/decisions/accepted.md#Decision`
+- expanded result: `CURRENT`; selected artifacts `4`; sections `1`; explicit
+  expansions `1`; selected characters `696`; trace reason `explicit exact lineage expansion`
+- structural baseline: `6` history artifacts / `483` bytes available; default
+  remains capped at `3` and total remains below `8`
+- read-only evidence: fixture file hashes and inventory identical before/after;
+  Git status unchanged; no home, registration, control Git, or receipt writes
+- committed equivalent discriminator: `test_default_resume_is_bounded_and_deterministic`,
+  `test_trace_is_fixed_and_history_is_not_scanned`,
+  `test_explicit_heading_is_exact_and_bounded` — `3 passed`
+- status: PASS
+- live Poker: UNCHANGED
+
+## T-08 — Mood-shaped early/unborn disposable consumer proof
+
+- candidate: `b20f0d3ad2a2d59b8f9d8a86a40258e9c299e9c6`
+- fixture: disposable `D:\Temp\pl-v39-06-mood-proof-20260905-195753`
+- command: `uv run --frozen planning-lite resume <fixture> --json`
+- result: `CURRENT`; `active_change=null`; `open_blocker=null`; `git_identity.head=UNBORN`;
+  `git_identity.state=UNBORN`; implementation authorization `false`
+- no-home/control proof: no `.planning/control`, control Git, or receipt was
+  created; no registration or template adoption occurred
+- read-only evidence: fixture file hashes/inventory identical before/after;
+  unborn Git status unchanged (`??` fixture authority files only)
+- committed equivalent discriminator: `test_no_change_and_unborn_are_valid`,
+  `test_cli_resume_json_is_read_only` — `2 passed`
+- status: PASS
+- live mood: UNCHANGED
+
+## Consumer proof reconciliation
+
+- T-07: PASS
+- T-08: PASS
+- AC-07 evidence: PASS — mature and early/unborn continuation proofs bound to
+  the clean central candidate
+- AC-09 evidence: PASS — direct-target resume is read-only and requires no live
+  migration, home placement, registration, or control Git
+- AC-01: PASS — bounded current-authority resume
+- AC-04: PASS where exercised — current authority remains primary
+- AC-08: PASS — bounded, explainable default and explicit selection metrics
+- disposable fixtures retained outside the repository after evidence capture;
+  no tracked candidate paths or live consumers were touched
+- next permitted action: `RUN_T09_COMPLETION_REVIEW`
+
+## T-09 — Completion Review — 2026-09-05
+
+- status: PASS
+- reviewed candidate: `b20f0d3ad2a2d59b8f9d8a86a40258e9c299e9c6`
+- candidate/evidence binding: PASS; source/tests/template unchanged after commit
+- T-01…T-08: PASS
+- AC coverage: `9/9 PASS`
+- material findings: `0`
+- corrective lineage: initial PASS → independent M-01/M-02 BLOCKED → owner
+  adjudication → bounded correction → corrective re-review PASS → candidate →
+  T-07/T-08 PASS
+- full regression: `284 passed, 88 warnings`
+- post-commit focused: `25 passed`
+- central resume contract: `14 passed`
+- consumer-focused: `5 passed`
+- template integrity/update smoke: PASS
+- local-only/update smoke: PASS
+- `git diff --check`: PASS
+- Completion Review artifact: `docs/design/project-spine/checkpoints/PL-V39-06-COMPLETION-REVIEW-v1.md`
+- CURRENT alignment: unchanged under existing T-09 lifecycle convention
+- owner closure: NOT YET AUTHORIZED
+- next permitted action: `OWNER_CLOSURE_DECISION_PL_V39_06`
+
+## OWNER CLOSURE — 2026-09-05
+
+```text
+OWNER_CLOSURE: PASS
+Change: CHG-PL-V39-06-CONTEXT-MEMORY-HANDOFF-001
+final candidate: b20f0d3ad2a2d59b8f9d8a86a40258e9c299e9c6
+T-01…T-09: PASS
+AC: 9/9 PASS
+open material findings: 0
+owner decision: CLOSE
+Change state: CLOSED / COMPLETE
+PL-V39-06: COMPLETE
+live Poker: UNCHANGED
+live mood: UNCHANGED
+release: NOT AUTHORIZED
+next planned slice: PL-V39-07 — Execution Contracts / Skills / Checklists / Routing
+```
+
+The owner closure decision does not authorize PL-V39-07 execution, live
+consumer migration, control-home placement, tag, push, merge, or release.
