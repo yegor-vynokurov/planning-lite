@@ -9,8 +9,8 @@ lifecycle_gate: PLANNING_IN_PROGRESS
 implementation_authorized: NO
 blockers: NONE
 next_permitted_action: RUN_PL_V39_07_FORMAL_READINESS
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-07-DETERMINISTIC-EXECUTION-GUIDANCE-IMPLEMENTATION-PLAN-v1.md
-state_as_of: 2026-09-05
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-07-IMPLEMENTATION-PLAN-AMENDMENT-v1.md
+state_as_of: 2026-09-06
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
 > **Resume authority:** the block below is the canonical session-handoff state. Historical prose later in this file may preserve earlier checkpoints and must not override it.
