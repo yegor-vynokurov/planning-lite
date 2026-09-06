@@ -16,3 +16,10 @@ Stop production-code edits while checkpointing. A checkpoint preserves the curre
 6. Update `.planning/ACTIVE.md` with unchanged stage, checkpoint reference, next gate, and next permitted action.
 7. Record branch, HEAD, status, stats, changed paths, staged state, and bounded commit range. Avoid a full raw diff.
 8. Report only checkpoint readiness, files updated, compact Git state, blocker, and next action.
+
+## Operation Guidance boundary
+
+A session/state checkpoint preserves handoff facts and lifecycle pointers only.
+It is not `GIT_STAGE` or `GIT_COMMIT` authority. A derived Operation Guidance
+result, checkpoint pointer, or prior matched result cannot authorize a later
+checkpoint commit or any other governed operation.

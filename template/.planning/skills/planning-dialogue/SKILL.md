@@ -7,3 +7,7 @@ compatibility: Repository access is optional unless project evidence is needed.
 Paths are relative to this skill directory.
 
 Read `../../modes/DIALOGUE_CRITIC.md`, `../../ACTIVE.md`, and minimum targeted context under `../../control/CONTEXT_POLICY.md`. Follow the mode output contract.
+
+Non-mutating exploration must not silently promote a recommendation, start
+governed Change work, mutate canonical state, or turn derived guidance into
+authority.

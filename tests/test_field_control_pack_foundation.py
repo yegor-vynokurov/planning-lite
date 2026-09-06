@@ -325,6 +325,41 @@ def test_existing_lifecycle_authority_remains_distinct() -> None:
     assert "authorize implementation;" in absorption
 
 
+def test_deterministic_operation_guidance_ownership_and_gate_contract() -> None:
+    planning = _read("template/.planning/control/CHANGE_PLANNING.md")
+    readiness = _read("template/.planning/control/CHANGE_READINESS.md")
+    execution = _read("template/.planning/control/CHANGE_EXECUTION.md")
+    checkpoint = _read("template/.planning/control/SESSION_CHECKPOINT.md")
+    gates = _read("template/.planning/control/APPROVAL_GATES.md")
+    ownership = _read("template/.planning/control/STATE_OWNERSHIP.md")
+
+    assert "RUN_FORMAL_READINESS" in planning
+    assert "RUN_FORMAL_READINESS" in readiness
+    assert "FORMAL_READINESS_V1" in readiness
+    assert "EXECUTE_AUTHORIZED_TASK" in execution
+    assert "EXECUTE_AUTHORIZED_CONTRACT_TASK" in execution
+    assert "GIT_STAGE" in checkpoint and "GIT_COMMIT" in checkpoint
+    assert "PRODUCT_WRITE" in gates and "live-consumer" in gates
+    assert "derived, non-persistent" in ownership
+
+    canonical = [
+        "planning-audit",
+        "planning-checkpoint",
+        "planning-dialogue",
+        "planning-plan",
+        "planning-execute",
+        "planning-git-review",
+        "planning-quick-fix",
+        "planning-recover",
+    ]
+    assert len(canonical) == 8
+    for skill in canonical[:4]:
+        assert "planning" in _read(f"template/.planning/skills/{skill}/SKILL.md").lower()
+        assert "canonical" in _read(f"template/.agents/skills/{skill}/SKILL.md").lower()
+    assert not (TPL / "skills" / "operation-guidance").exists()
+    assert "registry" not in planning.lower()
+
+
 def test_field_control_pack_does_not_introduce_deferred_runtime_scope() -> None:
     governed = "\n".join(
         _read(rel)

@@ -19,6 +19,7 @@ from packaging.version import InvalidVersion, Version
 
 from . import __version__
 from .context import ContextError, build_resume_context
+from .execution_guidance import select_operation_guidance
 from .local_update import (
     LocalUpdateError,
     apply_local_update_plan,
@@ -584,11 +585,20 @@ def command_resume(args: argparse.Namespace) -> int:
         )
     except ContextError as exc:
         raise PlanningLiteError(str(exc)) from exc
+    if not getattr(args, "guidance", False):
+        if args.json:
+            print(json.dumps(result, sort_keys=True, ensure_ascii=False, separators=(",", ":")))
+        else:
+            print(yaml.safe_dump(result, sort_keys=False, allow_unicode=True), end="")
+        return 0
+
+    guidance = select_operation_guidance(result)
+    wrapped = {"resume": result, "guidance": guidance}
     if args.json:
-        print(json.dumps(result, sort_keys=True, ensure_ascii=False, separators=(",", ":")))
+        print(json.dumps(wrapped, sort_keys=True, ensure_ascii=False, separators=(",", ":")))
     else:
-        print(yaml.safe_dump(result, sort_keys=False, allow_unicode=True), end="")
-    return 0
+        print(yaml.safe_dump(wrapped, sort_keys=False, allow_unicode=True), end="")
+    return 0 if guidance["outcome"] == "MATCHED" else 3
 
 
 def command_control_init(args: argparse.Namespace) -> int:
@@ -1074,6 +1084,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     resume.add_argument("--handoff", metavar="INPUT.json")
     resume.add_argument("--json", action="store_true")
+    resume.add_argument(
+        "--guidance",
+        action="store_true",
+        help="Project one deterministic, read-only Operation Guidance result from this resume snapshot.",
+    )
     resume.set_defaults(func=command_resume)
 
     doctor = subparsers.add_parser("doctor", help="Validate a Planning Lite installation.")

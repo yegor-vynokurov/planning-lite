@@ -18,6 +18,11 @@ A completed plan does not approve itself. Before readiness audit, the user must 
 
 Execution requires an approved plan and a readiness verdict of `Ready`. Missing decisions, traceability, migration, recovery, tests, compatibility work, or blocking edges prevent readiness.
 
+Operation Guidance capability states are descriptive projections of a selected
+governed operation. `PRODUCT_WRITE` does not grant `GIT_STAGE` or `GIT_COMMIT`;
+implementation authorization does not grant network, disposable-consumer, or
+live-consumer authority. Each such authority remains independently gated.
+
 ## Gate D: execution authorization
 
 Production-code edits require both:

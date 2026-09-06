@@ -9,3 +9,6 @@ metadata:
 This is a thin Codex adapter. Read and follow `.planning/skills/planning-audit/SKILL.md` as the authoritative workflow.
 
 Do not duplicate or silently override the canonical instructions here. Apply Codex-specific invocation and interface behavior only where `.planning/adapters/codex/` documents it.
+
+The canonical audit skill owns readiness/review semantics and authority
+predicates; this adapter remains discovery/invocation-only.

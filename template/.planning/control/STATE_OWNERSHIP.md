@@ -31,6 +31,11 @@ Resume/bootstrap output and ContextTrace are derived projections. They do not
 own lifecycle, handoff, or history facts and are not persisted by the resume
 command.
 
+Operation Guidance and its provenance are likewise derived, non-persistent,
+non-authoritative projections of one ResumeContext snapshot. They do not own
+the active Change, authorization, task scope, evidence, next gate, or Git
+state, and a later invocation cannot use a prior guidance result as authority.
+
 ## Duplication rules
 
 - `ACTIVE.md` points to detail; it does not repeat plans or progress history.

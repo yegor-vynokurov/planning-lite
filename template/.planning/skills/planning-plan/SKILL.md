@@ -7,3 +7,7 @@ compatibility: Requires repository file access.
 Paths are relative to this skill directory.
 
 Read `../../modes/PLAN.md`, `../../ACTIVE.md`, and the single matching workflow under `../../control/`. Load a discipline only when required. Follow the mode output contract.
+
+Definition, Plan, Recommendation, and Amendment work uses planning workflow
+gates. Planning capability and derived guidance do not authorize production
+writes, Git mutation, or execution.

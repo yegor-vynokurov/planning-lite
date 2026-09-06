@@ -30,3 +30,12 @@ Verify and, when safe, repair the complete scaffold before reading or updating `
 Only explicit user approval changes `plan.md` to `Approved`. After approval, transition to `Readiness / In progress` and set the next gate to readiness audit.
 
 Do not hide uncertainty, compatibility work, blocking edges, or recovery behavior inside generic implementation tasks.
+
+## Deterministic Operation Guidance binding
+
+At the existing legal Plan-approval transition, the managed current-action
+projection may emit the exact identity `RUN_FORMAL_READINESS`. This is a finite
+consumer guidance identity for the Readiness route; it is not an alias for a
+central project-specific action, does not create state, and does not authorize
+implementation. `.planning/ACTIVE.md` remains the authority for the actual
+`Next permitted action` value.

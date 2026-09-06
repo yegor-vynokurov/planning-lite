@@ -31,6 +31,13 @@ Record evidence and one verdict in `readiness.md`:
 
 `Ready` sets lifecycle state to `Readiness / Ready` and permits the user to authorize execution. It does not itself authorize execution.
 
+The bounded Operation Guidance route for this procedure is the exact managed
+identity `RUN_FORMAL_READINESS` / `FORMAL_READINESS_V1`. It consumes one
+current ResumeContext projection, remains read-only, and may report a matched
+readiness audit while `implementation_authorized` is `NO`. The derived result
+and its evidence pointers never elevate implementation, Git, network, or
+consumer authority.
+
 On `Needs revision`, return to `Planning / In progress`. On `Blocked`, keep the narrowest defensible stage and record the blocking decision and next permitted action.
 
 <!-- PL_FCP_EXHAUSTIVE_READINESS_V1:BEGIN -->

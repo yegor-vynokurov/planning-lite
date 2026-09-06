@@ -4,6 +4,13 @@ Use in Execution mode only after Gate D is satisfied.
 
 Follow `CHANGE_LIFECYCLE.md`. On valid direct authorization, set lifecycle state to `Execution / In progress` and record the authorized task scope.
 
+The bounded Operation Guidance producer identities for this workflow are the
+exact `EXECUTE_AUTHORIZED_TASK` and
+`EXECUTE_AUTHORIZED_CONTRACT_TASK` values. They select ordinary and existing
+Contract Closure task routes respectively; they do not elevate capability,
+replace the Execution Envelope, or grant Git stage/commit, network, disposable
+consumer, or live consumer authority.
+
 ## Procedure
 
 1. Verify scaffold integrity and stop on ambiguous or conflicting records.
