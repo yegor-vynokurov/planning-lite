@@ -5,11 +5,11 @@ repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
 active_change: NONE
-lifecycle_gate: SHAPING_REVIEWED
+lifecycle_gate: DEFINITION_FROZEN
 implementation_authorized: NO
 blockers: NONE
-next_permitted_action: OWNER_AUTHORIZATION_PL_V39_08_CHANGE_DEFINITION
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-08-START-SHAPING-v1.md
+next_permitted_action: OWNER_AUTHORIZATION_PL_V39_08_IMPLEMENTATION_PLAN
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-08-PROPOSED-CHANGE-DEFINITION-v1.md
 state_as_of: 2026-09-07
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
