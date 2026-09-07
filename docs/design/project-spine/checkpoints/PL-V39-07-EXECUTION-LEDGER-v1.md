@@ -7,7 +7,7 @@ Definition Amendment SHA256: 6b3e4d33d61174d38894d65bc564f78a4ca682c2c6831f07ed3
 Plan Amendment SHA256: a7003bd63a0fb3b8e2896a65b39f04a1d1aa3c6de4e2e96868a3cbc81f16a287
 Formal Readiness: READY / blocker count 0
 owner authorization: T-01…T-06 only
-checkpoint commit: NOT AUTHORIZED / NOT PERFORMED
+checkpoint commit: 3d861f18997f68ea7ea8a2e97cc2208c40e96fe8 / PERFORMED
 ```
 
 This is the one cumulative evidence ledger for T-01…T-08. It is evidence,
@@ -180,4 +180,203 @@ T-07/T-08: NOT AUTHORIZED
 T-09: NOT STARTED
 Central Implementation Candidate Re-Review 2: after second corrective pass only
 staging/commit/tag/push/merge/release: NOT PERFORMED
+```
+
+## T-07/T-08 disposable consumer proofs
+
+The owner explicitly authorized the bounded disposable consumer proof phase
+after the independently accepted candidate checkpoint. Both proofs used the
+same frozen central source candidate:
+
+```text
+candidate SHA: 3d861f18997f68ea7ea8a2e97cc2208c40e96fe8
+FIELD_PROOF_SOURCE_IDENTITY: FROZEN / PRESERVED
+proof mode: LOCAL_ONLY
+network access: NO
+live Poker: NOT ACCESSED
+live mood: NOT ACCESSED
+```
+
+All fixture setup occurred outside the central repository under:
+
+```text
+D:\documents\PL-V39-07-DISPOSABLE-PROOFS-20260907\
+```
+
+Each measured `planning-lite resume <fixture> --guidance --json` invocation
+was observationally read-only: fixture Git HEAD, status, and bounded hashes
+of the authority/context files were unchanged before and after. No central
+source, test, template, CURRENT, or other governance path was changed during
+the proof executions.
+
+### T-07 — Disposable Formal Readiness Operation Proof
+
+```text
+T-07: PASS
+fixture class: DISPOSABLE_FORMAL_READINESS
+fixture: T07_FORMAL_READINESS
+fixture baseline HEAD: 93772154b4d1e19e1e022c09a3202530f09b6824
+current facts: active Change YES; Formal Readiness / In progress; implementation_authorized NO; blocker NONE
+action: RUN_FORMAL_READINESS
+CLI exit: 0
+outcome: MATCHED
+reason: EXACT_OPERATION_BINDING
+operation: FORMAL_READINESS_AUDIT
+route: FORMAL_READINESS_V1
+skill: planning-audit
+procedure: CHANGE_READINESS
+capabilities: READ ALLOWED; GOVERNANCE_WRITE ALLOWED; PRODUCT_WRITE FORBIDDEN;
+  GIT_STAGE FORBIDDEN; GIT_COMMIT FORBIDDEN;
+  NETWORK_EXTERNAL REQUIRES_SEPARATE_AUTHORIZATION;
+  DISPOSABLE_CONSUMER FORBIDDEN; LIVE_CONSUMER FORBIDDEN
+guidance mutation: NONE
+automatic next-gate execution: NO
+fixture before/after: HEAD unchanged; status 0 -> 0; bounded hashes unchanged
+```
+
+The negative central-action identity discriminator used a separate fixture:
+
+```text
+fixture: T07_CENTRAL_ACTION_ALIAS
+fixture baseline HEAD: 9a73a9d737c1b9c631243223797a63793785180b
+action: RUN_PL_V39_07_FORMAL_READINESS
+CLI exit: 3
+outcome: NO_APPLICABLE_OPERATION
+reason: UNMAPPED_OPERATION
+guidance mutation: NONE
+```
+
+### T-08 — Disposable Implementation / Capability-Separation Proof
+
+Unauthorized Implementation:
+
+```text
+fixture: T08_IMPL_UNAUTHORIZED
+fixture baseline HEAD: 95350087448f3f66c65e2301e68ac8cffbd64c97
+action: EXECUTE_AUTHORIZED_CONTRACT_TASK
+implementation_authorized: NO
+CLI exit: 3
+outcome: NOT_AUTHORIZED
+reason: IMPLEMENTATION_NOT_AUTHORIZED
+route identity: CHANGE_EXECUTION_V1 / EXECUTE_CONTRACT_CLOSURE_TASK
+guidance bundle: NONE
+product/Git mutation: NONE
+fixture before/after: HEAD unchanged; status 0 -> 0; bounded hashes unchanged
+```
+
+Authorized Contract Closure Implementation:
+
+```text
+fixture: T08_IMPL_AUTHORIZED
+fixture baseline HEAD: 9901c00ac49a5eef281a9fad350f94d2beee01c8
+action: EXECUTE_AUTHORIZED_CONTRACT_TASK
+implementation_authorized: YES
+CLI exit: 0
+outcome: MATCHED
+reason: EXACT_OPERATION_BINDING
+operation: EXECUTE_CONTRACT_CLOSURE_TASK
+route: CHANGE_EXECUTION_V1
+skill: planning-execute
+discipline: CONTRACT_CLOSURE
+capabilities: PRODUCT_WRITE ALLOWED only for the governed operation;
+  GIT_STAGE REQUIRES_SEPARATE_AUTHORIZATION;
+  GIT_COMMIT REQUIRES_SEPARATE_AUTHORIZATION;
+  NETWORK_EXTERNAL REQUIRES_SEPARATE_AUTHORIZATION;
+  DISPOSABLE_CONSUMER REQUIRES_SEPARATE_AUTHORIZATION;
+  LIVE_CONSUMER REQUIRES_SEPARATE_AUTHORIZATION
+guidance mutation: NONE
+fixture before/after: HEAD unchanged; status 0 -> 0; bounded hashes unchanged
+```
+
+Supporting ordinary zero-discipline route:
+
+```text
+fixture: T08_ZERO_DISCIPLINE
+fixture baseline HEAD: a4481df0f672ed18ae743c1e48a0edd5ad7e3093
+action: EXECUTE_AUTHORIZED_TASK
+implementation_authorized: YES
+CLI exit: 0
+outcome: MATCHED
+route: CHANGE_EXECUTION_V1
+discipline_refs: []
+guidance mutation: NONE
+T08_ZERO_DISCIPLINE_SUPPORT: PASS
+```
+
+Reduced no-active-Change discriminator:
+
+```text
+fixture: T08_NO_ACTIVE_CHANGE
+fixture baseline HEAD: b5e273aa3046853f2dda2fa5f30cb1676a2dbc2e
+active Change: NONE
+CLI exit: 3
+outcome: MISSING_OR_UNUSABLE_CONTEXT
+reason: MISSING_ACTIVE_CHANGE
+route fabrication: NONE
+guidance mutation: NONE
+```
+
+After all measured invocations, the central source identity was rechecked:
+
+```text
+central HEAD: 3d861f18997f68ea7ea8a2e97cc2208c40e96fe8
+central worktree: CLEAN
+central staging: 0
+```
+
+```text
+T-07: PASS
+T-08: PASS
+T-01…T-08: PASS
+T-09: NOT STARTED / NOT AUTHORIZED
+N-01: ACCEPTED_NON_BLOCKING / DEFERRED
+```
+
+The proof phase does not authorize or perform T-09, CURRENT mutation, another
+candidate commit, live consumer access, recommendation work, PL-V39-08 work,
+tag, push, merge, or release. Next owner gate:
+
+```text
+RUN_PL_V39_07_COMPLETION_REVIEW
+```
+
+## T-09 Completion Review
+
+```text
+T-09: PASS
+Completion Review: docs/design/project-spine/checkpoints/PL-V39-07-COMPLETION-REVIEW-v1.md
+AC result: 9/9 PASS
+candidate SHA: 3d861f18997f68ea7ea8a2e97cc2208c40e96fe8
+source identity: PRESERVED
+material findings: NONE OPEN
+N-01: NON_BLOCKING / DEFERRED
+07/08/09 boundary: PASS
+next owner gate: OWNER_DECISION_PL_V39_07_CHANGE_CLOSURE
+```
+
+T-09 is a completion verdict only. It does not close the Change, mutate
+`CURRENT.md`, authorize another implementation pass, rerun T-07/T-08, or
+authorize staging, commit, tag, push, merge, release, PL-V39-08, or a
+recommendation pilot.
+
+## Owner Closure Decision
+
+```text
+OWNER_CLOSURE_DECISION: APPROVED
+PL_V39_07: CLOSED / COMPLETE
+CHANGE_CLOSURE: AUTHORIZED
+PL_V39_07_COMPLETION_REVIEW: PASS
+IMPLEMENTATION_CANDIDATE_SHA: 3d861f18997f68ea7ea8a2e97cc2208c40e96fe8
+SOURCE_IDENTITY: PRESERVED
+T-01…T-09: PASS
+AC_TOTAL: 9/9
+AC: 9/9
+OPEN_MATERIAL_FINDINGS: NONE
+07_08_09_BOUNDARY: PASS
+candidate: 3d861f18997f68ea7ea8a2e97cc2208c40e96fe8
+Completion Review: PASS
+N-01: NON_BLOCKING / DEFERRED
+PL_V39_08: NOT STARTED
+implementation_authorized: NO
+next owner gate: OWNER_DECISION_START_PL_V39_08
 ```

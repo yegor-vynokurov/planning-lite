@@ -4,13 +4,13 @@
 repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
-active_change: CHG-PL-V39-07-DETERMINISTIC-EXECUTION-GUIDANCE-001
-lifecycle_gate: VERIFICATION_READY
+active_change: NONE
+lifecycle_gate: DISCOVERY_READY
 implementation_authorized: NO
 blockers: NONE
-next_permitted_action: OWNER_AUTHORIZATION_FOR_T07_T08_DISPOSABLE_CONSUMER_PROOFS
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-07-EXECUTION-LEDGER-v1.md
-state_as_of: 2026-09-06
+next_permitted_action: OWNER_DECISION_START_PL_V39_08
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-07-COMPLETION-REVIEW-v1.md
+state_as_of: 2026-09-07
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
 > **Resume authority:** the block below is the canonical session-handoff state. Historical prose later in this file may preserve earlier checkpoints and must not override it.
