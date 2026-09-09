@@ -13,6 +13,7 @@ from dataclasses import dataclass, replace
 import hashlib
 import json
 import re
+from enum import Enum
 from typing import Any
 
 
@@ -1172,6 +1173,601 @@ def evaluate_technical(
     )
 
 
+class ContextResidencyClass(str, Enum):
+    """The bounded volatility metadata vocabulary for prompt components."""
+
+    FRAMEWORK_STATIC = "FRAMEWORK_STATIC"
+    ENVIRONMENT_STABLE = "ENVIRONMENT_STABLE"
+    CHANGE_STABLE = "CHANGE_STABLE"
+    RUN_DYNAMIC = "RUN_DYNAMIC"
+    ON_DEMAND = "ON_DEMAND"
+
+
+RESIDENCY_CLASSES = frozenset(item.value for item in ContextResidencyClass)
+STABLE_RESIDENCIES = frozenset(
+    {
+        ContextResidencyClass.FRAMEWORK_STATIC.value,
+        ContextResidencyClass.ENVIRONMENT_STABLE.value,
+        ContextResidencyClass.CHANGE_STABLE.value,
+    }
+)
+RUN_DYNAMIC_ROLES = frozenset(
+    {
+        "OWNER_AUTHORIZATION",
+        "IMPLEMENTATION_AUTHORIZATION",
+        "GIT_MUTATION_AUTHORIZATION",
+        "NEXT_PERMITTED_ACTION",
+        "BLOCKER",
+        "TASK_RESULT",
+        "GIT_HEAD",
+        "GIT_STATUS",
+        "RUNTIME_EVIDENCE",
+    }
+)
+
+
+def _residency(value: object, field: str) -> str:
+    if isinstance(value, ContextResidencyClass):
+        value = value.value
+    value = _nonempty(value, field)
+    if value not in RESIDENCY_CLASSES:
+        raise AttemptEvaluationError(f"{field} is not a supported residency class")
+    return value
+
+
+def _optional_identity_ref(value: object, field: str) -> str | IdentityRefV1 | None:
+    if value is None:
+        return None
+    if isinstance(value, IdentityRefV1):
+        return value
+    return _nonempty(value, field)
+
+
+@dataclass(frozen=True, slots=True)
+class PromptComponentRefV1:
+    """A lossless reference to one already-assembled prompt component."""
+
+    component_ref: str
+    component_identity_or_hash: str
+    component_role: str
+    residency_class: str | ContextResidencyClass
+    canonical_order: int
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "component_ref", _nonempty(self.component_ref, "component_ref"))
+        object.__setattr__(self, "component_identity_or_hash", _nonempty(self.component_identity_or_hash, "component_identity_or_hash"))
+        role = _nonempty(self.component_role, "component_role")
+        object.__setattr__(self, "component_role", role)
+        residency = _residency(self.residency_class, "residency_class")
+        if role in RUN_DYNAMIC_ROLES and residency != ContextResidencyClass.RUN_DYNAMIC.value:
+            raise AttemptEvaluationError("reserved dynamic component roles must use RUN_DYNAMIC")
+        object.__setattr__(self, "residency_class", residency)
+        if not isinstance(self.canonical_order, int) or isinstance(self.canonical_order, bool) or self.canonical_order < 0:
+            raise AttemptEvaluationError("canonical_order must be a non-negative integer")
+
+    def to_mapping(self) -> dict[str, Any]:
+        return {
+            "component_ref": self.component_ref,
+            "component_identity_or_hash": self.component_identity_or_hash,
+            "component_role": self.component_role,
+            "residency_class": self.residency_class,
+            "canonical_order": self.canonical_order,
+        }
+
+
+def _component_tuple(value: object, field: str = "ordered_component_refs") -> tuple[PromptComponentRefV1, ...]:
+    if isinstance(value, (str, bytes)) or not isinstance(value, Sequence):
+        raise AttemptEvaluationError(f"{field} must be a sequence of PromptComponentRefV1")
+    components = tuple(value)
+    if any(not isinstance(item, PromptComponentRefV1) for item in components):
+        raise AttemptEvaluationError(f"{field} contains an invalid component")
+    if tuple(item.canonical_order for item in components) != tuple(range(len(components))):
+        raise AttemptEvaluationError("component order must be contiguous and already canonical")
+    refs = tuple(item.component_ref for item in components)
+    if len(set(refs)) != len(refs):
+        raise AttemptEvaluationError("component_ref values must be unique")
+    return components
+
+
+def _optional_ref_mapping(value: str | IdentityRefV1 | None) -> object:
+    if isinstance(value, IdentityRefV1):
+        return value.to_mapping()
+    return value
+
+
+def derive_stable_prefix_identity(components: Sequence[PromptComponentRefV1]) -> str:
+    """Hash the longest leading stable component run under the frozen byte contract."""
+
+    values = _component_tuple(components)
+    prefix: list[dict[str, Any]] = []
+    for component in values:
+        if component.residency_class not in STABLE_RESIDENCIES:
+            break
+        prefix.append(component.to_mapping())
+    return hashlib.sha256(
+        canonical_json_bytes({"components": prefix, "schema_version": SCHEMA_VERSION})
+    ).hexdigest()
+
+
+def stable_prefix_identity(components: Sequence[PromptComponentRefV1]) -> str:
+    """Compatibility alias for the explicit StablePrefixIdentity derivation."""
+
+    return derive_stable_prefix_identity(components)
+
+
+@dataclass(frozen=True, slots=True)
+class PromptCompositionRefV1:
+    """Validated evidence for an ordered prompt/context composition."""
+
+    ordered_component_refs: tuple[PromptComponentRefV1, ...]
+    prompt_version_ref: str | IdentityRefV1 | None = None
+    agent_adapter_ref: str | IdentityRefV1 | None = None
+    composition_identity: str | None = None
+    stable_prefix_identity: str | None = None
+    schema_version: int = SCHEMA_VERSION
+
+    def __post_init__(self) -> None:
+        if self.schema_version != SCHEMA_VERSION:
+            raise AttemptEvaluationError("prompt composition schema_version is unsupported")
+        components = _component_tuple(self.ordered_component_refs)
+        object.__setattr__(self, "ordered_component_refs", components)
+        prompt_ref = _optional_identity_ref(self.prompt_version_ref, "prompt_version_ref")
+        adapter_ref = _optional_identity_ref(self.agent_adapter_ref, "agent_adapter_ref")
+        object.__setattr__(self, "prompt_version_ref", prompt_ref)
+        object.__setattr__(self, "agent_adapter_ref", adapter_ref)
+        full_payload = {
+            "agent_adapter_ref": _optional_ref_mapping(adapter_ref),
+            "ordered_component_refs": [item.to_mapping() for item in components],
+            "prompt_version_ref": _optional_ref_mapping(prompt_ref),
+            "schema_version": SCHEMA_VERSION,
+        }
+        expected_full = hashlib.sha256(canonical_json_bytes(full_payload)).hexdigest()
+        expected_prefix = derive_stable_prefix_identity(components)
+        if self.composition_identity is None:
+            object.__setattr__(self, "composition_identity", expected_full)
+        elif _sha(self.composition_identity, "composition_identity") != expected_full:
+            raise AttemptEvaluationError("composition_identity does not match canonical composition bytes")
+        if self.stable_prefix_identity is None:
+            object.__setattr__(self, "stable_prefix_identity", expected_prefix)
+        elif _sha(self.stable_prefix_identity, "stable_prefix_identity") != expected_prefix:
+            raise AttemptEvaluationError("stable_prefix_identity does not match canonical stable prefix bytes")
+
+    @property
+    def components(self) -> tuple[PromptComponentRefV1, ...]:
+        return self.ordered_component_refs
+
+    @property
+    def stable_prefix_components(self) -> tuple[PromptComponentRefV1, ...]:
+        prefix: list[PromptComponentRefV1] = []
+        for component in self.ordered_component_refs:
+            if component.residency_class not in STABLE_RESIDENCIES:
+                break
+            prefix.append(component)
+        return tuple(prefix)
+
+    def canonical_full_payload(self) -> dict[str, Any]:
+        return {
+            "agent_adapter_ref": _optional_ref_mapping(self.agent_adapter_ref),
+            "ordered_component_refs": [item.to_mapping() for item in self.ordered_component_refs],
+            "prompt_version_ref": _optional_ref_mapping(self.prompt_version_ref),
+            "schema_version": SCHEMA_VERSION,
+        }
+
+    def canonical_stable_prefix_payload(self) -> dict[str, Any]:
+        return {
+            "components": [item.to_mapping() for item in self.stable_prefix_components],
+            "schema_version": SCHEMA_VERSION,
+        }
+
+    def to_mapping(self) -> dict[str, Any]:
+        return {
+            "schema_version": SCHEMA_VERSION,
+            "composition_identity": self.composition_identity,
+            "ordered_component_refs": [item.to_mapping() for item in self.ordered_component_refs],
+            "prompt_version_ref": _optional_ref_mapping(self.prompt_version_ref),
+            "agent_adapter_ref": _optional_ref_mapping(self.agent_adapter_ref),
+            "stable_prefix_identity": self.stable_prefix_identity,
+        }
+
+    @classmethod
+    def from_components(
+        cls,
+        components: Sequence[PromptComponentRefV1],
+        *,
+        prompt_version_ref: str | IdentityRefV1 | None = None,
+        agent_adapter_ref: str | IdentityRefV1 | None = None,
+    ) -> "PromptCompositionRefV1":
+        return cls(tuple(components), prompt_version_ref, agent_adapter_ref)
+
+
+def _ref_equal(left: object, right: object) -> bool:
+    if isinstance(left, IdentityRefV1):
+        left = left.to_mapping()
+    if isinstance(right, IdentityRefV1):
+        right = right.to_mapping()
+    return left == right
+
+
+def _dynamic_before_stable(composition: PromptCompositionRefV1) -> bool:
+    seen_dynamic = False
+    for component in composition.ordered_component_refs:
+        if component.residency_class in {ContextResidencyClass.RUN_DYNAMIC.value, ContextResidencyClass.ON_DEMAND.value}:
+            seen_dynamic = True
+        elif seen_dynamic and component.residency_class in STABLE_RESIDENCIES:
+            return True
+    return False
+
+
+@dataclass(frozen=True, slots=True)
+class PromptCompositionComparisonV1:
+    """Pure facts comparing two compositions; no quality or provider assertion."""
+
+    left_composition_identity: str
+    right_composition_identity: str
+    added_component_refs: tuple[str, ...]
+    removed_component_refs: tuple[str, ...]
+    moved_component_refs: tuple[str, ...]
+    identity_changed_component_refs: tuple[str, ...]
+    residency_changed_component_refs: tuple[str, ...]
+    prompt_version_changed: bool
+    agent_adapter_changed: bool
+    left_stable_prefix_identity: str
+    right_stable_prefix_identity: str
+    stable_prefix_reused: bool
+    stable_prefix_changed: bool
+    component_order_stable: bool
+    dynamic_component_before_stable_boundary: bool
+    unexpected_component_churn: bool
+    composition_changed_between_attempts: bool
+    evidence_refs: tuple[str, ...] = ()
+    finding_refs: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        for name in ("left_composition_identity", "right_composition_identity", "left_stable_prefix_identity", "right_stable_prefix_identity"):
+            object.__setattr__(self, name, _nonempty(getattr(self, name), f"comparison.{name}"))
+        for name in (
+            "added_component_refs",
+            "removed_component_refs",
+            "moved_component_refs",
+            "identity_changed_component_refs",
+            "residency_changed_component_refs",
+            "evidence_refs",
+            "finding_refs",
+        ):
+            object.__setattr__(self, name, _tuple_strings(getattr(self, name), f"comparison.{name}"))
+        for name in (
+            "prompt_version_changed",
+            "agent_adapter_changed",
+            "stable_prefix_reused",
+            "stable_prefix_changed",
+            "component_order_stable",
+            "dynamic_component_before_stable_boundary",
+            "unexpected_component_churn",
+            "composition_changed_between_attempts",
+        ):
+            if type(getattr(self, name)) is not bool:
+                raise AttemptEvaluationError(f"comparison.{name} must be boolean")
+        prefix_reused = self.left_stable_prefix_identity == self.right_stable_prefix_identity
+        if self.stable_prefix_reused is not prefix_reused or self.stable_prefix_changed is prefix_reused:
+            raise AttemptEvaluationError("stable prefix reuse/change flags contradict stable prefix identities")
+        if self.component_order_stable is (bool(self.moved_component_refs)):
+            raise AttemptEvaluationError("component_order_stable contradicts moved_component_refs")
+        if self.composition_changed_between_attempts is not (
+            self.left_composition_identity != self.right_composition_identity
+        ):
+            raise AttemptEvaluationError("composition_changed_between_attempts contradicts composition identities")
+        membership_deltas = set(self.added_component_refs) | set(self.removed_component_refs)
+        common_component_deltas = (
+            set(self.moved_component_refs)
+            | set(self.identity_changed_component_refs)
+            | set(self.residency_changed_component_refs)
+        )
+        if set(self.added_component_refs) & set(self.removed_component_refs):
+            raise AttemptEvaluationError("a component ref cannot be both added and removed")
+        if membership_deltas & common_component_deltas:
+            raise AttemptEvaluationError("membership and common-component deltas must be disjoint")
+        expected_churn = bool(
+            membership_deltas
+            or common_component_deltas
+            or self.dynamic_component_before_stable_boundary
+        )
+        if self.unexpected_component_churn is not expected_churn:
+            raise AttemptEvaluationError("unexpected_component_churn contradicts comparison deltas")
+        identity_delta = bool(
+            membership_deltas
+            or common_component_deltas
+            or self.prompt_version_changed
+            or self.agent_adapter_changed
+        )
+        if self.composition_changed_between_attempts and not identity_delta:
+            raise AttemptEvaluationError("different composition identities require an explanatory identity delta")
+        same_composition = self.left_composition_identity == self.right_composition_identity
+        if same_composition:
+            if self.left_stable_prefix_identity != self.right_stable_prefix_identity:
+                raise AttemptEvaluationError("same composition identity cannot carry different stable prefix identities")
+            if self.prompt_version_changed or self.agent_adapter_changed:
+                raise AttemptEvaluationError("same composition identity cannot carry version or adapter change")
+            if any(
+                (
+                    self.added_component_refs,
+                    self.removed_component_refs,
+                    self.moved_component_refs,
+                    self.identity_changed_component_refs,
+                    self.residency_changed_component_refs,
+                )
+            ):
+                raise AttemptEvaluationError("same composition identity cannot carry component deltas")
+            if not self.stable_prefix_reused or self.stable_prefix_changed:
+                raise AttemptEvaluationError("same composition identity requires stable prefix reuse")
+
+    @property
+    def added(self) -> tuple[str, ...]:
+        return self.added_component_refs
+
+    @property
+    def removed(self) -> tuple[str, ...]:
+        return self.removed_component_refs
+
+    @property
+    def moved(self) -> tuple[str, ...]:
+        return self.moved_component_refs
+
+    def to_mapping(self) -> dict[str, Any]:
+        return {
+            "schema_version": SCHEMA_VERSION,
+            "left_composition_identity": self.left_composition_identity,
+            "right_composition_identity": self.right_composition_identity,
+            "added_component_refs": list(self.added_component_refs),
+            "removed_component_refs": list(self.removed_component_refs),
+            "moved_component_refs": list(self.moved_component_refs),
+            "identity_changed_component_refs": list(self.identity_changed_component_refs),
+            "residency_changed_component_refs": list(self.residency_changed_component_refs),
+            "prompt_version_changed": self.prompt_version_changed,
+            "agent_adapter_changed": self.agent_adapter_changed,
+            "left_stable_prefix_identity": self.left_stable_prefix_identity,
+            "right_stable_prefix_identity": self.right_stable_prefix_identity,
+            "stable_prefix_reused": self.stable_prefix_reused,
+            "stable_prefix_changed": self.stable_prefix_changed,
+            "component_order_stable": self.component_order_stable,
+            "dynamic_component_before_stable_boundary": self.dynamic_component_before_stable_boundary,
+            "unexpected_component_churn": self.unexpected_component_churn,
+            "composition_changed_between_attempts": self.composition_changed_between_attempts,
+            "evidence_refs": list(self.evidence_refs),
+            "finding_refs": list(self.finding_refs),
+        }
+
+
+def compare_prompt_compositions(
+    left: PromptCompositionRefV1,
+    right: PromptCompositionRefV1,
+    *,
+    evidence_refs: Sequence[str] = (),
+    finding_refs: Sequence[str] = (),
+) -> PromptCompositionComparisonV1:
+    """Return deterministic composition facts without inferring provider behavior."""
+
+    if not isinstance(left, PromptCompositionRefV1) or not isinstance(right, PromptCompositionRefV1):
+        raise AttemptEvaluationError("composition comparison requires two PromptCompositionRefV1 values")
+    left_by_ref = {item.component_ref: item for item in left.ordered_component_refs}
+    right_by_ref = {item.component_ref: item for item in right.ordered_component_refs}
+    left_refs = tuple(item.component_ref for item in left.ordered_component_refs)
+    right_refs = tuple(item.component_ref for item in right.ordered_component_refs)
+    added = tuple(ref for ref in right_refs if ref not in left_by_ref)
+    removed = tuple(ref for ref in left_refs if ref not in right_by_ref)
+    common = tuple(ref for ref in left_refs if ref in right_by_ref)
+    moved = tuple(ref for ref in common if left_by_ref[ref].canonical_order != right_by_ref[ref].canonical_order)
+    identity_changed = tuple(
+        ref
+        for ref in common
+        if (
+            left_by_ref[ref].component_identity_or_hash != right_by_ref[ref].component_identity_or_hash
+            or left_by_ref[ref].component_role != right_by_ref[ref].component_role
+        )
+    )
+    residency_changed = tuple(ref for ref in common if left_by_ref[ref].residency_class != right_by_ref[ref].residency_class)
+    prefix_reused = left.stable_prefix_identity == right.stable_prefix_identity
+    dynamic_boundary = _dynamic_before_stable(left) or _dynamic_before_stable(right)
+    evidence = _tuple_strings(evidence_refs, "comparison.evidence_refs")
+    findings = _tuple_strings(finding_refs, "comparison.finding_refs")
+    churn = bool(added or removed or moved or identity_changed or residency_changed or dynamic_boundary)
+    return PromptCompositionComparisonV1(
+        left.composition_identity or "",
+        right.composition_identity or "",
+        added,
+        removed,
+        moved,
+        identity_changed,
+        residency_changed,
+        not _ref_equal(left.prompt_version_ref, right.prompt_version_ref),
+        not _ref_equal(left.agent_adapter_ref, right.agent_adapter_ref),
+        left.stable_prefix_identity or "",
+        right.stable_prefix_identity or "",
+        prefix_reused,
+        not prefix_reused,
+        not moved,
+        dynamic_boundary,
+        churn,
+        left.composition_identity != right.composition_identity,
+        evidence,
+        findings,
+    )
+
+
+compare_compositions = compare_prompt_compositions
+
+
+def derive_promptops_finding(
+    comparison: PromptCompositionComparisonV1,
+    *,
+    finding_id: str | None = None,
+    evidence_refs: Sequence[str] = (),
+    applicability: FindingApplicabilityV1 | None = None,
+) -> FindingV1 | None:
+    """Create an existing-domain, non-blocking PromptOps finding when warranted."""
+
+    if not isinstance(comparison, PromptCompositionComparisonV1):
+        raise AttemptEvaluationError("comparison is invalid")
+    if not (comparison.unexpected_component_churn or comparison.dynamic_component_before_stable_boundary):
+        return None
+    refs = _tuple_strings(evidence_refs or comparison.evidence_refs, "finding.evidence_refs")
+    if not refs:
+        refs = (f"composition:{comparison.right_composition_identity}",)
+    deterministic_id = finding_id or f"PROMPTOPS-{comparison.right_composition_identity[:16]}"
+    return FindingV1(
+        deterministic_id,
+        "Prompt composition contains bounded, reviewable component churn or dynamic-boundary evidence.",
+        "NON_MATERIAL",
+        ("VERIFICATION_TEST_COVERAGE",),
+        "NON_BLOCKING",
+        "OPEN",
+        refs,
+        applicability=applicability,
+    )
+
+
+@dataclass(frozen=True, slots=True)
+class RecommendationEvidenceV1:
+    """Deterministic, non-authoritative learning evidence."""
+
+    outcome: str
+    reason_code: str
+    recommendation_kind: str | None = None
+    statement: str | None = None
+    evidence_refs: tuple[str, ...] = ()
+    finding_refs: tuple[str, ...] = ()
+    target_ref: str | None = None
+    non_authoritative: bool = True
+    owner_adjudication_ref: str | None = None
+    schema_version: int = SCHEMA_VERSION
+
+    def __post_init__(self) -> None:
+        if self.schema_version != SCHEMA_VERSION:
+            raise AttemptEvaluationError("recommendation schema_version is unsupported")
+        if self.outcome not in {"NO_RECOMMENDATION", "RECOMMENDATION"}:
+            raise AttemptEvaluationError("recommendation outcome is invalid")
+        object.__setattr__(self, "reason_code", _nonempty(self.reason_code, "reason_code"))
+        evidence = _tuple_strings(self.evidence_refs, "recommendation.evidence_refs")
+        findings = _tuple_strings(self.finding_refs, "recommendation.finding_refs")
+        object.__setattr__(self, "evidence_refs", evidence)
+        object.__setattr__(self, "finding_refs", findings)
+        if self.non_authoritative is not True:
+            raise AttemptEvaluationError("recommendations must remain non-authoritative")
+        if self.recommendation_kind is not None:
+            object.__setattr__(self, "recommendation_kind", _nonempty(self.recommendation_kind, "recommendation_kind"))
+        if self.statement is not None:
+            object.__setattr__(self, "statement", _nonempty(self.statement, "statement"))
+        if self.target_ref is not None:
+            object.__setattr__(self, "target_ref", _nonempty(self.target_ref, "target_ref"))
+        if self.owner_adjudication_ref is not None:
+            object.__setattr__(self, "owner_adjudication_ref", _nonempty(self.owner_adjudication_ref, "owner_adjudication_ref"))
+        if self.outcome == "RECOMMENDATION":
+            if self.recommendation_kind != "STABLE_CARRIER_REUSE" or not self.statement:
+                raise AttemptEvaluationError("recommendation requires the bounded STABLE_CARRIER_REUSE contract")
+            if not evidence or not findings:
+                raise AttemptEvaluationError("recommendation requires evidence and finding references")
+        elif self.recommendation_kind is not None or self.statement is not None or self.target_ref is not None:
+            raise AttemptEvaluationError("NO_RECOMMENDATION cannot carry recommendation content")
+
+    def to_mapping(self) -> dict[str, Any]:
+        return {
+            "schema_version": SCHEMA_VERSION,
+            "outcome": self.outcome,
+            "reason_code": self.reason_code,
+            "recommendation_kind": self.recommendation_kind,
+            "statement": self.statement,
+            "evidence_refs": list(self.evidence_refs),
+            "finding_refs": list(self.finding_refs),
+            "target_ref": self.target_ref,
+            "non_authoritative": self.non_authoritative,
+            "owner_adjudication_ref": self.owner_adjudication_ref,
+        }
+
+
+def derive_recommendation_evidence(
+    comparison: PromptCompositionComparisonV1,
+    findings: Sequence[FindingV1] = (),
+    *,
+    evidence_refs: Sequence[str] = (),
+    finding_refs: Sequence[str] = (),
+    target_ref: str | None = None,
+) -> RecommendationEvidenceV1:
+    """Derive the finite recommendation/no-op contract from supplied evidence only."""
+
+    if not isinstance(comparison, PromptCompositionComparisonV1):
+        raise AttemptEvaluationError("comparison is invalid")
+    finding_values = tuple(findings)
+    if any(not isinstance(item, FindingV1) for item in finding_values):
+        raise AttemptEvaluationError("recommendation finding carrier is invalid")
+    supplied_evidence = _tuple_strings(evidence_refs, "recommendation.evidence_refs")
+    comparison_evidence = comparison.evidence_refs
+    if not comparison_evidence:
+        return RecommendationEvidenceV1(
+            "NO_RECOMMENDATION",
+            "NO_ADMISSIBLE_FINDING_PROVENANCE",
+            evidence_refs=supplied_evidence,
+            finding_refs=_tuple_strings(finding_refs or comparison.finding_refs, "recommendation.finding_refs"),
+        )
+    if comparison_evidence and supplied_evidence and supplied_evidence != comparison_evidence:
+        return RecommendationEvidenceV1(
+            "NO_RECOMMENDATION",
+            "NO_ADMISSIBLE_FINDING_PROVENANCE",
+            evidence_refs=supplied_evidence,
+            finding_refs=_tuple_strings(finding_refs or comparison.finding_refs, "recommendation.finding_refs"),
+        )
+    evidence = supplied_evidence or comparison_evidence
+    comparison_refs = comparison.finding_refs
+    refs = _tuple_strings(finding_refs or comparison_refs, "recommendation.finding_refs")
+    if comparison_refs and refs != comparison_refs:
+        return RecommendationEvidenceV1(
+            "NO_RECOMMENDATION",
+            "NO_ADMISSIBLE_FINDING_PROVENANCE",
+            evidence_refs=evidence,
+            finding_refs=refs,
+        )
+    if not refs:
+        refs = tuple(item.finding_id for item in finding_values)
+    finding_by_id: dict[str, FindingV1] = {}
+    duplicate_finding_ids = False
+    for item in finding_values:
+        if item.finding_id in finding_by_id:
+            duplicate_finding_ids = True
+        finding_by_id[item.finding_id] = item
+    referenced_findings = tuple(finding_by_id.get(ref) for ref in refs)
+    evidence_union = {ref for item in referenced_findings if item is not None for ref in item.evidence_refs}
+    admissible_provenance = (
+        not duplicate_finding_ids
+        and bool(refs)
+        and all(item is not None for item in referenced_findings)
+        and bool(evidence)
+        and set(evidence).issubset(evidence_union)
+    )
+    eligible_signal = comparison.unexpected_component_churn or comparison.dynamic_component_before_stable_boundary
+    eligible = (
+        eligible_signal
+        and admissible_provenance
+        and all(not item.blocks_acceptance for item in referenced_findings if item is not None)
+    )
+    if not eligible:
+        return RecommendationEvidenceV1(
+            "NO_RECOMMENDATION",
+            "NO_ADMISSIBLE_COMPOSITION_SIGNAL" if admissible_provenance else "NO_ADMISSIBLE_FINDING_PROVENANCE",
+            evidence_refs=evidence,
+            finding_refs=refs,
+        )
+    return RecommendationEvidenceV1(
+        "RECOMMENDATION",
+        "STABLE_CARRIER_REUSE_SIGNAL",
+        "STABLE_CARRIER_REUSE",
+        "Consider reusing the unchanged stable carrier before introducing avoidable composition churn.",
+        evidence,
+        refs,
+        target_ref or comparison.right_composition_identity,
+    )
+
+
+derive_promptops_recommendation = derive_recommendation_evidence
+
+
 def sha256_identity(value: object) -> str:
     """Hash a canonical JSON-compatible bounded identity."""
 
@@ -1185,6 +1781,7 @@ __all__ = [
     "AttemptEvaluationError",
     "AttemptRecordV1",
     "CandidateIdentityV1",
+    "ContextResidencyClass",
     "DirtyPathEntryV1",
     "EvidenceApplicabilityV1",
     "EvidenceSupersessionV1",
@@ -1192,7 +1789,14 @@ __all__ = [
     "FindingV1",
     "IdentityRefV1",
     "ObservedResultV1",
+    "PromptComponentRefV1",
+    "PromptCompositionComparisonV1",
+    "PromptCompositionRefV1",
+    "RecommendationEvidenceV1",
+    "RESIDENCY_CLASSES",
     "RESPONSIBILITY_DOMAINS",
+    "RUN_DYNAMIC_ROLES",
+    "STABLE_RESIDENCIES",
     "TechnicalEvaluationV1",
     "VerifierContractV1",
     "VerifierContractIdentity",
@@ -1200,7 +1804,14 @@ __all__ = [
     "allocate_attempt_ordinal",
     "canonical_json_bytes",
     "evaluate_technical",
+    "compare_compositions",
+    "compare_prompt_compositions",
+    "derive_promptops_finding",
+    "derive_promptops_recommendation",
+    "derive_recommendation_evidence",
+    "derive_stable_prefix_identity",
     "sha256_identity",
+    "stable_prefix_identity",
     "validate_attempt_lineage",
     "validate_corrective_attempt",
     "validate_verifier_set",

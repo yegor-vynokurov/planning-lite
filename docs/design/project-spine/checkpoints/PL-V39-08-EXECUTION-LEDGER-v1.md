@@ -545,3 +545,316 @@ Next owner gate: OWNER_AUTHORIZATION_CONTINUE_PL_V39_08_08_C
 08-C authorized: NO
 Checkpoint commit SHA: PENDING UNTIL COMMIT
 ```
+
+## 08-C implementation execution: T-07...T-11
+
+```text
+Operation: OWNER_AUTHORIZATION_CONTINUE_PL_V39_08_08_C
+Execution baseline HEAD: 20de440fcfce472ba49f8ec4d86a314bd8aafa3c
+Definition authority SHA: 6c5ba10d3b3bbf978451623be3243822c7525d2d
+Implementation Plan authority SHA: ca9309f2575636ea7ca08801a30b68e273d30912
+Definition changed: NO
+Plan changed: NO
+Formal Readiness changed: NO
+Write-surface expansion: NO
+08-B checkpoint: TECHNICALLY ACCEPTED / CHECKPOINTED
+08-C implementation: COMPLETED / AWAITING INDEPENDENT REVIEW
+```
+
+| Task | Frozen requirement | Implemented | Tested | Evidence |
+|---|---|---|---|---|
+| T-07 | `PromptComponentRefV1`, `PromptCompositionRefV1`, exact five-class residency vocabulary, reserved dynamic-role validation, canonical full composition identity, longest leading stable-prefix identity, explicit null/Unicode bytes, contiguous order rejection, and non-authoritative optional adapter metadata | PASS | PASS | `tests/test_prompt_composition.py`; 10 direct discriminators |
+| T-08 | Pure comparison facts for added/removed/moved/identity/residency changes, prompt-version/adapter changes, stable-prefix reuse/change, dynamic-boundary and composition-change facts; no score or provider-cache claim; existing Finding model provenance | PASS | PASS | comparison and PromptOps finding tests; direct comparison discriminators |
+| T-09 | Deterministic `RecommendationEvidenceV1`, exact `NO_RECOMMENDATION` no-op, finite `STABLE_CARRIER_REUSE` eligibility, evidence/finding refs, target ref, non-authoritative output, external owner adjudication only | PASS | PASS | recommendation contract tests; authority-elevation negative test |
+| T-10 | Disposable synthetic recommendation-inbox proof, byte/status baseline, composition/Finding provenance, pending owner decision, no live consumer/source mutation, cleanup | PASS | PASS | disposable temporary fixture proof: PASS |
+| T-11 | 08-B/08-C reconciliation, AC coverage, template/SHA integrity, focused/resume/full regression, temporary clean adoption and Doctor, exact scope audit, no central-root Doctor | PASS | PASS | focused stack; `uv sync`; full `396 passed, 88 warnings`; adoption/Doctor PASS; scope audit |
+
+```text
+TASK_AC_COVERAGE:
+T07 10/10
+T08 8/8
+T09 5/5
+T10 5/5
+T11 8/8
+
+RELATIONAL_INVARIANT_COVERAGE: PASS
+STABLE_PREFIX_RUN_DYNAMIC_EXCLUSION: PASS
+PROVIDER_CACHE_NON_CLAIM: PASS
+RECOMMENDATION_AUTHORITY_NON_ELEVATION: PASS
+08_B_EMPIRICAL_FIXTURE: DEFERRED_NOT_IN_FROZEN_SCOPE
+
+DIRECT_PROBES: 10/10 PASS
+FOCUSED_08_C: 25 passed
+08_B_REGRESSION: 47 + 41 + 21 + 4 = 113 passed
+RESUME_REGRESSION: 34 passed
+FULL_SUITE: 396 passed, 88 warnings
+T10_DISPOSABLE_RECOMMENDATION_PROOF: PASS
+TEMPORARY_ADOPTION_DOCTOR: PASS
+EXECUTION_LEDGER_HISTORY: PRESERVED
+CURRENT_ALIGNMENT: PASS
+08_B_ACCEPTED_CONTENT_REGRESSION: NO
+ROADMAP_V397_MATERIALIZED: NO
+UNEXPECTED_PATHS: 0
+STAGED_PATHS: 0
+COMMIT: NOT PERFORMED
+PL_V39_08_TECHNICAL_COMPLETION: PENDING INDEPENDENT REVIEW
+NEXT_OWNER_GATE: RUN_PL_V39_08_08_C_INDEPENDENT_IMPLEMENTATION_REVIEW
+tag/push/merge/release: NOT PERFORMED
+```
+
+## 08-C independent review findings correction
+
+```text
+Operation: OWNER_AUTHORIZATION_PL_V39_08_08_C_REVIEW_FINDINGS_CORRECTION
+Execution baseline HEAD: 20de440fcfce472ba49f8ec4d86a314bd8aafa3c
+Definition authority SHA: 6c5ba10d3b3bbf978451623be3243822c7525d2d
+Implementation Plan authority SHA: ca9309f2575636ea7ca08801a30b68e273d30912
+FROZEN_CONTRACT_SUFFICIENCY: SUFFICIENT
+DEFINITION_AMENDMENT: NO
+PLAN_AMENDMENT: NO
+FORMAL_READINESS_AMENDMENT: NO
+R08C-01: CORRECTED / relational comparison carrier validation
+R08C-02: CORRECTED / Finding and evidence referential integrity
+R08C-03: CORRECTED / disposable filesystem recommendation-inbox proof
+R08C-04: CORRECTED / recommendation persistence provenance carriers
+08-B: ACCEPTED + CHECKPOINTED / unchanged
+08-C technical acceptance: PENDING INDEPENDENT RE-REVIEW
+```
+
+### Correction evidence
+
+| Finding | Implementation surface | Discriminator / evidence |
+|---|---|---|
+| R08C-01 | `src/planning_lite/attempt_evaluation.py`; `tests/test_prompt_composition.py` | Public `PromptCompositionComparisonV1` rejects both contradictory stable-prefix flag pairs and derived-flag mismatches. |
+| R08C-02 | `derive_recommendation_evidence`; `tests/test_prompt_composition.py` | Orphan Finding, mismatched Finding, and mismatched evidence references yield `NO_RECOMMENDATION`; admissible `F-T10` + `EV-T10` remains eligible. |
+| R08C-03 | disposable test fixture in `tests/test_prompt_composition.py` | Eligible candidate and separate no-op path; real Git status; source SHA `32e59b64ed0865c665973bbf01c7541ad6ab4f2788512ddfacf3826432773548`; candidate relative path `.planning/recommendations/inbox/REC-08C-T10.md`; candidate SHA `cf6cb36a9b646a49619d50827eeac298fa45bc71943593f6afcd0ab550e8bb4e`; candidate remains `NON_AUTHORITATIVE` / `Owner decision: PENDING`; both disposable roots removed and absence asserted. |
+| R08C-04 | `template/.planning/recommendations/TEMPLATE.md`; SHA receipt; test | Explicit Attempt, PromptComposition/comparison, Finding, evidence, non-authoritative and pending-owner carriers; managed SHA regenerated. |
+
+```text
+T10_SYNTHETIC_WORKSPACE: pytest disposable temporary Git workspaces
+ELIGIBLE_STATUS_BEFORE: ?? source.md
+ELIGIBLE_STATUS_AFTER: ?? .planning/recommendations/inbox/REC-08C-T10.md + ?? source.md
+ELIGIBLE_SOURCE_SHA_BEFORE_AFTER: IDENTICAL / 32e59b64ed0865c665973bbf01c7541ad6ab4f2788512ddfacf3826432773548
+ELIGIBLE_CANDIDATE_STATUS: NON_AUTHORITATIVE / OWNER DECISION PENDING
+NOOP_STATUS_BEFORE_AFTER: IDENTICAL
+NOOP_CANDIDATE: ABSENT
+CLEANUP: BOTH DISPOSABLE WORKSPACES REMOVED / ABSENCE ASSERTED
+LIVE_CONSUMER_MUTATION: NO
+```
+
+```text
+TASK_AC_COVERAGE:
+T07 10/10
+T08 8/8
+T09 5/5
+T10 5/5
+T11 8/8
+
+RELATIONAL_INVARIANT_COVERAGE: PASS
+RECOMMENDATION_FINDING_REFERENTIAL_INTEGRITY: PASS
+RECOMMENDATION_EVIDENCE_PROVENANCE: PASS
+RECOMMENDATION_TEMPLATE_PROVENANCE: PASS
+DISPOSABLE_ELIGIBLE_PATH: PASS
+DISPOSABLE_NOOP_PATH: PASS
+DISPOSABLE_PENDING_OWNER_DECISION: PASS
+DISPOSABLE_BASELINE_EVIDENCE: PASS
+DISPOSABLE_CLEANUP_EVIDENCE: PASS
+STABLE_PREFIX_RUN_DYNAMIC_EXCLUSION: PASS
+PROVIDER_CACHE_NON_CLAIM: PASS
+RECOMMENDATION_AUTHORITY_NON_ELEVATION: PASS
+08_B_ACCEPTED_CONTENT_REGRESSION: NO
+
+MANDATORY_DIRECT_PROBES: 12/12 PASS
+FOCUSED_08_C: 33 passed
+08_B_REGRESSION: 113 passed
+RESUME_REGRESSION: 34 passed
+FULL_SUITE: 404 passed, 88 warnings
+EXECUTION_LEDGER_HISTORY: PRESERVED
+CURRENT_ALIGNMENT: PASS
+UNEXPECTED_PATHS: 0
+STAGED_PATHS: 0
+git diff --check: PASS
+COMMIT: NOT PERFORMED
+PL_V39_08_TECHNICAL_COMPLETION: PENDING INDEPENDENT RE-REVIEW
+NEXT_OWNER_GATE: RUN_PL_V39_08_08_C_INDEPENDENT_IMPLEMENTATION_REVIEW
+tag/push/merge/release: NOT PERFORMED
+```
+
+## 08-C second corrective implementation and preserved review history
+
+```text
+First independent implementation review:
+PL_V39_08_08_C_INDEPENDENT_IMPLEMENTATION_REVIEW: FAIL
+R08C-01..R08C-04: material / blocking findings
+
+First corrective implementation:
+PL_V39_08_08_C_REVIEW_FINDINGS_CORRECTION: PASS
+
+Corrective independent re-review:
+PL_V39_08_08_C_CORRECTIVE_INDEPENDENT_RE_REVIEW: FAIL
+RR08C-N01..RR08C-N04: material / blocking findings
+
+Second corrective implementation:
+Operation: OWNER_AUTHORIZATION_PL_V39_08_08_C_RE_REVIEW_FINDINGS_CORRECTION
+Execution baseline HEAD: 20de440fcfce472ba49f8ec4d86a314bd8aafa3c
+FROZEN_CONTRACT_SUFFICIENCY: SUFFICIENT
+DEFINITION_AMENDMENT: NO
+PLAN_AMENDMENT: NO
+FORMAL_READINESS_AMENDMENT: NO
+RR08C-N01: CORRECTED / complete relational comparison-carrier validation
+RR08C-N02: CORRECTED / comparison evidence provenance cannot be explicitly overridden
+RR08C-N03: CORRECTED / two valid AttemptRecordV1 records bound to distinguishable compositions
+RR08C-N04: CORRECTED / cumulative chronology appended without rewriting history
+R08C-01..R08C-03: residuals carried by RR08C-N01..RR08C-N03
+R08C-04: CLOSED / preserved
+T07 10/10
+T08 8/8
+T09 5/5
+T10 5/5
+T11 8/8
+MANDATORY_DIRECT_PROBES: 16/16 PASS
+FOCUSED_08_C: 36 passed
+08_B_REGRESSION: 113 passed
+RESUME_REGRESSION: 34 passed
+FULL_SUITE: 407 passed, 88 warnings
+08-C technical acceptance: PENDING INDEPENDENT REVIEW
+PL_V39_08_TECHNICAL_COMPLETION: PENDING INDEPENDENT REVIEW
+CURRENT_ALIGNMENT: PASS
+UNEXPECTED_PATHS: 0
+STAGED_PATHS: 0
+COMMIT: NOT PERFORMED
+git diff --check: PASS
+NEXT_OWNER_GATE: RUN_PL_V39_08_08_C_INDEPENDENT_IMPLEMENTATION_REVIEW
+tag/push/merge/release: NOT PERFORMED
+```
+
+## 08-C third corrective implementation and preserved review history
+
+```text
+Second corrective independent re-review:
+PL_V39_08_08_C_SECOND_CORRECTIVE_INDEPENDENT_RE_REVIEW: FAIL
+SRR08C-N01..SRR08C-N02: material / blocking findings
+
+Third corrective implementation:
+Operation: OWNER_AUTHORIZATION_PL_V39_08_08_C_SECOND_RE_REVIEW_FINDINGS_CORRECTION
+Execution baseline HEAD: 20de440fcfce472ba49f8ec4d86a314bd8aafa3c
+FROZEN_CONTRACT_SUFFICIENCY: SUFFICIENT
+DEFINITION_AMENDMENT: NO
+PLAN_AMENDMENT: NO
+FORMAL_READINESS_AMENDMENT: NO
+SRR08C-N01: CORRECTED / cross-delta disjointness and churn aggregate consistency
+SRR08C-N02: CORRECTED / empty comparison evidence fails closed
+R08C-01 -> RR08C-N01 -> SRR08C-N01: pending independent re-review
+R08C-02 -> RR08C-N02 -> SRR08C-N02: pending independent re-review
+RR08C-N03: CLOSED / preserved
+RR08C-N04: CLOSED / preserved
+T07 10/10
+T08 8/8
+T09 5/5
+T10 5/5
+T11 8/8
+MANDATORY_NEW_DIRECT_PROBES: 10/10 PASS
+PREVIOUS_RELATIONAL_PROBES: PASS
+FOCUSED_08_C: 40 passed
+08_B_REGRESSION: 113 passed
+RESUME_REGRESSION: 34 passed
+FULL_SUITE: 411 passed, 88 warnings
+08-C technical acceptance: PENDING INDEPENDENT RE-REVIEW
+PL_V39_08_TECHNICAL_COMPLETION: PENDING INDEPENDENT RE-REVIEW
+CURRENT_ALIGNMENT: PASS
+UNEXPECTED_PATHS: 0
+STAGED_PATHS: 0
+COMMIT: NOT PERFORMED
+NEXT_OWNER_GATE: RUN_PL_V39_08_08_C_INDEPENDENT_IMPLEMENTATION_REVIEW
+tag/push/merge/release: NOT PERFORMED
+```
+
+## 08-C fourth bounded correction and preserved review history
+
+```text
+Third corrective independent re-review:
+PL_V39_08_08_C_THIRD_CORRECTIVE_INDEPENDENT_RE_REVIEW: FAIL
+TRR08C-N01: OPEN / blocking local implementation gap
+
+Fourth bounded correction:
+Operation: OWNER_AUTHORIZATION_PL_V39_08_08_C_THIRD_RE_REVIEW_FINDINGS_CORRECTION
+Execution baseline HEAD: 20de440fcfce472ba49f8ec4d86a314bd8aafa3c
+FROZEN_CONTRACT_SUFFICIENCY: SUFFICIENT
+DEFINITION_AMENDMENT: NO
+PLAN_AMENDMENT: NO
+FORMAL_READINESS_AMENDMENT: NO
+IDENTITY_BEARING_COMPONENT_FIELDS: component_ref, component_identity_or_hash, component_role, residency_class, canonical_order
+TRR08C-N01: CORRECTED / role-aware component identity delta and full-identity explainability
+R08C-01 -> RR08C-N01 -> SRR08C-N01 -> TRR08C-N01: pending independent re-review
+SRR08C-N02: CLOSED / preserved
+R08C-02: CLOSED / preserved
+R08C-03: CLOSED / preserved
+R08C-04: CLOSED / preserved
+T07 10/10
+T08 8/8
+T09 5/5
+T10 5/5
+T11 8/8
+MANDATORY_DIRECT_PROBES: 10/10 PASS
+PREVIOUS_RELATIONAL_PROBES: 16/16 PASS
+FOCUSED_08_C: 43 passed
+08_B_REGRESSION: 113 passed
+RESUME_REGRESSION: 34 passed
+FULL_SUITE: 414 passed, 88 warnings
+EXECUTION_LEDGER_HISTORY: PASS
+CURRENT_ALIGNMENT: PASS
+08-C technical acceptance: PENDING INDEPENDENT RE-REVIEW
+PL_V39_08_TECHNICAL_COMPLETION: PENDING INDEPENDENT RE-REVIEW
+UNEXPECTED_PATHS: 0
+STAGED_PATHS: 0
+COMMIT: NOT PERFORMED
+NEXT_OWNER_GATE: RUN_PL_V39_08_08_C_INDEPENDENT_IMPLEMENTATION_REVIEW
+tag/push/merge/release: NOT PERFORMED
+```
+
+## 08-C technical completion acceptance and checkpoint alignment
+
+```text
+Operation: OWNER_AUTHORIZATION_PL_V39_08_COMPLETION_CHECKPOINT_COMMIT
+Execution baseline HEAD: 20de440fcfce472ba49f8ec4d86a314bd8aafa3c
+Definition authority SHA: 6c5ba10d3b3bbf978451623be3243822c7525d2d
+Implementation Plan authority SHA: ca9309f2575636ea7ca08801a30b68e273d30912
+FROZEN_CONTRACT_SUFFICIENCY: SUFFICIENT
+DEFINITION_AMENDMENT: NO
+PLAN_AMENDMENT: NO
+FORMAL_READINESS_AMENDMENT: NO
+PL_V39_08_08_C_TRR_N01_INDEPENDENT_RE_REVIEW: PASS
+TRR08C-N01: CLOSED
+R08C-01 -> RR08C-N01 -> SRR08C-N01 -> TRR08C-N01 -> CLOSED
+R08C-02 -> RR08C-N02 -> SRR08C-N02 -> CLOSED
+R08C-03: CLOSED
+R08C-04: CLOSED
+PL_V39_08_TECHNICAL_COMPLETION: PASS
+OPEN_MATERIAL_FINDINGS: none
+T07 10/10
+T08 8/8
+T09 5/5
+T10 5/5
+T11 8/8
+FOCUSED_08_C: 43 passed
+08_B_REGRESSION: 113 passed
+RESUME_REGRESSION: 34 passed
+FULL_SUITE: 414 passed, 88 warnings
+INDEPENDENT_ADVERSARIAL_PROBES: 11/11 PASS
+KNOWN_TRR_PROBES: 10/10 PASS
+PREVIOUS_RELATIONAL_PROBES: 16/16 PRESERVED
+EXECUTION_LEDGER_HISTORY: PASS
+CHECKPOINT_CANDIDATE: READY
+CURRENT_ALIGNMENT: PASS
+08-B: ACCEPTED + CHECKPOINTED
+08-C: TECHNICALLY ACCEPTED / CHECKPOINT READY / CHECKPOINTING
+PL_V39_08_CLOSED: NO
+PL_V39_09_AUTHORIZED: NO
+ROADMAP_V397_MATERIALIZED: NO
+CHECKPOINT_COMMIT_SHA: PENDING UNTIL COMMIT
+UNEXPECTED_PATHS: 0
+STAGED_PATHS: 0
+COMMIT: NOT PERFORMED
+NEXT_OWNER_GATE: OWNER_ADJUDICATION_PL_V39_08_COMPLETION_AND_CLOSURE
+tag/push/merge/release: NOT PERFORMED
+```

@@ -29,4 +29,16 @@ Append meaningful implementation and verification events. Do not redefine task s
 - Technical evaluation: `NOT_EVALUATED / NOT_SATISFIED / INDETERMINATE / SATISFIED`
 - Finding refs and applicability/supersession:
 - Prompt composition provenance ref (optional):
+- Prompt component refs (ordered):
+  - component_ref:
+    component_identity_or_hash:
+    component_role:
+    residency_class:
+    canonical_order:
+- Prompt composition identity:
+- Stable prefix identity:
+- Composition comparison/evidence refs:
+- Recommendation evidence ref (optional):
+- Recommendation outcome: `NO_RECOMMENDATION / RECOMMENDATION`
+- Recommendation authority: `NON_AUTHORITATIVE`
 - Evidence status: `PASS / FAIL / BLOCKED`
