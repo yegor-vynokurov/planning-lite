@@ -27,6 +27,20 @@ Public changelog Planning ref: null
 
 ## Amendments, drift, limitations, and residual risk
 
+## Governed Attempt / Technical Evaluation
+
+- Attempt and candidate/source identity:
+- Complete declared verifier contract identities:
+  - contract_id:
+    contract_version_or_ref:
+- Required verifier contract identities (subset of declared):
+  - contract_id:
+    contract_version_or_ref:
+- Technical evaluation: `NOT_EVALUATED / NOT_SATISFIED / INDETERMINATE / SATISFIED`
+- Applicable unresolved `BLOCKING` findings:
+- Historical or superseded evidence preserved:
+- Owner disposition reference (separate from verifier evidence):
+
 ## Roadmap / Gap contribution
 
 | Roadmap outcome or Gap | Declared contribution | Evidence delivered | State transition proposed | Notes |

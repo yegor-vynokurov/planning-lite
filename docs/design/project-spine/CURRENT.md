@@ -4,14 +4,33 @@
 repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
-active_change: NONE
-lifecycle_gate: IMPLEMENTATION_PLAN_FROZEN
+active_change: CHG-PL-V39-08-GOVERNED-ATTEMPT-EVALUATION-001
+lifecycle_gate: CHECKPOINTED_08_B_AWAITING_OWNER_08_C_CONTINUE_DECISION
 implementation_authorized: NO
 blockers: NONE
-next_permitted_action: RUN_PL_V39_08_FORMAL_READINESS
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-08-IMPLEMENTATION-PLAN-v1.md
-state_as_of: 2026-09-07
+next_permitted_action: OWNER_AUTHORIZATION_CONTINUE_PL_V39_08_08_C
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-08-EXECUTION-LEDGER-v1.md
+state_as_of: 2026-09-09
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
+
+<!-- PL_V39_08_CORRECTIVE_IMPLEMENTATION_V1:BEGIN -->
+## Current PL-V39-08 checkpointed state
+
+```text
+PL-V39-08: ACTIVE
+08-B: TECHNICALLY ACCEPTED
+08-B checkpoint: READY / BEING MATERIALIZED BY AUTHORIZED CHECKPOINT COMMIT
+R08B-01...R08B-09: CLOSED
+RR08B-N01...RR08B-N03: CLOSED
+CLR08B-N01...CLR08B-N02: CLOSED
+FLR08B-N01...FLR08B-N02: CLOSED
+open material findings: none
+T-07...T-11: NOT STARTED / NOT AUTHORIZED
+08-C: NOT AUTHORIZED / NOT STARTED
+technical acceptance: PASS
+next gate: OWNER_AUTHORIZATION_CONTINUE_PL_V39_08_08_C
+```
+<!-- PL_V39_08_CORRECTIVE_IMPLEMENTATION_V1:END -->
 
 > **Resume authority:** the block below is the canonical session-handoff state. Historical prose later in this file may preserve earlier checkpoints and must not override it.
 
