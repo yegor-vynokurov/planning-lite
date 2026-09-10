@@ -95,7 +95,7 @@ def test_control_init_rejects_partial_planning_ignore_without_mutation(
     assert _git(root, "rev-parse", "HEAD") == before_head
     assert (root / ".gitignore").read_bytes() == before_ignore
     assert not (root / ".planning" / ".git").exists()
-    assert not (home / "control" / "demo.git").exists()
+    assert not (home / "state" / "projects" / "demo" / "control" / "demo.git").exists()
 
 
 def test_control_init_accepts_root_planning_ignore(tmp_path: Path) -> None:

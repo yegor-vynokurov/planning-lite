@@ -9,3 +9,4 @@ build/
 htmlcov/
 temp
 .planning-v3-local-backup
+.local/

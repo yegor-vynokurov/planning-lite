@@ -23,7 +23,19 @@ from .local_update import load_ownership_policy
 
 
 HOME_ENV = "PLANNING_LITE_HOME"
+CENTRAL_ROOT_ENV = "PLANNING_LITE_CENTRAL_ROOT"
+LOCAL_ROOT_NAME = ".local"
 REGISTRY_FILENAME = "projects.yml"
+LOCAL_ROUTE_RELATIVE: dict[str, Path] = {
+    "config": Path("."),
+    "registry": Path("registry"),
+    "consumer_state": Path("state") / "projects",
+    "roadmap_inbox": Path("inbox") / "roadmaps",
+    "recommendation_inbox": Path("inbox") / "recommendations",
+    "compiled_prompts": Path("work") / "compiled-prompts",
+    "experiments": Path("work") / "experiments",
+    "cache": Path("cache"),
+}
 ANSWERS_FILENAME = ".copier-answers.planning-lite.yml"
 LEGACY_POLICY_FALLBACK: dict[str, Any] = {
     # Only used when a legacy consumer has no managed project_policy block.
@@ -44,6 +56,51 @@ ALLOWED_SOURCE_TYPES = {"external_runtime", "operator", "unavailable"}
 
 class WorkspaceError(RuntimeError):
     """Fail-closed workspace or registry operation."""
+
+
+def central_repository_root(explicit: str | Path | None = None) -> Path:
+    """Resolve the central source repository without inventing a user-home path.
+
+    An explicit root or ``PLANNING_LITE_CENTRAL_ROOT`` is authoritative.  When
+    running from the central source checkout, the package location provides a
+    deterministic relative route.  Installed consumers must supply an
+    explicit root because their package directory is not a central repository.
+    """
+
+    raw = explicit
+    if raw is None:
+        environment = os.environ.get(CENTRAL_ROOT_ENV)
+        if environment and environment.strip():
+            raw = environment.strip()
+    if raw is not None and str(raw).strip():
+        candidate = Path(raw).expanduser().resolve()
+    else:
+        candidate = Path(__file__).resolve().parents[2]
+    if not (candidate / "copier.yml").is_file() or not (candidate / "template").is_dir():
+        raise WorkspaceError(
+            "ARTIFACT_ROUTING_UNRESOLVED: central Planning Lite repository root "
+            "is unavailable; set PLANNING_LITE_CENTRAL_ROOT or pass an explicit home"
+        )
+    return candidate
+
+
+def local_operational_root(explicit_central_root: str | Path | None = None) -> Path:
+    """Return the central repository-local operational root."""
+
+    return central_repository_root(explicit_central_root) / LOCAL_ROOT_NAME
+
+
+def local_route(route: str, home: str | Path | None = None) -> Path:
+    """Resolve one of the canonical local operational routes.
+
+    Route names are deliberately closed.  An unknown route fails closed rather
+    than allowing a caller to invent a second persistent data location.
+    """
+
+    relative = LOCAL_ROUTE_RELATIVE.get(route)
+    if relative is None:
+        raise WorkspaceError(f"ARTIFACT_ROUTING_UNRESOLVED: unknown local route: {route}")
+    return resolve_home(home) / relative
 
 
 def _forbidden_product_path(
@@ -315,7 +372,11 @@ def plan_control_init(
         raise WorkspaceError("Outer product Git must already ignore .planning completely before control-init")
     safe_id = _safe_project_id(project_id)
     home_root = resolve_home(home)
-    metadata = (Path(git_dir).expanduser() if git_dir else home_root / "control" / f"{safe_id}.git").resolve()
+    metadata = (
+        Path(git_dir).expanduser()
+        if git_dir
+        else local_route("consumer_state", home_root) / safe_id / "control" / f"{safe_id}.git"
+    ).resolve()
     if metadata == product_root or metadata.is_relative_to(product_root) or metadata.is_relative_to(planning_root):
         raise WorkspaceError("External control git directory must be outside product and Planning roots")
     existing = planning_root / ".git"
@@ -374,14 +435,19 @@ def control_init(
 
 
 def resolve_home(explicit: str | Path | None = None) -> Path:
-    """Resolve the Planning Lite home using the contract's precedence."""
+    """Resolve the Planning Lite operational home using explicit routes only.
+
+    Explicit ``--home`` and ``PLANNING_LITE_HOME`` remain supported for
+    disposable/isolated runs.  The implicit route is the central repository's
+    ``.local`` directory; there is no user-profile fallback.
+    """
 
     if explicit is not None and str(explicit).strip():
         return Path(explicit).expanduser().resolve()
     environment = os.environ.get(HOME_ENV)
     if environment and environment.strip():
         return Path(environment.strip()).expanduser().resolve()
-    return (Path.home() / ".config" / "planning-lite").resolve()
+    return local_operational_root()
 
 
 def _mapping(value: object, label: str) -> dict[str, Any]:
@@ -558,7 +624,7 @@ def update_project_policy(
 
 
 def registry_path(home: str | Path | None = None) -> Path:
-    return resolve_home(home) / REGISTRY_FILENAME
+    return local_route("registry", home) / REGISTRY_FILENAME
 
 
 def _validate_registry_shape(data: object, *, home: Path) -> dict[str, Any]:
@@ -644,7 +710,7 @@ def load_registry(home: str | Path | None = None) -> dict[str, Any]:
 def save_registry(home: str | Path | None, data: Mapping[str, Any]) -> None:
     home_path = resolve_home(home)
     normalized = _validate_registry_shape(data, home=home_path)
-    _write_yaml_atomic(home_path / REGISTRY_FILENAME, normalized)
+    _write_yaml_atomic(registry_path(home_path), normalized)
 
 
 def _source_path(root: Path, relative: str) -> str:
@@ -702,7 +768,11 @@ def plan_registration(
         "recommendation_index_source": str(planning_root / "recommendations" / "INDEX.md"),
         "telemetry": {
             "enabled": bool(telemetry),
-            "receipt_path": str(home_path / "telemetry" / resolved_id / "run-receipts.jsonl") if telemetry else None,
+            "receipt_path": (
+                str(local_route("consumer_state", home_path) / resolved_id / "telemetry" / "run-receipts.jsonl")
+                if telemetry
+                else None
+            ),
         },
     }
     registry = load_registry(home_path)
@@ -717,7 +787,7 @@ def plan_registration(
             "registry": registry,
             "already_registered": True,
             "config_path": root / ".planning" / "CONFIG.yml",
-            "registry_path": home_path / REGISTRY_FILENAME,
+            "registry_path": registry_path(home_path),
         }
     for other in registry["projects"]:
         other_root = Path(other["project_root"]).resolve()
@@ -733,7 +803,7 @@ def plan_registration(
         "registry": candidate_registry,
         "already_registered": False,
         "config_path": root / ".planning" / "CONFIG.yml",
-        "registry_path": home_path / REGISTRY_FILENAME,
+        "registry_path": registry_path(home_path),
     }
 
 

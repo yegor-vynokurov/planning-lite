@@ -7,15 +7,19 @@ import pytest
 import yaml
 
 import planning_lite.workspace as workspace
-from planning_lite.cli import PlanningLiteError, build_parser, command_register
+from planning_lite.cli import PlanningLiteError, _registration_preview, build_parser, command_register
 from planning_lite.workspace import (
     WorkspaceError,
     inspect_project,
     load_effective_policy,
     load_registry,
+    plan_registration,
     register_project,
     resolve_home,
+    registry_path,
     save_registry,
+    local_operational_root,
+    local_route,
     update_project_policy,
 )
 
@@ -45,7 +49,76 @@ def test_home_precedence(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Non
     assert resolve_home(explicit) == explicit.resolve()
     assert resolve_home() == env.resolve()
     monkeypatch.delenv("PLANNING_LITE_HOME")
-    assert resolve_home() == (Path.home() / ".config" / "planning-lite").resolve()
+    assert resolve_home() == local_operational_root()
+    assert resolve_home() != (Path.home() / ".config" / "planning-lite").resolve()
+
+
+def test_central_local_routes_are_deterministic_and_fail_closed(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    assert registry_path() == local_operational_root() / "registry" / "projects.yml"
+    assert local_route("roadmap_inbox") == local_operational_root() / "inbox" / "roadmaps"
+    assert local_route("recommendation_inbox") == local_operational_root() / "inbox" / "recommendations"
+    assert local_route("compiled_prompts") == local_operational_root() / "work" / "compiled-prompts"
+    assert local_route("experiments") == local_operational_root() / "work" / "experiments"
+    assert local_route("cache") == local_operational_root() / "cache"
+    with pytest.raises(WorkspaceError, match="ARTIFACT_ROUTING_UNRESOLVED"):
+        local_route("invented-route")
+    monkeypatch.setenv("PLANNING_LITE_CENTRAL_ROOT", str(tmp_path / "missing-central"))
+    with pytest.raises(WorkspaceError, match="ARTIFACT_ROUTING_UNRESOLVED"):
+        resolve_home()
+
+
+def test_central_local_state_does_not_relocate_consumer_planning(tmp_path: Path) -> None:
+    root = _consumer(tmp_path / "consumer")
+    plan = plan_registration(root, mode="local-only", status="paused", home=tmp_path / "home")
+    assert plan["config_path"] == root / ".planning" / "CONFIG.yml"
+    assert Path(plan["registry_path"]).is_relative_to(tmp_path / "home" / "registry")
+    assert (root / ".planning").is_dir()
+
+
+def test_registration_preview_reports_operational_root_for_explicit_home(tmp_path: Path) -> None:
+    root = _consumer(tmp_path / "consumer")
+    home = tmp_path / "home"
+    args = build_parser().parse_args(
+        [
+            "register",
+            str(root),
+            "--mode",
+            "local-only",
+            "--status",
+            "paused",
+            "--home",
+            str(home),
+            "--dry-run",
+        ]
+    )
+    preview = _registration_preview(args)
+    resolved_home = home.resolve()
+    assert preview["home"] == str(resolved_home)
+    assert preview["registry_path"] == str(resolved_home / "registry" / "projects.yml")
+
+
+def test_registration_preview_reports_default_central_local_root(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    root = _consumer(tmp_path / "consumer")
+    monkeypatch.delenv("PLANNING_LITE_HOME", raising=False)
+    args = build_parser().parse_args(
+        [
+            "register",
+            str(root),
+            "--mode",
+            "local-only",
+            "--status",
+            "paused",
+            "--dry-run",
+        ]
+    )
+    preview = _registration_preview(args)
+    expected_home = local_operational_root()
+    assert preview["home"] == str(expected_home)
+    assert preview["registry_path"] == str(expected_home / "registry" / "projects.yml")
 
 
 def test_effective_policy_merges_defaults_and_config(tmp_path: Path) -> None:
@@ -132,7 +205,8 @@ def test_registry_rejects_duplicate_roots(tmp_path: Path) -> None:
     home = tmp_path / "home"
     root = tmp_path / "project"
     home.mkdir(parents=True)
-    (home / "projects.yml").write_text(
+    (home / "registry" / "projects.yml").parent.mkdir(parents=True)
+    (home / "registry" / "projects.yml").write_text(
         yaml.safe_dump(
             {
                 "schema_version": 1,
@@ -215,7 +289,7 @@ def test_register_dry_run_and_apply_share_conflict_validation(tmp_path: Path) ->
     home = tmp_path / "home"
     register_project(root, mode="local-only", status="paused", home=home, project_id="demo")
     config_before = (root / ".planning/CONFIG.yml").read_bytes()
-    registry_before = (home / "projects.yml").read_bytes()
+    registry_before = (home / "registry" / "projects.yml").read_bytes()
     for extra in ([], ["--dry-run"]):
         args = build_parser().parse_args(
             [
@@ -235,7 +309,7 @@ def test_register_dry_run_and_apply_share_conflict_validation(tmp_path: Path) ->
         with pytest.raises(PlanningLiteError, match="Conflicting"):
             command_register(args)
         assert (root / ".planning/CONFIG.yml").read_bytes() == config_before
-        assert (home / "projects.yml").read_bytes() == registry_before
+        assert (home / "registry" / "projects.yml").read_bytes() == registry_before
 
 
 def test_register_dry_run_and_apply_require_split_topology(tmp_path: Path) -> None:
@@ -261,4 +335,4 @@ def test_register_dry_run_and_apply_require_split_topology(tmp_path: Path) -> No
         with pytest.raises(PlanningLiteError, match="control-init"):
             command_register(args)
         assert (root / ".planning/CONFIG.yml").read_bytes() == config_before
-        assert not (home / "projects.yml").exists()
+        assert not (home / "registry" / "projects.yml").exists()

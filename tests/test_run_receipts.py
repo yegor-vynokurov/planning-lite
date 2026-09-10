@@ -24,7 +24,9 @@ def _fixture(tmp_path: Path, *, telemetry: bool = True) -> tuple[Path, Path, Pat
     home = tmp_path / "home"
     register_project(root, project_id="demo", mode="local-only", status="paused", telemetry=telemetry, home=home)
     info = inspect_project(root, home=home)
-    receipt_path = info["telemetry"]["receipt_path"] or (home / "telemetry/demo/run-receipts.jsonl")
+    receipt_path = info["telemetry"]["receipt_path"] or (
+        home / "state" / "projects" / "demo" / "telemetry" / "run-receipts.jsonl"
+    )
     return root, home, Path(receipt_path)
 
 

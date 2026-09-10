@@ -40,12 +40,16 @@ from .workspace import (
     registry_json,
     resolve_control_git_dir,
     plan_control_init,
+    local_route,
+    resolve_home,
 )
 from .telemetry import ReceiptError, collect_receipt
 
 ANSWERS_FILE = ".copier-answers.planning-lite.yml"
 CONFIG_ENV = "PLANNING_LITE_TEMPLATE"
-CONFIG_PATH = Path.home() / ".config" / "planning-lite" / "config.toml"
+# Kept as a test/operator override. The default is resolved lazily so an
+# installed CLI cannot silently invent a user-profile data root.
+CONFIG_PATH: Path | None = None
 DEFAULT_TEMPLATE_SOURCE = "https://github.com/yegor-vynokurov/planning-lite"
 BRIDGE_START = "<!-- planning-lite:start -->"
 BRIDGE_END = "<!-- planning-lite:end -->"
@@ -115,23 +119,35 @@ def _is_local_only_consumer(target: Path) -> bool:
 
 
 def _load_user_config() -> dict[str, object]:
-    if not CONFIG_PATH.exists():
+    path = _config_path()
+    if not path.exists():
         return {}
     try:
-        with CONFIG_PATH.open("rb") as handle:
+        with path.open("rb") as handle:
             return tomllib.load(handle)
     except (OSError, tomllib.TOMLDecodeError) as exc:
-        raise PlanningLiteError(f"Cannot read {CONFIG_PATH}: {exc}") from exc
+        raise PlanningLiteError(f"Cannot read {path}: {exc}") from exc
 
 
-def _save_template_source(source: str) -> None:
-    CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+def _config_path() -> Path:
+    if CONFIG_PATH is not None:
+        return CONFIG_PATH
+    try:
+        return local_route("config") / "config.toml"
+    except WorkspaceError as exc:
+        raise PlanningLiteError(str(exc)) from exc
+
+
+def _save_template_source(source: str) -> Path:
+    path = _config_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
     escaped = source.replace("\\", "\\\\").replace('"', '\\"')
-    CONFIG_PATH.write_text(
+    path.write_text(
         "# Planning Lite user configuration\n"
         f'template_source = "{escaped}"\n',
         encoding="utf-8",
     )
+    return path
 
 
 def _looks_like_template_repo(path: Path) -> bool:
@@ -174,7 +190,14 @@ def _discover_template_source(explicit: str | None) -> str:
         if _looks_like_template_repo(candidate):
             return str(candidate)
 
-    configured = _load_user_config().get("template_source")
+    try:
+        configured = _load_user_config().get("template_source")
+    except PlanningLiteError as exc:
+        # Read-only discovery can use the official source when no central
+        # checkout is available; persistent configure writes fail closed.
+        if "ARTIFACT_ROUTING_UNRESOLVED" in str(exc):
+            return DEFAULT_TEMPLATE_SOURCE
+        raise
     if isinstance(configured, str) and configured.strip():
         return configured.strip()
 
@@ -225,8 +248,8 @@ def _require_clean_git(target: Path, allow_dirty: bool) -> None:
 
 
 def command_configure(args: argparse.Namespace) -> int:
-    _save_template_source(args.template_source)
-    print(f"Saved template source override in {CONFIG_PATH}: {args.template_source}")
+    path = _save_template_source(args.template_source)
+    print(f"Saved template source override in {path}: {args.template_source}")
     return 0
 
 
@@ -506,6 +529,7 @@ def _registration_preview(args: argparse.Namespace) -> dict[str, object]:
             telemetry=bool(getattr(args, "telemetry", False)),
             home=getattr(args, "home", None),
         )
+        home = resolve_home(getattr(args, "home", None))
     except WorkspaceError as exc:
         raise _workspace_error(exc) from exc
     entry = plan["entry"]
@@ -515,7 +539,7 @@ def _registration_preview(args: argparse.Namespace) -> dict[str, object]:
         "project_root": str(target),
         "mode": entry["control_history"]["mode"],
         "project_status": entry["project_status"],
-        "home": str(Path(plan["registry_path"]).parent),
+        "home": str(home),
         "config_path": str(plan["config_path"]),
         "registry_path": str(plan["registry_path"]),
         "telemetry": bool(getattr(args, "telemetry", False)),

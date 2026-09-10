@@ -2,12 +2,27 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 import planning_lite.cli as cli
+from planning_lite.workspace import local_operational_root
 
 
 def _isolate_source_discovery(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.delenv(cli.CONFIG_ENV, raising=False)
     monkeypatch.setattr(cli, "CONFIG_PATH", tmp_path / "user-config" / "config.toml")
+
+
+def test_default_config_route_is_central_local(monkeypatch) -> None:
+    monkeypatch.setattr(cli, "CONFIG_PATH", None)
+    assert cli._config_path() == local_operational_root() / "config.toml"
+
+
+def test_persistent_config_route_fails_closed_without_central_root(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(cli, "CONFIG_PATH", None)
+    monkeypatch.setenv("PLANNING_LITE_CENTRAL_ROOT", str(tmp_path / "missing-central"))
+    with pytest.raises(cli.PlanningLiteError, match="ARTIFACT_ROUTING_UNRESOLVED"):
+        cli._config_path()
 
 
 def test_default_template_source_is_the_official_repository(
