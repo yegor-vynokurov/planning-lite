@@ -2050,6 +2050,13 @@ This merges the old `PL-V38-07` and `PL-V38-08` rather than adding more final st
 
 This is an optional comparator experiment, not a hidden prerequisite for release.
 
+The bounded architectural result is maintained in the subordinate companion
+[`companions/PL-V39-09-CONTEXT-COMPILATION-CONDITIONAL-SKELETON-v1.md`](companions/PL-V39-09-CONTEXT-COMPILATION-CONDITIONAL-SKELETON-v1.md).
+It is detailed design subordinate to this Roadmap: the conditional skeleton is
+`FROZEN`, the full Context Compilation contract is `NOT_FROZEN`, and production
+implementation is `NOT_AUTHORIZED`. The companion cannot change macro
+direction, authorize implementation, or override this Roadmap.
+
 Possible terminal result:
 
 ```text
