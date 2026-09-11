@@ -2057,6 +2057,38 @@ It is detailed design subordinate to this Roadmap: the conditional skeleton is
 implementation is `NOT_AUTHORIZED`. The companion cannot change macro
 direction, authorize implementation, or override this Roadmap.
 
+### 09-B Ideal Scaffold Knowledge architectural skeleton
+
+The bounded architectural skeleton is maintained in the subordinate companion
+[`companions/PL-V39-09-IDEAL-SCAFFOLD-KNOWLEDGE-SKELETON-v1.md`](companions/PL-V39-09-IDEAL-SCAFFOLD-KNOWLEDGE-SKELETON-v1.md).
+It freezes only the Ideal-first, implementation-blind/domain-informed,
+layered-fingerprint, driver-bound, question-first, structured-semantic and
+bounded pack-guidance invariants. The validated Architecture Knowledge topology
+and ownership seams are now `FROZEN_CANONICAL`; final pack contents and question
+inventories remain `NOT_FROZEN`, field validation is `REQUIRED`, and production
+implementation is `NOT_AUTHORIZED`. Portable supporting evidence is maintained
+in the subordinate companion
+[`companions/PL-V39-09-ARCHITECTURE-KNOWLEDGE-TOPOLOGY-FREEZE-EVIDENCE-v1.md`](companions/PL-V39-09-ARCHITECTURE-KNOWLEDGE-TOPOLOGY-FREEZE-EVIDENCE-v1.md).
+This is framework knowledge supporting existing 09-B responsibility, not a new
+top-level subsystem.
+
+```text
+IDEAL_SCAFFOLD_KNOWLEDGE_SKELETON:
+FROZEN_CANONICAL
+
+V1_ARCHITECTURE_KNOWLEDGE_TOPOLOGY:
+FROZEN_CANONICAL
+
+PACK_CONTENT:
+NOT_FROZEN
+
+FIELD_VALIDATION:
+REQUIRED
+
+PRODUCTION_IMPLEMENTATION:
+NOT_AUTHORIZED
+```
+
 Possible terminal result:
 
 ```text
