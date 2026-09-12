@@ -2089,6 +2089,35 @@ PRODUCTION_IMPLEMENTATION:
 NOT_AUTHORIZED
 ```
 
+### Engineering Basis and Rationale Lineage semantic contract
+
+The canonical V1 semantic contract is maintained in the subordinate companion
+[`companions/PL-V39-09-ENGINEERING-BASIS-RATIONALE-LINEAGE-SEMANTIC-CONTRACT-v1.md`](companions/PL-V39-09-ENGINEERING-BASIS-RATIONALE-LINEAGE-SEMANTIC-CONTRACT-v1.md).
+It freezes the owner-adjudicated Engineering Basis and Rationale Lineage
+semantics only. Field validation remains required; serialization, storage, and
+runtime design remain unfrozen; production implementation remains unauthorized;
+and this materialization does not activate PL-V39-09 implementation.
+
+```text
+ENGINEERING_BASIS_RATIONALE_LINEAGE_SEMANTIC_CONTRACT:
+CANONICAL_V1
+
+FIELD_VALIDATION:
+REQUIRED
+
+SERIALIZATION:
+NOT_FROZEN
+
+STORAGE_MODEL:
+NOT_FROZEN
+
+PRODUCTION_IMPLEMENTATION:
+NOT_AUTHORIZED
+
+PL09_IMPLEMENTATION_ACTIVATION:
+NONE
+```
+
 Possible terminal result:
 
 ```text
