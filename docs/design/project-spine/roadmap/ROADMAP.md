@@ -1047,6 +1047,22 @@ STATUS
 
 Historical order remains non-authoritative.
 
+### Recommendation detail cards
+
+- [PL-REC-SPLIT-CONTROL-HISTORY-V1 — Separate Product History from Planning / Control History](../recommendations/inbox/PLANNING_LITE_RECOMMENDATION_SPLIT_CONTROL_HISTORY_V1.md) — INBOX / CANDIDATE / ROUTED_RECHECK; detail pointer only, not absorbed or prioritized.
+
+Future detail:
+
+- [FUT-LEX-001 — Automated semantic term-drift detector](../recommendations/FUTURE-RESERVE.md) — FUTURE / DEFERRED_EXPERIMENT; detail pointer only, not scheduled.
+- [FUT-CLAR-001 — Automated ambiguity challenger](../recommendations/FUTURE-RESERVE.md) — FUTURE / FUTURE_SEED; detail pointer only, not scheduled.
+- [FUT-OUT-001 — Automated Outcome Ladder proposal](../recommendations/FUTURE-RESERVE.md) — FUTURE / WATCH; detail pointer only, not scheduled.
+- [FUT-STRAT-001 — Automatic contingency route activation](../recommendations/FUTURE-RESERVE.md) — FUTURE / REJECTED_FORM FOR NOW; detail pointer only, not scheduled.
+- [FUT-STRAT-002 — Multiple full synchronized roadmaps](../recommendations/FUTURE-RESERVE.md) — FUTURE / REJECTED_FORM; detail pointer only, not scheduled.
+- [FUT-SCAF-001 — Full verified scaffold self-evolution](../recommendations/FUTURE-RESERVE.md) — FUTURE / DEFERRED_EXPERIMENT; detail pointer only, not scheduled.
+- [FUT-SCAF-002 — Reusable subtractive archetype library](../recommendations/FUTURE-RESERVE.md) — FUTURE / FUTURE_SEED; detail pointer only, not scheduled.
+- [FUT-SCAF-003 — Universal non-software Target Skeleton tooling](../recommendations/FUTURE-RESERVE.md) — FUTURE / WATCH; detail pointer only, not scheduled.
+- [Dormant Contingency Route A — Adaptive Scale Route](../recommendations/FUTURE-RESERVE.md) — FUTURE / DORMANT / NO SCHEDULING PROMISE; detail pointer only, not scheduled.
+
 ### PL-V39-05 exit gate
 
 A representative complex fixture can demonstrate:
@@ -1276,6 +1292,16 @@ local evidence
 → recommendation/learning candidate
 → governed promotion
 ```
+
+### Recommendation detail cards
+
+Future detail:
+
+- [FUT-MEM-001 — Semantic retrieval / embeddings after lineage routing](../recommendations/FUTURE-RESERVE.md) — FUTURE / DEFERRED_EXPERIMENT; detail pointer only, not scheduled.
+- [FUT-MEM-002 — Episodic timeline + temporal summary tree](../recommendations/FUTURE-RESERVE.md) — FUTURE / FUTURE_SEED; detail pointer only, not scheduled.
+- [FUT-MEM-003 — Memory utility ledger and evidence-based forgetting](../recommendations/FUTURE-RESERVE.md) — FUTURE / DEFERRED_EXPERIMENT; detail pointer only, not scheduled.
+- [FUT-MEM-004 — Semantic memory maintenance automation](../recommendations/FUTURE-RESERVE.md) — FUTURE / WATCH; detail pointer only, not scheduled.
+- [FUT-ARCH-001 — Graph database for Project Spine](../recommendations/FUTURE-RESERVE.md) — FUTURE / REJECTED_FORM UNTIL EVIDENCE; detail pointer only, not scheduled.
 
 ### PL-V39-06 exit gate
 
@@ -1639,6 +1665,27 @@ small stable pilot semantics in 07
 ```
 
 This is a controlled loopback, not a new lifecycle stage.
+
+### Recommendation detail cards
+
+- [CHG-0009 Field Findings Adjudication](../recommendations/inbox/PLANNING-LITE-CHG0009-FIELD-ADJUDICATION-v1.md) — INBOX / ROUTED_RECHECK; detail pointer only, not absorbed or prioritized.
+- [Prompt-Derived Governance Primitives and Reusable Agent Skills](<../recommendations/inbox/PL-REC — Prompt-Derived Governance Primitives and Reusable Agent Skills.md>) — INBOX / PROPOSED; detail pointer only, not absorbed or prioritized.
+- [PL-REC-PRE-READINESS-CLOSURE-COMPLETENESS-001](../recommendations/inbox/PL-REC-PRE-READINESS-CLOSURE-COMPLETENESS-001.md) — INBOX / DEFERRED / ROUTED_RECHECK; detail pointer only, not absorbed or prioritized.
+- [PL-REC-TASK-VERIFIER-BASELINE-SNAPSHOT-001 v1.1](../recommendations/inbox/PL-REC-TASK-VERIFIER-BASELINE-SNAPSHOT-001-v1.1.md) — INBOX / DEFERRED / ROUTED_RECHECK; detail pointer only, not absorbed or prioritized.
+- [REC-PL-CODE-CONSTRUCTION-QUALITY-CHECKLISTS](../recommendations/inbox/REC-PL-CODE-CONSTRUCTION-QUALITY-CHECKLISTS.md) — INBOX / PROPOSED; detail pointer only, not absorbed or prioritized.
+- [REC-PL-ROUTING-PROMPT-DEDUP](../recommendations/inbox/REC-PL-ROUTING-PROMPT-DEDUP.md) — INBOX / PROPOSED / NOT_RECONCILED; detail pointer only, not absorbed or prioritized.
+- [Revised PL-V39-07 roadmap boundary](<../recommendations/inbox/Revised PL-V39-07 roadmap boundary.md>) — INBOX / STATUS NOT RECORDED; detail pointer only, not absorbed or prioritized.
+
+Future detail:
+
+- [FUT-EXEC-001 — Automatic Execution Pattern Router](../recommendations/FUTURE-RESERVE.md) — FUTURE / DEFERRED_EXPERIMENT; detail pointer only, not scheduled.
+- [FUT-EXEC-002 — General multi-agent team orchestration](../recommendations/FUTURE-RESERVE.md) — FUTURE / DEFERRED_EXPERIMENT; detail pointer only, not scheduled.
+- [FUT-EXEC-003 — Background/scheduled autonomous work as a Planning Lite primitive](../recommendations/FUTURE-RESERVE.md) — FUTURE / FUTURE_SEED; detail pointer only, not scheduled.
+- [FUT-EXEC-004 — Full cross-host capability adapter matrix](../recommendations/FUTURE-RESERVE.md) — FUTURE / FUTURE_SEED; detail pointer only, not scheduled.
+- [FUT-PLAN-001 — Persistent Behavior Localization / State Register Handbook](../recommendations/FUTURE-RESERVE.md) — FUTURE / DEFERRED_EXPERIMENT; detail pointer only, not scheduled.
+- [FUT-PLAN-002 — Typed PlanningProblem + bounded candidate-plan optimizer](../recommendations/FUTURE-RESERVE.md) — FUTURE / DEFERRED_EXPERIMENT; detail pointer only, not scheduled.
+- [FUT-DOC-001 — Semantic advisory Doctor](../recommendations/FUTURE-RESERVE.md) — FUTURE / FUTURE_SEED; detail pointer only, not scheduled.
+- [SUP-001 — Weak Model Execution v1/v2](../recommendations/FUTURE-RESERVE.md) — LINEAGE / SUPERSEDED; predecessor evidence pointer only, not active authority.
 
 ### PL-V39-07 exit gate
 
@@ -2015,6 +2062,21 @@ No candidate changes its own evaluator or promotion gate.
 
 No automatic self-improvement.
 
+### Recommendation detail cards
+
+- [PL-V39-08/09 — Empirical Fixtures: Coverage Failures](../recommendations/inbox/PL-V39-08-09-EMPIRICAL-FIXTURES-COVERAGE-FAILURES-v1.md) — INBOX / CAPTURED_FOR_FUTURE_EVALUATION; detail pointer only, not absorbed or prioritized.
+
+Future detail:
+
+- [FUT-EVAL-001 — Full Prompt Garden integration](../recommendations/FUTURE-RESERVE.md) — FUTURE / FUTURE_SEED; detail pointer only, not scheduled.
+- [FUT-EVAL-002 — Broad LLM-judge infrastructure](../recommendations/FUTURE-RESERVE.md) — FUTURE / DEFERRED_EXPERIMENT; detail pointer only, not scheduled.
+- [FUT-EVAL-003 — Full behavioral eval suite on every commit](../recommendations/FUTURE-RESERVE.md) — FUTURE / REJECTED_FORM; detail pointer only, not scheduled.
+- [FUT-EVAL-004 — Generalized mutation/fuzzing framework for contracts](../recommendations/FUTURE-RESERVE.md) — FUTURE / DEFERRED_EXPERIMENT; detail pointer only, not scheduled.
+- [FUT-EVAL-005 — Schema-driven code generation](../recommendations/FUTURE-RESERVE.md) — FUTURE / WATCH; detail pointer only, not scheduled.
+- [FUT-INS-001 — Full session-mining Operational Insights service](../recommendations/FUTURE-RESERVE.md) — FUTURE / DEFERRED_EXPERIMENT; detail pointer only, not scheduled.
+- [FUT-MET-001 — Single scalar Change Cost score](../recommendations/FUTURE-RESERVE.md) — FUTURE / REJECTED_FORM / MAY REFRAME; detail pointer only, not scheduled.
+- [FUT-MET-002 — Expected value / expected Change Cost ratio](../recommendations/FUTURE-RESERVE.md) — FUTURE / FUTURE_SEED; detail pointer only, not scheduled.
+
 ### PL-V39-08 exit gate
 
 At least one Planning Lite control component can be evaluated end-to-end:
@@ -2263,6 +2325,16 @@ Do not bake one agent product's command vocabulary into the core lifecycle.
 
 ---
 
+### Recommendation detail cards
+
+- [Context Compiler Decision and Terminology Surface](<../recommendations/inbox/PL-REC — Context Compiler Decision and Terminology Surface.md>) — INBOX / UNADJUDICATED_RECOMMENDATION_CANDIDATE; detail pointer only, not absorbed or prioritized.
+- [Human Guidance, Prompt Delta Memory, Context Compiler & PromptOps Analytics](../recommendations/inbox/PL-V39-09-HUMAN-GUIDANCE-PROMPT-DELTA-MEMORY-CONCEPT-NOTE-v1.md) — INBOX / PROPOSED / NOT YET ADJUDICATED; detail pointer only, not absorbed or prioritized.
+
+Future detail:
+
+- [FUT-CTX-001 — Production Context Compiler beyond experimental promotion](../recommendations/FUTURE-RESERVE.md) — FUTURE / DEFERRED_EXPERIMENT; detail pointer only, not scheduled.
+- [FUT-CTX-002 — Learned context selection policy](../recommendations/FUTURE-RESERVE.md) — FUTURE / WATCH; detail pointer only, not scheduled.
+
 ## 11.5 Release / promotion decision
 
 Before a new release-level promotion require:
@@ -2291,6 +2363,13 @@ future recommendation with its own evidence gate.
 # 12. Continuous practices, not stages
 
 ## 12.1 Recommendation / Discovery lifecycle
+
+### Recommendation detail card convention
+
+Recommendation detail cards are visibility and lineage pointers only. They do
+not imply absorption, acceptance, priority, implementation authority, or Change
+authorization. Detailed semantics and recorded status remain in the linked
+source.
 
 Keep observations and actions distinct:
 
@@ -2361,6 +2440,18 @@ superseded-lineage residue
 
 This is current practice.
 A productized automated absorption/convergence workflow remains future work.
+
+Recommendation details:
+
+- [Out-of-Git Operational Intake and Working State](../recommendations/inbox/PL-REC-OUT-OF-GIT-OPERATIONAL-INTAKE-DISCOVERY-001.md) — INBOX / NEW; detail pointer only, not absorbed or prioritized.
+
+Future detail:
+
+- [FUT-REC-001 — Automated recommendation convergence / cemetery recovery](../recommendations/FUTURE-RESERVE.md) — FUTURE / DEFERRED_EXPERIMENT; detail pointer only, not scheduled.
+- [FUT-REC-002 — Automated recommendation unit extraction](../recommendations/FUTURE-RESERVE.md) — FUTURE / WATCH; detail pointer only, not scheduled.
+- [FUT-REC-003 — Automatic rule curator / selective unlearning](../recommendations/FUTURE-RESERVE.md) — FUTURE / DEFERRED_EXPERIMENT; detail pointer only, not scheduled.
+- [FUT-ABSORB-001 — Productized Recommendation Absorption workflow](../recommendations/FUTURE-RESERVE.md) — FUTURE / DEFERRED_EXPERIMENT; detail pointer only, not scheduled.
+- [SUP-002 — Older roadmap copies as active priority](../recommendations/FUTURE-RESERVE.md) — LINEAGE / SUPERSEDED AS CURRENT PRIORITY; historical-design pointer only, not active priority.
 
 ## 12.2 Actual-cost receipts
 
