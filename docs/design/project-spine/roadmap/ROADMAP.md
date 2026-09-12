@@ -1674,6 +1674,7 @@ This is a controlled loopback, not a new lifecycle stage.
 - [PL-REC-TASK-VERIFIER-BASELINE-SNAPSHOT-001 v1.1](../recommendations/inbox/PL-REC-TASK-VERIFIER-BASELINE-SNAPSHOT-001-v1.1.md) — INBOX / DEFERRED / ROUTED_RECHECK; detail pointer only, not absorbed or prioritized.
 - [REC-PL-CODE-CONSTRUCTION-QUALITY-CHECKLISTS](../recommendations/inbox/REC-PL-CODE-CONSTRUCTION-QUALITY-CHECKLISTS.md) — INBOX / PROPOSED; detail pointer only, not absorbed or prioritized.
 - [REC-PL-ROUTING-PROMPT-DEDUP](../recommendations/inbox/REC-PL-ROUTING-PROMPT-DEDUP.md) — INBOX / PROPOSED / NOT_RECONCILED; detail pointer only, not absorbed or prioritized.
+- [REC-PL-CAPABILITY-CLOSURE-001 — Test-Backed Walking Skeleton and No-False-Done Capability Closure](../recommendations/inbox/REC-PL-CAPABILITY-CLOSURE-001.md) — INBOX / PROPOSED; detail pointer only, not absorbed or prioritized.
 - [Revised PL-V39-07 roadmap boundary](<../recommendations/inbox/Revised PL-V39-07 roadmap boundary.md>) — INBOX / STATUS NOT RECORDED; detail pointer only, not absorbed or prioritized.
 
 Future detail:
