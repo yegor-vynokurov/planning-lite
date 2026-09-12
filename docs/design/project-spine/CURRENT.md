@@ -4,14 +4,55 @@
 repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
-active_change: CHG-PL-V39-08-GOVERNED-ATTEMPT-EVALUATION-001
-lifecycle_gate: CLOSED_08_COMPLETION_AWAITING_NEXT_OWNER_SLICE
+active_change: NONE
+lifecycle_gate: PL_V39_09_09_B_CLOSED_AWAITING_BOOTSTRAP_CHANGE_DEFINITION_PREPARATION
 implementation_authorized: NO
 blockers: NONE
-next_permitted_action: OWNER_DECISION_START_PL_V39_09
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-08-EXECUTION-LEDGER-v1.md
-state_as_of: 2026-09-09
+next_permitted_action: PREPARE_PL_V39_09_EXECUTION_EFFICIENCY_BOOTSTRAP_CHANGE_DEFINITION
+last_transition_receipt: docs/design/project-spine/roadmap/companions/PL-V39-09-ARCHITECTURE-KNOWLEDGE-PACK-VALIDATION-DESIGN-CONTRACT-v1.md
+state_as_of: 2026-09-12
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
+
+<!-- PL_V39_09_09_B_SLICE_CLOSURE_V1:BEGIN -->
+## Current PL-V39-09 state
+
+```text
+PL-V39-08: CLOSED / COMPLETE
+PL-V39-09: ACTIVE_DESIGN / IN_PROGRESS
+09-B Pack/Validation Design: CLOSED / COMPLETE
+09-B checkpoint commit: 647a109d7623f86ead09d28dd1fc6a9b2d7e70ab
+09-B artifact: docs/design/project-spine/roadmap/companions/PL-V39-09-ARCHITECTURE-KNOWLEDGE-PACK-VALIDATION-DESIGN-CONTRACT-v1.md
+09-B artifact SHA-256: 26F9BABB88C68338336777D5DA7FB62FE1F0BDDA110768F94FC8C36CFF67487C
+09-B post-commit verification: PASS
+field validation complete: NO / SEPARATELY GATED
+source research authorized: NO
+09-E work authorized: NO
+09-F work authorized: NO
+production implementation authorized: NO
+PL-V39-09 complete: NO
+```
+
+The accepted 09-B dependency ledger remains authoritative for downstream work;
+09-B closure grants no source-research, pack-materialization, field-validation,
+09-E, 09-F, comparator, implementation, promotion, or release authority.
+
+Bounded bridge handoff:
+
+```text
+bridge Change: CHG-PL-V39-09-EXECUTION-EFFICIENCY-BOOTSTRAP-001
+bridge status: APPROVED_FOR_CHANGE_PREPARATION_ONLY
+bridge structure: ONE_CHANGE_TWO_SLICES
+ordered slice A: CODEX_TELEMETRY_CAPTURE
+ordered slice B: EXECUTION_ROUTING_AND_PROMPT_DEDUP
+next permitted action: PREPARE_PL_V39_09_EXECUTION_EFFICIENCY_BOOTSTRAP_CHANGE_DEFINITION
+return to PL09 gate after bridge: OWNER_DECISION_RESUME_PL_V39_09_AFTER_EXECUTION_EFFICIENCY_BOOTSTRAP
+```
+
+The next action prepares the bridge Change Definition only. It does not activate
+the Change or authorize execution of either slice. Ordinary PL09 mainline work
+resumes only after bridge closure and fresh-session cutover at the recorded
+return gate.
+<!-- PL_V39_09_09_B_SLICE_CLOSURE_V1:END -->
 
 <!-- PL_V39_08_CORRECTIVE_IMPLEMENTATION_V1:BEGIN -->
 ## Current PL-V39-08 closed state
