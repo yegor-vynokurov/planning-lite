@@ -4,13 +4,13 @@
 repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
-active_change: NONE
-lifecycle_gate: PL_V39_09_09_B_CLOSED_AWAITING_BOOTSTRAP_CHANGE_DEFINITION_PREPARATION
+active_change: CHG-PL-V39-09-EXECUTION-EFFICIENCY-BOOTSTRAP-001
+lifecycle_gate: SLICE_A_ACCEPTED_AWAITING_CHECKPOINT_COMMIT_AUTHORIZATION
 implementation_authorized: NO
 blockers: NONE
-next_permitted_action: PREPARE_PL_V39_09_EXECUTION_EFFICIENCY_BOOTSTRAP_CHANGE_DEFINITION
-last_transition_receipt: docs/design/project-spine/roadmap/companions/PL-V39-09-ARCHITECTURE-KNOWLEDGE-PACK-VALIDATION-DESIGN-CONTRACT-v1.md
-state_as_of: 2026-09-12
+next_permitted_action: OWNER_AUTHORIZATION_PL_V39_09_EXECUTION_EFFICIENCY_BOOTSTRAP_SLICE_A_CHECKPOINT_COMMIT
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-EXECUTION-EFFICIENCY-BOOTSTRAP-SLICE-A-OWNER-ACCEPTANCE-v1.md
+state_as_of: 2026-09-14
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
 <!-- PL_V39_09_09_B_SLICE_CLOSURE_V1:BEGIN -->
@@ -18,8 +18,8 @@ state_as_of: 2026-09-12
 
 ```text
 PL-V39-08: CLOSED / COMPLETE
-PL-V39-09: ACTIVE_DESIGN / IN_PROGRESS
-09-B Pack/Validation Design: CLOSED / COMPLETE
+PL-V39-09: ACTIVE / IN_PROGRESS
+09-B Pack/Validation Design: CLOSED_COMPLETE
 09-B checkpoint commit: 647a109d7623f86ead09d28dd1fc6a9b2d7e70ab
 09-B artifact: docs/design/project-spine/roadmap/companions/PL-V39-09-ARCHITECTURE-KNOWLEDGE-PACK-VALIDATION-DESIGN-CONTRACT-v1.md
 09-B artifact SHA-256: 26F9BABB88C68338336777D5DA7FB62FE1F0BDDA110768F94FC8C36CFF67487C
@@ -36,22 +36,35 @@ The accepted 09-B dependency ledger remains authoritative for downstream work;
 09-B closure grants no source-research, pack-materialization, field-validation,
 09-E, 09-F, comparator, implementation, promotion, or release authority.
 
-Bounded bridge handoff:
+Execution Efficiency Bootstrap activation:
 
 ```text
 bridge Change: CHG-PL-V39-09-EXECUTION-EFFICIENCY-BOOTSTRAP-001
-bridge status: APPROVED_FOR_CHANGE_PREPARATION_ONLY
+bridge status: ACTIVE / SLICE_A_ACCEPTED_AWAITING_CHECKPOINT_COMMIT_AUTHORIZATION
 bridge structure: ONE_CHANGE_TWO_SLICES
+Definition: APPROVED_BY_OWNER
+Plan: APPROVED_BY_OWNER
+Formal Readiness: READY
 ordered slice A: CODEX_TELEMETRY_CAPTURE
+slice A execution: COMPLETE / ACCEPTED_UNCOMMITTED
+slice A owner acceptance: YES
+slice A field proof: PROVEN
+slice A commit authorized: NO
 ordered slice B: EXECUTION_ROUTING_AND_PROMPT_DEDUP
-next permitted action: PREPARE_PL_V39_09_EXECUTION_EFFICIENCY_BOOTSTRAP_CHANGE_DEFINITION
+slice B execution: NOT_AUTHORIZED
+implementation authorized: NO / ACCEPTED_SLICE_A_CANDIDATE_FROZEN
+checkpoint commit: NOT_AUTHORIZED
+next permitted action: OWNER_AUTHORIZATION_PL_V39_09_EXECUTION_EFFICIENCY_BOOTSTRAP_SLICE_A_CHECKPOINT_COMMIT
 return to PL09 gate after bridge: OWNER_DECISION_RESUME_PL_V39_09_AFTER_EXECUTION_EFFICIENCY_BOOTSTRAP
 ```
 
-The next action prepares the bridge Change Definition only. It does not activate
-the Change or authorize execution of either slice. Ordinary PL09 mainline work
-resumes only after bridge closure and fresh-session cutover at the recorded
-return gate.
+Slice A is accepted but remains uncommitted. Its implementation candidate is
+frozen pending a separate checkpoint-commit authorization; Slice B and the
+checkpoint commit remain unauthorized. Ordinary PL09 mainline work resumes only
+after bridge closure and fresh-session cutover at the recorded return gate.
+
+`NO_FURTHER_SLICE_A_MUTATION_PENDING_CHECKPOINT`: active unless a later
+owner-approved corrective task is opened.
 <!-- PL_V39_09_09_B_SLICE_CLOSURE_V1:END -->
 
 <!-- PL_V39_08_CORRECTIVE_IMPLEMENTATION_V1:BEGIN -->
