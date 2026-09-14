@@ -5,11 +5,11 @@ repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
 active_change: CHG-PL-V39-09-EXECUTION-EFFICIENCY-BOOTSTRAP-001
-lifecycle_gate: SLICE_A_ACCEPTED_AWAITING_CHECKPOINT_COMMIT_AUTHORIZATION
+lifecycle_gate: SLICE_B_ACCEPTED_AWAITING_CHECKPOINT_COMMIT_AUTHORIZATION
 implementation_authorized: NO
 blockers: NONE
-next_permitted_action: OWNER_AUTHORIZATION_PL_V39_09_EXECUTION_EFFICIENCY_BOOTSTRAP_SLICE_A_CHECKPOINT_COMMIT
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-EXECUTION-EFFICIENCY-BOOTSTRAP-SLICE-A-OWNER-ACCEPTANCE-v1.md
+next_permitted_action: OWNER_AUTHORIZATION_PL_V39_09_EXECUTION_EFFICIENCY_BOOTSTRAP_SLICE_B_CHECKPOINT_COMMIT
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-EXECUTION-EFFICIENCY-BOOTSTRAP-SLICE-B-OWNER-ACCEPTANCE-v1.md
 state_as_of: 2026-09-14
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
@@ -40,30 +40,43 @@ Execution Efficiency Bootstrap activation:
 
 ```text
 bridge Change: CHG-PL-V39-09-EXECUTION-EFFICIENCY-BOOTSTRAP-001
-bridge status: ACTIVE / SLICE_A_ACCEPTED_AWAITING_CHECKPOINT_COMMIT_AUTHORIZATION
+bridge status: ACTIVE / SLICE_B_INDEPENDENT_REVIEW_BLOCKED
 bridge structure: ONE_CHANGE_TWO_SLICES
 Definition: APPROVED_BY_OWNER
 Plan: APPROVED_BY_OWNER
 Formal Readiness: READY
 ordered slice A: CODEX_TELEMETRY_CAPTURE
-slice A execution: COMPLETE / ACCEPTED_UNCOMMITTED
+slice A execution: ACCEPTED_COMMITTED_POST_COMMIT_VERIFIED
 slice A owner acceptance: YES
 slice A field proof: PROVEN
-slice A commit authorized: NO
+slice A checkpoint commit: 281807b89aaf20f7ecc7de4513c400b00272a1ee
+slice A commit authorized: CONSUMED / COMMITTED
 ordered slice B: EXECUTION_ROUTING_AND_PROMPT_DEDUP
-slice B execution: NOT_AUTHORIZED
-implementation authorized: NO / ACCEPTED_SLICE_A_CANDIDATE_FROZEN
-checkpoint commit: NOT_AUTHORIZED
-next permitted action: OWNER_AUTHORIZATION_PL_V39_09_EXECUTION_EFFICIENCY_BOOTSTRAP_SLICE_A_CHECKPOINT_COMMIT
+slice B status: IMPLEMENTED_UNCOMMITTED_INDEPENDENT_REVIEW_BLOCKED
+slice B execution authorized: YES
+slice B execution topology: DIRECT_LUNA_EXTRA_HIGH
+slice B executor: GPT-5.6 Luna / Extra High — DIRECT
+Sol parent for implementation: NO
+delegation / nested delegation: NO / NO
+direct execution receipt mapping: PARENT / invocation_index 0
+prospective Slice B telemetry capture: AUTHORIZED
+slice B owner acceptance: NO
+slice B commit authorized: NO
+prompt dedup cutover: NO
+implementation authorized: YES / SLICE_B_ONLY
+checkpoint commit: COMPLETE / 281807b89aaf20f7ecc7de4513c400b00272a1ee
+next permitted action: OWNER_ADJUDICATION_PL_V39_09_EXECUTION_EFFICIENCY_BOOTSTRAP_SLICE_B_REVIEW_REPAIR
 return to PL09 gate after bridge: OWNER_DECISION_RESUME_PL_V39_09_AFTER_EXECUTION_EFFICIENCY_BOOTSTRAP
 ```
 
-Slice A is accepted but remains uncommitted. Its implementation candidate is
-frozen pending a separate checkpoint-commit authorization; Slice B and the
-checkpoint commit remain unauthorized. Ordinary PL09 mainline work resumes only
-after bridge closure and fresh-session cutover at the recorded return gate.
+Slice A is accepted, checkpointed, and post-commit verified. Slice B's six-path
+candidate is implemented, but this independent review is blocked by a different
+fresh-root launcher failure before Codex execution. The candidate is not
+owner-accepted or committed; prompt-dedup cutover remains inactive. No repair is
+authorized by this review. Ordinary PL09 mainline work resumes only after bridge
+closure and fresh-session cutover at the recorded return gate.
 
-`NO_FURTHER_SLICE_A_MUTATION_PENDING_CHECKPOINT`: active unless a later
+`NO_FURTHER_SLICE_B_MUTATION_PENDING_OWNER_ACCEPTANCE`: active unless a later
 owner-approved corrective task is opened.
 <!-- PL_V39_09_09_B_SLICE_CLOSURE_V1:END -->
 

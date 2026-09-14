@@ -1,6 +1,6 @@
 # Planning Lite 4.x template `.planning` manifest
 
-Files: **162**.
+Files: **163**.
 
 ## Files
 
@@ -63,6 +63,7 @@ Files: **162**.
 - `.planning/control/DIRECTION_INVENTORY.md`
 - `.planning/control/DISCOVERY_LIFECYCLE.md`
 - `.planning/control/DRIFT_POLICY.md`
+- `.planning/control/EXECUTION_ROUTING.md`
 - `.planning/control/GIT_CHANGE_REVIEW.md`
 - `.planning/control/MODE_ROUTER.md`
 - `.planning/control/PROJECT_BOOTSTRAP.md`

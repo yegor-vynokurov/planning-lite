@@ -9,6 +9,7 @@ This repository uses `.planning/` for durable intent, approved work, evidence, a
 3. Select one mode through `MODE_ROUTER.md`.
 4. Apply `CONTEXT_POLICY.md`.
 5. Load one functional workflow and, only when needed, one engineering discipline.
+6. Before executing or delegating a material task, load `.planning/control/EXECUTION_ROUTING.md` and the active adapter selected by `.planning/AGENT_PROFILE.yml`.
 
 Explicit user wording wins. Modes apply to the current turn only.
 

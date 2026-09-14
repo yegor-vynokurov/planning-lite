@@ -358,3 +358,308 @@ commit performed: NO
 next gate: RERUN_PL_V39_09_EXECUTION_EFFICIENCY_BOOTSTRAP_SLICE_A_INDEPENDENT_REVIEW
 Roadmap visibility follow-up: OWNER_REVIEW_REC_PL_ARCHITECTURE_VISUALIZATION_001_ROADMAP_VISIBILITY
 ```
+
+## Slice B execution
+
+### B-01 RED Scaffold + Admissibility
+
+```text
+operation: RUN_AUTHORIZED_PL_V39_09_EXECUTION_EFFICIENCY_BOOTSTRAP_SLICE_B_EXECUTION
+entry HEAD: 281807b89aaf20f7ecc7de4513c400b00272a1ee
+authorization SHA-256: 375EE4D71A07C440783CE72E41446D4BA66F29B7FA4BB6BD908C074FF46955D7
+CURRENT entry SHA-256: D8D17D2ED63DC82953FBF68E4C3B3595FDC336B3C24A87B077B15D75DA526F4F
+Slice A post-commit verification SHA-256: F2E0AF305860CF85BD17EE564AD6C9550DD6A0F089EF4638C5DAD332A3AFA29A
+implementation paths dirty at entry: 0
+changed path in B-01: tests/test_field_control_pack_foundation.py
+new scaffold nodes: 4
+command:
+  uv run --frozen pytest -q tests/test_field_control_pack_foundation.py -k "execution_routing_is_managed_and_single_source or root_router_conditionally_activates_execution_routing_without_duplication or codex_adapter_owns_fail_closed_model_binding_and_result_contract or execution_routing_manifest_and_canonical_lf_integrity" -rA
+observed result: 4 failed; each failure reached the intended missing-capability assertion
+failure seams:
+  EXECUTION_ROUTING.md absent
+  ROOT_ROUTER activation pointer absent
+  Codex host binding/profile contract absent
+  manifest/checksum entry absent
+B_01_RED: EXPECTED_RED
+B_01_RED_REASON: ROUTING_CAPABILITY_MISSING_OR_NOT_ACTIVATED
+B_01_RED_ADMISSIBLE: YES
+forbidden failure classes: collection/import/dependency/path/environment failures
+```
+
+### B-02 Routing Policy / Activation Implementation
+
+```text
+status: PASS
+entry dependency: B-01 RED_PROBE_ADMISSIBLE=YES
+changed implementation paths:
+  template/.planning/control/EXECUTION_ROUTING.md
+  template/.planning/control/ROOT_ROUTER.md
+  template/.planning/adapters/codex/README.md
+focused command:
+  uv run --frozen pytest -q tests/test_field_control_pack_foundation.py -k "execution_routing_is_managed_and_single_source or root_router_conditionally_activates_execution_routing_without_duplication or codex_adapter_owns_fail_closed_model_binding_and_result_contract or execution_routing_manifest_and_canonical_lf_integrity" -rA
+focused result: 4 passed
+implementation notes:
+  one vendor-neutral policy owns the three routing classes, closed Result Contract, fail-closed STOP rules, direct bounded lane, and prompt-dedup boundary
+  ROOT_ROUTER contains one conditional activation pointer and no policy duplication
+  Codex adapter owns host-specific bindings, requested/confirmed/self-report distinction, direct bounded lane, and Result Contract fields
+findings: NONE
+STOP classification: NONE
+B_02_FOCUSED_GREEN: PASS
+```
+
+### B-03 Focused + Managed-Template Verification
+
+```text
+status: PASS
+commands:
+  uv run --frozen pytest -q tests/test_field_control_pack_foundation.py -rA
+  uv run --frozen pytest -q tests/test_direction_foundation.py::test_planning_manifest_and_sha_receipt_match_template_tree -rA
+  uv run --frozen pytest -q tests/test_template.py -rA
+  uv run --frozen python scripts/test_template_update.py
+results:
+  B-03 foundation tests: 23 passed
+  manifest/checksum owner test: 1 passed
+  template tests: 4 passed
+  managed-template adoption/Doctor smoke: PASS
+  B_03_FOUNDATION_TESTS: PASS
+  B_03_MANAGED_TEMPLATE_SMOKE: PASS
+  B_03_CHECKSUM_INTEGRITY: PASS
+smoke evidence:
+  temporary consumer only; central source and live consumers unchanged
+  adoption used normal planning-lite adopt with local template source
+  consumer Doctor: OK
+warnings: source was dirty as expected for this uncommitted candidate smoke
+findings: NONE
+STOP classification: NONE
+```
+
+### B-04 Production-Equivalent Walking Skeleton
+
+```text
+status: BLOCKED
+candidate construction: exact HEAD archive plus six authorized overlays
+candidate source: C:\Users\yegor\AppData\Local\Temp\planning-lite-b04-58ccb909d2504087b2dafa024a36bab4\candidate-source
+disposable consumer: C:\Users\yegor\AppData\Local\Temp\planning-lite-b04-58ccb909d2504087b2dafa024a36bab4\consumer
+candidate overlay hashes:
+  template/.planning/adapters/codex/README.md: 3720AEE04B91267125DD0E70BE20C0E9986C0A729DEF9338F3C61E34A9EF9BDF
+  template/.planning/control/EXECUTION_ROUTING.md: 442A05B0BA4A764EA18892DDC413BB6FF1DD7A475A452D5AE0971A06EF879BA9
+  template/.planning/control/ROOT_ROUTER.md: 8907A304B88EDCCC80A48FF76149338D2515AB04DA6F17FDE2890C19C4BE391F
+  template/.planning/docs/MANIFEST_V4.md: BA62A9088C40F27BB4FDDFE8C17F4B26C0B41AD98F258D79F3FD2D4DF12408A5
+  template/.planning/framework/SHA256SUMS.txt: CEF12ACEF7084562E8A777967C5C312EE38B361BE77FF09F4C8F49748DE5708C
+  tests/test_field_control_pack_foundation.py: 83E548F49C36B72E68B28891CF89260E5BA413B896B26D50B1B4A29A1AB08A93
+consumer checks:
+  ROOT_ROUTER candidate/consumer hash: 8907A304B88EDCCC80A48FF76149338D2515AB04DA6F17FDE2890C19C4BE391F / 8907A304B88EDCCC80A48FF76149338D2515AB04DA6F17FDE2890C19C4BE391F
+  EXECUTION_ROUTING candidate/consumer hash: 442A05B0BA4A764EA18892DDC413BB6FF1DD7A475A452D5AE0971A06EF879BA9 / 442A05B0BA4A764EA18892DDC413BB6FF1DD7A475A452D5AE0971A06EF879BA9
+  Codex adapter candidate/consumer hash: 3720AEE04B91267125DD0E70BE20C0E9986C0A729DEF9338F3C61E34A9EF9BDF / 3720AEE04B91267125DD0E70BE20C0E9986C0A729DEF9338F3C61E34A9EF9BDF
+  AGENTS_TO_ROOT_ROUTER_BRIDGE: PASS
+  AGENT_PROFILE_TO_CODEX_ADAPTER: PASS
+  candidate/consumer construction: PASS
+probe command:
+  codex --cd <consumer> --model gpt-5.6-luna --sandbox read-only --strict-config -c model_reasoning_effort="xhigh" exec --ephemeral --json -
+probe thread/session identity: 01a0a058-3327-7a23-b2cb-5b95db9d2ea3
+probe turn identity: unavailable in structured JSONL
+probe structured binding: model/effort unavailable; self-report not used
+probe result: shell execution failed with CreateProcessWithLogonW failed: 2
+B_04_CANDIDATE_OVERLAY: PASS
+B_04_DISPOSABLE_CONSUMER: PASS
+B_04_ACTIVATION_CHAIN: FAIL
+B_04_LUNA_BINDING: UNAVAILABLE
+B_04_RESULT_CONTRACT: FAIL
+B_04_AUTHORITY_SIDE_ORACLE: FAIL
+B_04_NO_FALSE_DONE: PASS
+required blocker gate: OWNER_ADJUDICATION_PL_V39_09_EXECUTION_EFFICIENCY_BOOTSTRAP_SLICE_B_EXECUTION_BLOCKER
+```
+
+### Prospective Telemetry Binding
+
+```text
+operation identity:
+  project_id: planning-lite-central
+  change_id: CHG-PL-V39-09-EXECUTION-EFFICIENCY-BOOTSTRAP-001
+  task_id: B-EXECUTION
+  run_family: bootstrap-slice-b-execution
+  expected planning_lite_ref: 281807b89aaf20f7ecc7de4513c400b00272a1ee
+  requested executor binding: GPT-5.6 Luna / Extra High
+  expected invocation topology: one direct top-level PARENT invocation; no child
+TOP_LEVEL_SLICE_B_EXECUTION_RECEIPT: PENDING_POST_TURN_CAPTURE
+B_04_PROBE_RECEIPT: NOT_REQUIRED_BY_CURRENT_MAPPING
+```
+
+The exact completed top-level host session/turn binding must be captured by the
+next independent-review turn from structured host metadata before candidate
+review. No new RunReceipt role was invented and no retrospective pre-Slice-A
+capture was attempted.
+
+### Scope / No-False-Done Audit
+
+```text
+Slice B implementation paths: exactly 6
+unauthorized Slice B implementation paths: 0
+Roadmap mutated by Slice B: NO
+recommendation mutated/absorbed: NO
+live consumer mutated: NO
+AGENTS.md/mode-router/skills/src/runtime/evaluation semantics mutated: NO
+stage performed: NO
+commit performed: NO
+SLICE_B_OWNER_ACCEPTED: NO
+SLICE_B_COMMIT_AUTHORIZED: NO
+CURRENT_CANDIDATE_CONCLUSION: IMPLEMENTED / B-04 BLOCKED / OWNER ADJUDICATION REQUIRED
+NEXT_SINGLE_GATE: OWNER_ADJUDICATION_PL_V39_09_EXECUTION_EFFICIENCY_BOOTSTRAP_SLICE_B_EXECUTION_BLOCKER
+```
+
+## Slice B B-04 Blocker Adjudication and Bounded Retry — 2026-09-14
+
+The original failed B-04 record above is preserved. This section records the
+owner-level differential diagnosis, the already-completed top-level Slice B
+execution receipt, and the single authorized retry. No Slice B implementation
+byte was changed by this adjudication.
+
+### Completed Top-Level Slice B Execution Receipt
+
+```text
+operation identity:
+  project_id: planning-lite-central
+  change_id: CHG-PL-V39-09-EXECUTION-EFFICIENCY-BOOTSTRAP-001
+  task_id: B-EXECUTION
+  run_family: bootstrap-slice-b-execution
+  planning_lite_ref: 281807b89aaf20f7ecc7de4513c400b00272a1ee
+receipt role / invocation index: PARENT / 0
+outcome: BLOCKED
+SLICE_B_EXECUTION_TURN_SESSION_ID: 01a09e51-b3bc-71c2-b97b-d993b6309f32
+SLICE_B_EXECUTION_TURN_ID: 01a0a051-8267-7472-a85e-6490a9614823
+SLICE_B_EXECUTION_TURN_MODEL: gpt-5.6-luna
+SLICE_B_EXECUTION_TURN_EFFORT: xhigh
+SLICE_B_EXECUTION_RECEIPT_ID: codex-run-v1:803a8b714d37b8e2f8bc1ce4736e4064270e440d5215244e8e234e15d6774679
+SLICE_B_EXECUTION_RECEIPT_CAPTURE: PASS
+```
+
+The accepted Slice A adapter read exact `session_meta`, `turn_context`, and
+completed-turn records from the explicitly bound rollout. No prompt text,
+assistant prose, or model self-report was used for attribution.
+
+### Failed Launcher and Local CLI Shape
+
+```text
+B04_FAILED_CLI_COMMAND:
+  $b04Prompt | codex --cd C:\Users\yegor\AppData\Local\Temp\planning-lite-b04-58ccb909d2504087b2dafa024a36bab4\consumer --model gpt-5.6-luna --sandbox read-only --strict-config -c 'model_reasoning_effort="xhigh"' exec --ephemeral --json -
+B04_FAILED_SESSION_ID: 01a0a058-3327-7a23-b2cb-5b95db9d2ea3
+B04_FAILED_ERROR: CreateProcessWithLogonW failed: 2
+launcher: non-interactive codex exec
+sandbox argument: --sandbox read-only
+approval argument: none explicitly supplied
+CODEX_VERSION: codex-cli 0.146.0
+CODEX_EXEC_HELP_RELEVANT_FLAGS:
+  --model <MODEL>
+  --sandbox <read-only|workspace-write|danger-full-access>
+  --cd <DIR>
+  --strict-config
+  --config <key=value>
+  --ephemeral
+  --json
+  --ignore-user-config
+WINDOWS_SANDBOX_HELP:
+  installed syntax is codex sandbox [OPTIONS] [COMMAND]...
+  no `windows` subcommand is exposed by this version
+  direct wrapper execution requires --permission-profile <NAME>
+effective relevant configuration:
+  model: gpt-5.6-sol
+  model_reasoning_effort: high
+  approval_policy: not explicitly configured
+  windows.sandbox: elevated
+persistent config SHA-256 before/after one-shot probes:
+  E01A913B3F4EB4CCE716C967B68D2ADBFA562C7632AFC3815D0A08BB632C71A1
+```
+
+### Differential Diagnosis
+
+```text
+D-01 host shell resolution:
+  C:\Windows\System32\cmd.exe: resolved / trivial read PASS
+  C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe: resolved / trivial read PASS
+  pwsh: not found
+D-02 Codex Windows sandbox primitive:
+  command shape without --permission-profile: rejected by local CLI
+  named read-only attempt: OTHER_FAILURE / default_permissions requires a [permissions] table
+  WINDOWS_SANDBOX_PRIMITIVE: OTHER_FAILURE
+D-03 minimal fresh codex exec, unrelated temp Git workspace, effective elevated mode:
+  session: 01a0a069-eeab-7e41-9fad-b0de4fee2864
+  turn: 01a0a069-ef3b-7cd2-a159-01e9c0dd3ff9
+  structured model / effort: gpt-5.6-luna / xhigh
+  absolute PowerShell launch: CreateProcessWithLogonW failed: 2
+  MINIMAL_CODEX_EXEC_INITIAL: SAME_CREATEPROCESS_FAILURE
+D-03 supported one-shot fallback, same workspace:
+  additional launcher override: -c 'windows.sandbox="unelevated"'
+  session: 01a0a06b-9bf2-7ca1-9fce-5405b9b808ad
+  turn: 01a0a06b-9c6f-7090-bcf8-ca3fae2cfba8
+  structured model / effort: gpt-5.6-luna / xhigh
+  README read and shell command exit: PASS / 0
+  persistent config changed: NO
+  MINIMAL_CODEX_EXEC: PASS
+B04_BLOCKER_CLASS: CODEX_LAUNCHER_CONFIGURATION
+PERSISTENT_CODEX_CONFIG_CHANGE_REQUIRED: NO
+WINDOWS_SANDBOX_SETUP_CHANGE_REQUIRED: NO
+B04_RETRY_AUTHORIZED: YES
+```
+
+The effective `windows.sandbox = "elevated"` path reproduced the same error in
+a non-Planning-Lite workspace even with the absolute resolved PowerShell path.
+The supported per-invocation `unelevated` fallback then passed without changing
+`config.toml`. The failed proof therefore did not establish a candidate routing
+or instruction defect; the bounded correction is launcher-only.
+
+### D-04 Single Candidate Differential Retry
+
+```text
+candidate reconstruction: exact HEAD archive plus exactly the same six authorized overlays
+candidate implementation hashes: unchanged from the original B-04 record
+disposable consumer project_name: pl-v39-09-b04-disposable
+launcher delta from failed B-04:
+  add -c 'windows.sandbox="unelevated"'
+  retain fresh codex exec, gpt-5.6-luna, xhigh, read-only sandbox, and JSONL
+  retain a session record so exact structured post-turn binding can be verified
+probe session: 01a0a06d-a342-7073-9c27-898e822bf418
+probe turn: 01a0a06d-a3c6-7620-a45b-506428dccb67
+structured host model / effort: gpt-5.6-luna / xhigh
+activation evidence:
+  AGENTS -> ROOT_ROUTER: PASS
+  ROOT_ROUTER -> EXECUTION_ROUTING: PASS
+  ROOT_ROUTER -> AGENT_PROFILE: PASS
+  AGENT_PROFILE -> Codex adapter: PASS
+  fresh rooted Codex task: PASS
+  parent pre-bound routing classification: BOUNDED_MODEL_CAPABLE
+  classification reason: interpreting the discovered routing chain and closing the fixed Result Contract is bounded model work; exact file reads and hashing remain deterministic/tool-preferred subwork
+  child-reported deterministic/tool-preferred inspection subwork: consistent with the tool-first subwork rule; it does not replace the pre-bound overall classification
+  Result Contract fields discovered and reported: PASS
+  inspected project_name: pl-v39-09-b04-disposable
+  authority-side expected value match: PASS
+  command/tool audit: read-only Get-Content / rg / Get-FileHash only
+  persistent config changed: NO
+CANDIDATE_DIFFERENTIAL_PROBE: PASS
+B_04_ACTIVATION_CHAIN: PASS
+B_04_PROBE_SESSION_ID: 01a0a06d-a342-7073-9c27-898e822bf418
+B_04_PROBE_TURN_ID: 01a0a06d-a3c6-7620-a45b-506428dccb67
+B_04_PROBE_HOST_MODEL_ID: gpt-5.6-luna
+B_04_PROBE_HOST_REASONING_EFFORT: xhigh
+B_04_LUNA_BINDING: CONFIRMED
+B_04_RESULT_CONTRACT: PASS
+B_04_AUTHORITY_SIDE_ORACLE: PASS
+B_04_NO_FALSE_DONE: PASS
+B_03_RETEST_REQUIRED: NO
+```
+
+### Adjudication Conclusion
+
+```text
+SLICE_B_IMPLEMENTATION_BYTES_CHANGED_BY_ADJUDICATION: NO
+UNAUTHORIZED_PROJECT_PATHS_MODIFIED: 0
+ROADMAP_MUTATED: NO
+STAGE_PERFORMED: NO
+COMMIT_PERFORMED: NO
+B04_ENVIRONMENT_REMEDIATION_REQUIRED: NO
+CANDIDATE_CORRECTIVE_REPAIR_REQUIRED: NO
+SLICE_B_OWNER_ACCEPTED: NO
+SLICE_B_COMMIT_AUTHORIZED: NO
+PROMPT_DEDUP_CUTOVER: NO
+CURRENT_CANDIDATE_CONCLUSION: IMPLEMENTED / B-04 PASS / AWAITING INDEPENDENT REVIEW
+NEXT_SINGLE_GATE: RUN_PL_V39_09_EXECUTION_EFFICIENCY_BOOTSTRAP_SLICE_B_INDEPENDENT_REVIEW
+```

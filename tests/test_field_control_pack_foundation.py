@@ -381,3 +381,98 @@ def test_field_control_pack_does_not_introduce_deferred_runtime_scope() -> None:
     assert not (ROOT / "src/planning_lite/field_control_pack.py").exists()
     assert not (TPL / "modes/field-control-pack.md").exists()
     assert not (TPL / "skills/field-control-pack").exists()
+
+
+def test_execution_routing_is_managed_and_single_source() -> None:
+    routing_path = TPL / "control/EXECUTION_ROUTING.md"
+    assert routing_path.is_file()
+    routing = routing_path.read_text(encoding="utf-8")
+    for capability in (
+        "DETERMINISTIC_OR_TOOL_PREFERRED",
+        "BOUNDED_MODEL_CAPABLE",
+        "STRONG_JUDGMENT_REQUIRED",
+    ):
+        assert capability in routing
+    for required in (
+        "authority/envelope",
+        "strongest material requirement",
+        "deterministic subwork",
+        "Result Contract",
+        "mission",
+        "source/scope boundary",
+        "questions",
+        "required evidence",
+        "output contract",
+        "escalation rule",
+        "child/model result is evidence, not owner acceptance",
+        "stronger-than-default",
+        "nested delegation",
+    ):
+        assert required in routing
+    assert routing.count("DETERMINISTIC_OR_TOOL_PREFERRED") == 1
+    assert not (TPL / "control/EXECUTION_ROUTING.yml").exists()
+
+
+def test_root_router_conditionally_activates_execution_routing_without_duplication() -> None:
+    router = _read("template/.planning/control/ROOT_ROUTER.md")
+    assert "EXECUTION_ROUTING.md" in router
+    assert ".planning/AGENT_PROFILE.yml" in router
+    assert "active adapter" in router
+    activation = router.lower()
+    assert activation.count("execution_routing.md") == 1
+    assert "DETERMINISTIC_OR_TOOL_PREFERRED" not in router
+    assert "GPT-5.6 Luna" not in router
+    assert "Result Contract fields" not in router
+    assert "nested delegation" not in router.lower()
+
+
+def test_codex_adapter_owns_fail_closed_model_binding_and_result_contract() -> None:
+    adapter = _read("template/.planning/adapters/codex/README.md")
+    for required in (
+        "GPT-5.6 Sol / High",
+        "GPT-5.6 Luna / Extra High",
+        "REQUESTED_BINDING",
+        "CONFIRMED_BINDING",
+        "MODEL_SELF_REPORT",
+        "never sufficient binding evidence",
+        "current-turn execution",
+        "post-turn mismatch",
+        "BOUNDED_MODEL_CAPABLE",
+        "does not self-authorize",
+        "exact scope",
+        "required evidence",
+        "STOP conditions",
+        "revision/hash binding",
+        "next gate",
+        "cannot widen scope",
+        "cannot grant owner acceptance",
+        "stronger-model escalation remains STOP",
+        "nested delegation",
+        "mission",
+        "source/scope boundary",
+        "questions",
+        "output contract",
+        "escalation rule",
+    ):
+        assert required in adapter
+    assert "model self-report" in adapter.lower()
+    assert "owner acceptance" in adapter.lower()
+
+
+def test_execution_routing_manifest_and_canonical_lf_integrity() -> None:
+    manifest = _read("template/.planning/docs/MANIFEST_V4.md")
+    assert ".planning/control/EXECUTION_ROUTING.md" in manifest
+    assert manifest.startswith("# Planning Lite 4.x template `.planning` manifest\n")
+
+    checksum_path = TPL / "framework/SHA256SUMS.txt"
+    checksums = checksum_path.read_text(encoding="utf-8")
+    assert ".planning/control/EXECUTION_ROUTING.md" in checksums
+    assert "  .planning/control/EXECUTION_ROUTING.md\n" in checksums
+    for line in checksums.splitlines():
+        if line.endswith("  .planning/control/EXECUTION_ROUTING.md"):
+            assert re.fullmatch(r"[0-9a-f]{64}  \.planning/control/EXECUTION_ROUTING\.md", line)
+            break
+    else:
+        raise AssertionError("missing canonical checksum entry")
+
+    assert "EXECUTION_ROUTING.md" not in _read("template/.planning/framework/OWNERSHIP.yml")
