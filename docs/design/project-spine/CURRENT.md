@@ -5,11 +5,11 @@ repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
 active_change: NONE
-lifecycle_gate: PL_V39_09_09_B_SOURCE_BACKED_PACK_CONTENT_RESEARCH_EXECUTION_AUTHORIZED
+lifecycle_gate: PL_V39_09_09_B_CROSS_MODULE_RECONCILIATION_PREPARATION_AUTHORIZED
 implementation_authorized: YES
 blockers: NONE
-next_permitted_action: RUN_PL_V39_09_09-B_SOURCE_BACKED_PACK_CONTENT_RESEARCH_EXECUTION
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-09-B-SOURCE-BACKED-PACK-CONTENT-EXECUTION-AUTHORIZATION-v1.md
+next_permitted_action: RUN_PL_V39_09_09-B_CROSS_MODULE_RECONCILIATION_PREPARATION
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-09-B-CROSS-MODULE-RECONCILIATION-PREPARATION-AUTHORIZATION-v1.md
 state_as_of: 2026-09-15
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
@@ -24,38 +24,40 @@ PL-V39-09: ACTIVE / IN_PROGRESS
 09-B artifact: docs/design/project-spine/roadmap/companions/PL-V39-09-ARCHITECTURE-KNOWLEDGE-PACK-VALIDATION-DESIGN-CONTRACT-v1.md
 09-B artifact SHA-256: 26F9BABB88C68338336777D5DA7FB62FE1F0BDDA110768F94FC8C36CFF67487C
 09-B post-commit verification: PASS
-09-B current responsibility: SOURCE-BACKED PACK CONTENT / RESEARCH CONTINUATION
+09-B current responsibility: CROSS-MODULE RECONCILIATION PREPARATION
 09-B start contract: PREPARED / REVIEW_CLOSED
 09-B ownership disposition: EXISTING_SPLIT_OWNERSHIP
 09-B focused R-07 re-review: PASS
-09-B execution authorization: GRANTED / SOURCE_RESEARCH_AND_CANDIDATE_AUTHORING_ONLY
-09-B remaining blocker: NONE_FOR_BOUNDED_RESEARCH_EXECUTION
+09-B source-backed research coverage: OWNER_REVIEWED / SUFFICIENT_FOR_RECONCILIATION_PREPARATION
+09-B execution authorization: GRANTED / CROSS_MODULE_RECONCILIATION_PREPARATION_ONLY
+09-B reconciliation preparation: AUTHORIZED / NOT_STARTED
+09-B cross-module reconciliation: NOT_AUTHORIZED / NOT_PERFORMED
+09-B remaining blocker: NONE_FOR_BOUNDED_RECONCILIATION_PREPARATION
 temporary research workspace: D:\documents\planning-lite-evidence-work
 temporary research slice write surface: D:\documents\planning-lite-evidence-work\PL-V39-09\09-B\source-backed-pack-content\
 temporary research workspace class: TEMP_EXTERNAL_NONCANONICAL
 owner-supplied research packets: ALLOWED_AS_NONAUTHORITATIVE_TRACEABLE_INPUTS
 planning-lite-lab current 09-B critical path: REMOVED
 planning-lite-lab identity investigation: DEFERRED / OPTIONAL FUTURE MAINTENANCE
-canonical execution-authorization checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-09-B-SOURCE-BACKED-PACK-CONTENT-EXECUTION-AUTHORIZATION-v1.md
+canonical reconciliation-preparation authorization checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-09-B-CROSS-MODULE-RECONCILIATION-PREPARATION-AUTHORIZATION-v1.md
 field validation complete: NO / SEPARATELY GATED
-source research authorized: YES / BOUNDED_09_B_ONLY
-pack-content candidate authoring authorized: YES / NONAUTHORITATIVE_PRE_MATERIALIZATION_ONLY
+source research execution: COMPLETE_ENOUGH_FOR_RECONCILIATION_PREPARATION / NO_NEW_RESEARCH_AUTHORIZED
+pack-content candidate authoring authorized: YES / NONAUTHORITATIVE_RECONCILIATION_PREPARATION_INPUTS_ONLY
 canonical pack materialization authorized: NO
 09-E work authorized: NO
 09-F work authorized: NO
 production implementation authorized: NO
 PL-V39-09 complete: NO
-next permitted action: RUN_PL_V39_09_09-B_SOURCE_BACKED_PACK_CONTENT_RESEARCH_EXECUTION
+next permitted action: RUN_PL_V39_09_09-B_CROSS_MODULE_RECONCILIATION_PREPARATION
 ```
 
 The accepted 09-B dependency ledger remains authoritative for downstream work;
-the source-backed content start-contract review is closed. For this bounded
-slice, the temporary external research workspace is bound and Planning Lite Lab
-checkout identity is no longer a prerequisite. The owner now authorizes bounded
-source research and nonauthoritative pre-materialization candidate authoring.
-Canonical pack materialization, accepted-central promotion, field validation,
-09-E, 09-F, comparator, production implementation, promotion, and release remain
-unauthorized.
+the source-backed content research set has now been owner-reviewed as sufficient
+for a bounded, noncanonical cross-module reconciliation preparation. The owner
+authorizes preparation inputs and analysis only. Reconciliation itself,
+canonical pack materialization, final question freezing, accepted-central
+promotion, field validation, 09-E, 09-F, comparator, production implementation,
+promotion, and release remain unauthorized.
 
 Execution Efficiency Bootstrap activation:
 
@@ -93,7 +95,7 @@ fresh session resume authority: docs/design/project-spine/CURRENT.md
 post-bootstrap PL09 owner selection: PL-V39-09 / 09-B SOURCE-BACKED PACK CONTENT / RESEARCH CONTINUATION
 return to PL09 gate after bridge: CONSUMED / 09-B SELECTED
 implementation authorized: YES / BOUNDED_09_B_SOURCE_RESEARCH_AND_CANDIDATE_AUTHORING_ONLY
-next permitted action: RUN_PL_V39_09_09-B_SOURCE_BACKED_PACK_CONTENT_RESEARCH_EXECUTION
+post-bootstrap next permitted action (consumed): RUN_PL_V39_09_09-B_SOURCE_BACKED_PACK_CONTENT_RESEARCH_EXECUTION
 ```
 
 Both bootstrap slices are accepted, checkpointed, and post-commit verified, and
@@ -101,8 +103,10 @@ the bounded Change is owner-closed. The official fresh-session cutover and
 post-bootstrap owner selection are complete. The selected 09-B start-contract
 review chain is closed. The scoped owner correction binds a temporary external
 research workspace, and the owner execution-authorization gate is now consumed.
-The next action is the bounded 09-B source-backed research execution; all later
-acceptance, materialization, and validation gates remain separate.
+That bounded 09-B source-backed research action has since been consumed. The
+current next action is the separately authorized cross-module reconciliation
+preparation; reconciliation, acceptance, materialization, and validation gates
+remain separate.
 
 `NO_FURTHER_BOOTSTRAP_MUTATION`: active unless a later owner-approved corrective
 Change is opened.
