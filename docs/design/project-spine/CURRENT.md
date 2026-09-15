@@ -5,11 +5,11 @@ repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
 active_change: NONE
-lifecycle_gate: PL_V39_09_09_B_AWAITING_IMPLEMENTATION_READY_LAB_CHECKOUT_BINDING
+lifecycle_gate: PL_V39_09_09_B_AWAITING_SOURCE_BACKED_PACK_CONTENT_EXECUTION_AUTHORIZATION_WITH_TEMP_WORKSPACE
 implementation_authorized: NO
-blockers: IMPLEMENTATION_READY_PLANNING_LITE_LAB_CHECKOUT_BINDING
-next_permitted_action: PREPARE_PL_V39_09_09-B_IMPLEMENTATION_READY_LAB_CHECKOUT_BINDING
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-POST-BOOTSTRAP-CANONICAL-HANDOFF-STATE-v1.md
+blockers: SOURCE_BACKED_PACK_CONTENT_EXECUTION_AUTHORIZATION_WITH_TEMP_WORKSPACE
+next_permitted_action: OWNER_ADJUDICATION_PL_V39_09_09-B_SOURCE_BACKED_PACK_CONTENT_EXECUTION_AUTHORIZATION_WITH_TEMP_WORKSPACE
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-09-B-TEMP-RESEARCH-WORKSPACE-OWNER-CORRECTION-v1.md
 state_as_of: 2026-09-15
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
@@ -29,9 +29,13 @@ PL-V39-09: ACTIVE / IN_PROGRESS
 09-B ownership disposition: EXISTING_SPLIT_OWNERSHIP
 09-B focused R-07 re-review: PASS
 09-B execution authorization: NOT_GRANTED
-09-B remaining blocker: IMPLEMENTATION_READY_GIT_BACKED_PLANNING_LITE_LAB_CHECKOUT_BINDING
-observed Lab state: D:\documents\planning-lite-lab / NON_GIT_SNAPSHOT
-canonical handoff checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-POST-BOOTSTRAP-CANONICAL-HANDOFF-STATE-v1.md
+09-B remaining blocker: SOURCE_BACKED_PACK_CONTENT_EXECUTION_AUTHORIZATION_WITH_TEMP_WORKSPACE
+temporary research workspace: D:\documents\planning-lite-evidence-work
+temporary research slice write surface: D:\documents\planning-lite-evidence-work\PL-V39-09\09-B\source-backed-pack-content\
+temporary research workspace class: TEMP_EXTERNAL_NONCANONICAL
+planning-lite-lab current 09-B critical path: REMOVED
+planning-lite-lab identity investigation: DEFERRED / OPTIONAL FUTURE MAINTENANCE
+canonical owner-correction checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-09-B-TEMP-RESEARCH-WORKSPACE-OWNER-CORRECTION-v1.md
 field validation complete: NO / SEPARATELY GATED
 source research authorized: NO
 pack-content candidate authoring authorized: NO
@@ -40,15 +44,16 @@ canonical pack materialization authorized: NO
 09-F work authorized: NO
 production implementation authorized: NO
 PL-V39-09 complete: NO
-next permitted action: PREPARE_PL_V39_09_09-B_IMPLEMENTATION_READY_LAB_CHECKOUT_BINDING
+next permitted action: OWNER_ADJUDICATION_PL_V39_09_09-B_SOURCE_BACKED_PACK_CONTENT_EXECUTION_AUTHORIZATION_WITH_TEMP_WORKSPACE
 ```
 
 The accepted 09-B dependency ledger remains authoritative for downstream work;
-the source-backed content start-contract review is now closed. Execution remains
-blocked until an implementation-ready Git-backed Planning Lite Lab checkout is
-bound. No source-research, pack-content authoring, pack-materialization,
-field-validation, 09-E, 09-F, comparator, implementation, promotion, or release
-authority is granted.
+the source-backed content start-contract review is closed. For this bounded
+slice, the temporary external research workspace is bound and Planning Lite Lab
+checkout identity is no longer a prerequisite. Source-research execution still
+requires the recorded owner-authorization gate. No source-research, pack-content
+authoring, pack-materialization, field-validation, 09-E, 09-F, comparator,
+implementation, promotion, or release authority is granted.
 
 Execution Efficiency Bootstrap activation:
 
@@ -86,14 +91,15 @@ fresh session resume authority: docs/design/project-spine/CURRENT.md
 post-bootstrap PL09 owner selection: PL-V39-09 / 09-B SOURCE-BACKED PACK CONTENT / RESEARCH CONTINUATION
 return to PL09 gate after bridge: CONSUMED / 09-B SELECTED
 implementation authorized: NO
-next permitted action: PREPARE_PL_V39_09_09-B_IMPLEMENTATION_READY_LAB_CHECKOUT_BINDING
+next permitted action: OWNER_ADJUDICATION_PL_V39_09_09-B_SOURCE_BACKED_PACK_CONTENT_EXECUTION_AUTHORIZATION_WITH_TEMP_WORKSPACE
 ```
 
 Both bootstrap slices are accepted, checkpointed, and post-commit verified, and
 the bounded Change is owner-closed. The official fresh-session cutover and
 post-bootstrap owner selection are complete. The selected 09-B start-contract
-review chain is closed, but execution remains unauthorized until the exact
-implementation-ready Lab checkout is bound through the recorded next gate.
+review chain is closed. The scoped owner correction binds a temporary external
+research workspace, but execution remains unauthorized until the recorded owner
+execution-authorization gate is consumed.
 
 `NO_FURTHER_BOOTSTRAP_MUTATION`: active unless a later owner-approved corrective
 Change is opened.
