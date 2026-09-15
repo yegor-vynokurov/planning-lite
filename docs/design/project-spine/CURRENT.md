@@ -5,12 +5,12 @@ repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
 active_change: NONE
-lifecycle_gate: BOOTSTRAP_CLOSED_AWAITING_FRESH_SESSION_CUTOVER
+lifecycle_gate: PL_V39_09_09_B_AWAITING_IMPLEMENTATION_READY_LAB_CHECKOUT_BINDING
 implementation_authorized: NO
-blockers: NONE
-next_permitted_action: START_FRESH_SESSION_CUTOVER_FROM_CANONICAL_CURRENT
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-EXECUTION-EFFICIENCY-BOOTSTRAP-CLOSURE-v1.md
-state_as_of: 2026-09-14
+blockers: IMPLEMENTATION_READY_PLANNING_LITE_LAB_CHECKOUT_BINDING
+next_permitted_action: PREPARE_PL_V39_09_09-B_IMPLEMENTATION_READY_LAB_CHECKOUT_BINDING
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-POST-BOOTSTRAP-CANONICAL-HANDOFF-STATE-v1.md
+state_as_of: 2026-09-15
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
 <!-- PL_V39_09_09_B_SLICE_CLOSURE_V1:BEGIN -->
@@ -24,17 +24,31 @@ PL-V39-09: ACTIVE / IN_PROGRESS
 09-B artifact: docs/design/project-spine/roadmap/companions/PL-V39-09-ARCHITECTURE-KNOWLEDGE-PACK-VALIDATION-DESIGN-CONTRACT-v1.md
 09-B artifact SHA-256: 26F9BABB88C68338336777D5DA7FB62FE1F0BDDA110768F94FC8C36CFF67487C
 09-B post-commit verification: PASS
+09-B current responsibility: SOURCE-BACKED PACK CONTENT / RESEARCH CONTINUATION
+09-B start contract: PREPARED / REVIEW_CLOSED
+09-B ownership disposition: EXISTING_SPLIT_OWNERSHIP
+09-B focused R-07 re-review: PASS
+09-B execution authorization: NOT_GRANTED
+09-B remaining blocker: IMPLEMENTATION_READY_GIT_BACKED_PLANNING_LITE_LAB_CHECKOUT_BINDING
+observed Lab state: D:\documents\planning-lite-lab / NON_GIT_SNAPSHOT
+canonical handoff checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-POST-BOOTSTRAP-CANONICAL-HANDOFF-STATE-v1.md
 field validation complete: NO / SEPARATELY GATED
 source research authorized: NO
+pack-content candidate authoring authorized: NO
+canonical pack materialization authorized: NO
 09-E work authorized: NO
 09-F work authorized: NO
 production implementation authorized: NO
 PL-V39-09 complete: NO
+next permitted action: PREPARE_PL_V39_09_09-B_IMPLEMENTATION_READY_LAB_CHECKOUT_BINDING
 ```
 
 The accepted 09-B dependency ledger remains authoritative for downstream work;
-09-B closure grants no source-research, pack-materialization, field-validation,
-09-E, 09-F, comparator, implementation, promotion, or release authority.
+the source-backed content start-contract review is now closed. Execution remains
+blocked until an implementation-ready Git-backed Planning Lite Lab checkout is
+bound. No source-research, pack-content authoring, pack-materialization,
+field-validation, 09-E, 09-F, comparator, implementation, promotion, or release
+authority is granted.
 
 Execution Efficiency Bootstrap activation:
 
@@ -67,18 +81,19 @@ bootstrap completion: COMPLETED
 bootstrap closure: COMPLETED
 prompt dedup cutover eligible: YES
 prompt dedup cutover in closure session: NO
-official fresh session cutover: REQUIRED_NOT_STARTED
+official fresh session cutover: COMPLETED
 fresh session resume authority: docs/design/project-spine/CURRENT.md
+post-bootstrap PL09 owner selection: PL-V39-09 / 09-B SOURCE-BACKED PACK CONTENT / RESEARCH CONTINUATION
+return to PL09 gate after bridge: CONSUMED / 09-B SELECTED
 implementation authorized: NO
-next permitted action: START_FRESH_SESSION_CUTOVER_FROM_CANONICAL_CURRENT
-return to PL09 gate after bridge: OWNER_DECISION_RESUME_PL_V39_09_AFTER_EXECUTION_EFFICIENCY_BOOTSTRAP
+next permitted action: PREPARE_PL_V39_09_09-B_IMPLEMENTATION_READY_LAB_CHECKOUT_BINDING
 ```
 
 Both bootstrap slices are accepted, checkpointed, and post-commit verified, and
-the bounded Change is owner-closed. Prompt-dedup cutover is eligible but was not
-performed in this closure session. Ordinary PL09 mainline work remains
-unselected and resumes only after the required fresh-session cutover at the
-recorded return gate.
+the bounded Change is owner-closed. The official fresh-session cutover and
+post-bootstrap owner selection are complete. The selected 09-B start-contract
+review chain is closed, but execution remains unauthorized until the exact
+implementation-ready Lab checkout is bound through the recorded next gate.
 
 `NO_FURTHER_BOOTSTRAP_MUTATION`: active unless a later owner-approved corrective
 Change is opened.
