@@ -2330,6 +2330,10 @@ Do not bake one agent product's command vocabulary into the core lifecycle.
 
 - [Context Compiler Decision and Terminology Surface](<../recommendations/inbox/PL-REC — Context Compiler Decision and Terminology Surface.md>) — INBOX / UNADJUDICATED_RECOMMENDATION_CANDIDATE; detail pointer only, not absorbed or prioritized.
 - [Human Guidance, Prompt Delta Memory, Context Compiler & PromptOps Analytics](../recommendations/inbox/PL-V39-09-HUMAN-GUIDANCE-PROMPT-DELTA-MEMORY-CONCEPT-NOTE-v1.md) — INBOX / PROPOSED / NOT YET ADJUDICATED; detail pointer only, not absorbed or prioritized.
+- [REC-PL-ARCHITECTURE-VISUALIZATION-001 — Interactive Multi-Level Architecture and Process Visualization](../recommendations/inbox/REC-PL-ARCHITECTURE-VISUALIZATION-001.md) — INBOX / PROPOSED / NOT_ABSORBED; detail pointer for a derived interactive I0→I4 TARGET / REALITY / DIFF visualization projection, with primary consideration after PL-V39-09-C Ideal↔Reality reconciliation semantics stabilize and before PL-V39-09-D; no implementation authority.
+- [REC-PL-TURN-CAPSULE-001 — Turn Capsule](../recommendations/inbox/REC-PL-TURN-CAPSULE-001.md) — INBOX / PROPOSED / NOT ABSORBED / NO IMPLEMENTATION AUTHORITY; compact semantic interaction history / lineage aid.
+- [REC-PL-CONTEXT-HEALTH-CONDITIONAL-REHYDRATION-001 — Context Health / Conditional Rehydration](../recommendations/inbox/REC-PL-CONTEXT-HEALTH-CONDITIONAL-REHYDRATION-001.md) — INBOX / PROPOSED / NOT ABSORBED / NO IMPLEMENTATION AUTHORITY; behavioral context-health probes and bounded rehydration.
+- [REC-PL08-RUNRECEIPT-TOKEN-DELTA-001 — RunReceipt Token Delta](../recommendations/inbox/REC-PL08-RUNRECEIPT-TOKEN-DELTA-001.md) — INBOX / PROPOSED / NOT ABSORBED / NO IMPLEMENTATION AUTHORITY; preserve cumulative host counters and add exact per-operation token deltas.
 
 Future detail:
 
