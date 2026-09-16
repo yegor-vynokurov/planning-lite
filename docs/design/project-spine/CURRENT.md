@@ -5,11 +5,11 @@ repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
 active_change: NONE
-lifecycle_gate: PL_V39_09_09_B_FIELD_VALIDATION_AUTHORIZED
+lifecycle_gate: PL_V39_09_09_B_CORRECTIVE_FIELD_VALIDATION_AUTHORIZED
 implementation_authorized: YES
 blockers: NONE
-next_permitted_action: RUN_PL_V39_09_09-B_FIELD_VALIDATION
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-09-B-FIELD-VALIDATION-AUTHORIZATION-v1.md
+next_permitted_action: RUN_PL_V39_09_09-B_CORRECTIVE_FIELD_VALIDATION
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-09-B-CORRECTIVE-FIELD-VALIDATION-AUTHORIZATION-v1.md
 state_as_of: 2026-09-16
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
@@ -24,7 +24,7 @@ PL-V39-09: ACTIVE / IN_PROGRESS
 09-B artifact: docs/design/project-spine/roadmap/companions/PL-V39-09-ARCHITECTURE-KNOWLEDGE-PACK-VALIDATION-DESIGN-CONTRACT-v1.md
 09-B artifact SHA-256: 26F9BABB88C68338336777D5DA7FB62FE1F0BDDA110768F94FC8C36CFF67487C
 09-B post-commit verification: PASS
-09-B current responsibility: ACTUAL FIELD VALIDATION
+09-B current responsibility: CORRECTIVE FIELD VALIDATION / EVIDENCE COMPLETION
 09-B start contract: PREPARED / REVIEW_CLOSED
 09-B ownership disposition: EXISTING_SPLIT_OWNERSHIP
 09-B focused R-07 re-review: PASS
@@ -48,9 +48,11 @@ PL-V39-09: ACTIVE / IN_PROGRESS
 09-B next phase authorization: FIELD_VALIDATION_PREPARATION
 09-B field-validation preparation authorization: AUTHORIZED / CONSUMED
 09-B field-validation preparation complete: YES / RP-13_REVIEW_PASS
-09-B field-validation authorization: AUTHORIZED / ONE_BOUNDED_24_RUN_EXECUTION_ONLY
+09-B field-validation authorization: AUTHORIZED / INITIAL_24_RUN_PHASE_COMPLETED_INCONCLUSIVE
 09-B field-validation authorization checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-09-B-FIELD-VALIDATION-AUTHORIZATION-v1.md
-09-B remaining blocker: NONE_FOR_AUTHORIZED_FIELD_VALIDATION
+09-B corrective field-validation authorization: AUTHORIZED / ONE_NEW_BOUNDED_3_RUN_PHASE
+09-B corrective field-validation authorization checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-09-B-CORRECTIVE-FIELD-VALIDATION-AUTHORIZATION-v1.md
+09-B remaining blocker: NONE_FOR_AUTHORIZED_CORRECTIVE_FIELD_VALIDATION
 temporary research workspace: D:\documents\planning-lite-evidence-work
 temporary research slice write surface: D:\documents\planning-lite-evidence-work\PL-V39-09\09-B\source-backed-pack-content\
 temporary research workspace class: TEMP_EXTERNAL_NONCANONICAL
@@ -59,19 +61,19 @@ planning-lite-lab current 09-B critical path: REMOVED
 planning-lite-lab identity investigation: DEFERRED / OPTIONAL FUTURE MAINTENANCE
 canonical reconciliation-preparation authorization checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-09-B-CROSS-MODULE-RECONCILIATION-PREPARATION-AUTHORIZATION-v1.md
 canonical reconciliation authorization checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-09-B-CROSS-MODULE-RECONCILIATION-AUTHORIZATION-v1.md
-field validation complete: NO / SEPARATELY GATED
+field validation complete: NO / INITIAL_COMPLETE_CORRECTIVE_SEPARATELY_GATED
 field-validation preparation complete: YES / REVIEW_CLOSED
 source research execution: COMPLETE_ENOUGH_FOR_RECONCILIATION / NO_NEW_RESEARCH_AUTHORIZED
 pack-content candidate authoring authorized: CONSUMED / RP-12_OWNER_ACCEPTED
 canonical pack materialization authorized: NO
 final question inventories frozen: NO
 field-validation preparation authorized: CONSUMED / RP-13_REPEAT_REVIEW_PASS
-field-validation authorized: YES / ONE_BOUNDED_24_RUN_EXECUTION_ONLY
+field-validation authorized: YES / CORRECTIVE_3_RUN_PHASE
 09-E work authorized: NO
 09-F work authorized: NO
 production implementation authorized: NO
 PL-V39-09 complete: NO
-next permitted action: RUN_PL_V39_09_09-B_FIELD_VALIDATION
+next permitted action: RUN_PL_V39_09_09-B_CORRECTIVE_FIELD_VALIDATION
 ```
 
 <!-- PL_V39_09_09_B_FIELD_VALIDATION_AUTHORIZATION_V1:BEGIN -->
@@ -118,6 +120,51 @@ decisions, PL08 evidence verdicts, technology or project-specific acceptance,
 09-E/09-F/comparator work, implementation, release, promotion, or 09-B
 completion. Actual validation has not started.
 <!-- PL_V39_09_09_B_FIELD_VALIDATION_AUTHORIZATION_V1:END -->
+
+<!-- PL_V39_09_09_B_CORRECTIVE_FIELD_VALIDATION_AUTHORIZATION_V1:BEGIN -->
+## Current PL-V39-09 / 09-B Option C corrective field-validation authorization
+
+The human owner explicitly authorized Option C after the completed initial
+validation remained inconclusive. RP-14 remains unchanged noncanonical
+historical evidence; this block records a new bounded corrective operation and
+does not execute it or create its Attempt.
+
+```text
+OWNER_DECISION_SOURCE: EXPLICIT_HUMAN_OWNER
+OWNER_DECISION: AUTHORIZE_OPTION_C
+RP14_STATUS: NONCANONICAL_FIELD_VALIDATION_EVIDENCE
+INITIAL_FIELD_VALIDATION_PERFORMED: YES
+INITIAL_FIELD_VALIDATION_RESULT: INCONCLUSIVE
+PRIOR_VALID_OBSERVATIONS_RETAINED: 21
+HISTORICAL_INVALID_RUNS_PRESERVED: R14,R15,R20
+RETROSPECTIVE_RP14_ATTEMPT_REPAIR_AUTHORIZED: NO
+CORRECTIVE_OPERATION_ID: 09-B-CORRECTIVE-FIELD-VALIDATION
+CORRECTIVE_ATTEMPT_UNIT: ONE_ATTEMPT_FOR_WHOLE_CORRECTIVE_PHASE
+CORRECTIVE_CHILD_APPLICATION_COUNT: 3
+CORRECTIVE_RUN_IDS: CR-R14-01,CR-R15-01,CR-R20-01
+PRE_DISPATCH_MANIFEST_VALIDATION_REQUIRED: YES
+PRIOR_21_REEXECUTION_AUTHORIZED: NO
+CORRECTIVE_FIELD_VALIDATION_AUTHORIZED: YES
+CORRECTIVE_FIELD_VALIDATION_PERFORMED: NO
+RP15_PRIMARY_OUTPUT_AUTHORIZED: YES
+RP15_JSONL_OUTPUT_AUTHORIZED: YES
+CANONICAL_PACK_MATERIALIZATION_AUTHORIZED: NO
+FINAL_QUESTION_INVENTORIES_FROZEN: NO
+PL08_EVIDENCE_VERDICT_CREATED: NO
+PL_V39_09_09_B_COMPLETE: NO
+NEXT_SINGLE_GATE: RUN_PL_V39_09_09-B_CORRECTIVE_FIELD_VALIDATION
+```
+
+The corrective phase uses one new canonical Attempt for the whole three-run
+operation. Its ordinal is allocated only at execution start from complete
+same-lineage records; no Attempt is allocated by this state recording. The
+phase must preserve RP-14 and all three invalid records, use fresh
+authorization provenance, validate each child manifest before dispatch, and
+produce only the separately authorized RP-15 result plus optional JSONL
+evidence. Independent review of combined RP-14/RP-15 evidence, owner
+adjudication, candidate correction, final-question freeze, materialization, and
+09-B closure remain later gates.
+<!-- PL_V39_09_09_B_CORRECTIVE_FIELD_VALIDATION_AUTHORIZATION_V1:END -->
 
 The accepted 09-B dependency ledger remains authoritative for downstream work;
 the source-backed content research set, corrected RP-10 preparation, RP-11
