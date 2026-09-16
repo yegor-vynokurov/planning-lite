@@ -5,11 +5,11 @@ repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
 active_change: NONE
-lifecycle_gate: PL_V39_09_09_B_FIELD_VALIDATION_PREPARATION_AUTHORIZED
+lifecycle_gate: PL_V39_09_09_B_FIELD_VALIDATION_AUTHORIZED
 implementation_authorized: YES
 blockers: NONE
-next_permitted_action: RUN_PL_V39_09_09-B_FIELD_VALIDATION_PREPARATION
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-09-B-FIELD-VALIDATION-PREPARATION-AUTHORIZATION-v1.md
+next_permitted_action: RUN_PL_V39_09_09-B_FIELD_VALIDATION
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-09-B-FIELD-VALIDATION-AUTHORIZATION-v1.md
 state_as_of: 2026-09-16
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
@@ -24,7 +24,7 @@ PL-V39-09: ACTIVE / IN_PROGRESS
 09-B artifact: docs/design/project-spine/roadmap/companions/PL-V39-09-ARCHITECTURE-KNOWLEDGE-PACK-VALIDATION-DESIGN-CONTRACT-v1.md
 09-B artifact SHA-256: 26F9BABB88C68338336777D5DA7FB62FE1F0BDDA110768F94FC8C36CFF67487C
 09-B post-commit verification: PASS
-09-B current responsibility: FIELD-VALIDATION PREPARATION
+09-B current responsibility: ACTUAL FIELD VALIDATION
 09-B start contract: PREPARED / REVIEW_CLOSED
 09-B ownership disposition: EXISTING_SPLIT_OWNERSHIP
 09-B focused R-07 re-review: PASS
@@ -46,9 +46,11 @@ PL-V39-09: ACTIVE / IN_PROGRESS
 09-B RP-12 repeat review SHA-256: 217BB688C509B18AD9A9421B6ECF07451D60B7B21ADA761F643E6B581D2C913B
 09-B owner decision: ACCEPT_CLEAN_RP12_AS_NONCANONICAL_CANDIDATE_BASELINE
 09-B next phase authorization: FIELD_VALIDATION_PREPARATION
-09-B field-validation preparation authorization: AUTHORIZED / NOT_STARTED
-09-B field-validation preparation complete: NO / SEPARATELY_GATED
-09-B remaining blocker: NONE_FOR_BOUNDED_FIELD_VALIDATION_PREPARATION
+09-B field-validation preparation authorization: AUTHORIZED / CONSUMED
+09-B field-validation preparation complete: YES / RP-13_REVIEW_PASS
+09-B field-validation authorization: AUTHORIZED / ONE_BOUNDED_24_RUN_EXECUTION_ONLY
+09-B field-validation authorization checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-09-B-FIELD-VALIDATION-AUTHORIZATION-v1.md
+09-B remaining blocker: NONE_FOR_AUTHORIZED_FIELD_VALIDATION
 temporary research workspace: D:\documents\planning-lite-evidence-work
 temporary research slice write surface: D:\documents\planning-lite-evidence-work\PL-V39-09\09-B\source-backed-pack-content\
 temporary research workspace class: TEMP_EXTERNAL_NONCANONICAL
@@ -58,18 +60,64 @@ planning-lite-lab identity investigation: DEFERRED / OPTIONAL FUTURE MAINTENANCE
 canonical reconciliation-preparation authorization checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-09-B-CROSS-MODULE-RECONCILIATION-PREPARATION-AUTHORIZATION-v1.md
 canonical reconciliation authorization checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-09-B-CROSS-MODULE-RECONCILIATION-AUTHORIZATION-v1.md
 field validation complete: NO / SEPARATELY GATED
-field-validation preparation complete: NO / NOT_STARTED
+field-validation preparation complete: YES / REVIEW_CLOSED
 source research execution: COMPLETE_ENOUGH_FOR_RECONCILIATION / NO_NEW_RESEARCH_AUTHORIZED
 pack-content candidate authoring authorized: CONSUMED / RP-12_OWNER_ACCEPTED
 canonical pack materialization authorized: NO
 final question inventories frozen: NO
-field-validation preparation authorized: YES / ONE_NONCANONICAL_RP13_PREPARATION_ONLY
+field-validation preparation authorized: CONSUMED / RP-13_REPEAT_REVIEW_PASS
+field-validation authorized: YES / ONE_BOUNDED_24_RUN_EXECUTION_ONLY
 09-E work authorized: NO
 09-F work authorized: NO
 production implementation authorized: NO
 PL-V39-09 complete: NO
-next permitted action: RUN_PL_V39_09_09-B_FIELD_VALIDATION_PREPARATION
+next permitted action: RUN_PL_V39_09_09-B_FIELD_VALIDATION
 ```
+
+<!-- PL_V39_09_09_B_FIELD_VALIDATION_AUTHORIZATION_V1:BEGIN -->
+## Current PL-V39-09 / 09-B field-validation authorization
+
+The human owner explicitly authorized actual field validation using the cleanly
+reviewed corrected RP-13 preparation and the fixed RP-12 noncanonical candidate
+baseline. This is an authorization record, not a field run or result.
+
+```text
+OWNER_DECISION_SOURCE: EXPLICIT_HUMAN_OWNER
+OWNER_DECISION: AUTHORIZE_ACTUAL_FIELD_VALIDATION
+CANDIDATE_UNDER_TEST: RP-12_NONCANONICAL_CANDIDATE_PACK.md
+CANDIDATE_SHA256: 9E55E37FF64BDA5A89D8970A1D1937FE44EC641DCD64AB141EF9D43A0E0EDD22
+VALIDATION_PREPARATION: RP-13_FIELD_VALIDATION_PREPARATION.md
+VALIDATION_PREPARATION_SHA256: FF322A25C32C0A4BC38528BF5FCA5DC5F0FBA73E8D2CBDD32681446457CC8151
+RP13_REPEAT_REVIEW: RP-13_REPEAT_INDEPENDENT_REVIEW.md
+RP13_REPEAT_REVIEW_SHA256: F385FF4EB583D71AA641C3E65DDD5F05BF724D28B01E0E750A0CA25468DDFF0A
+REPEAT_INDEPENDENT_REVIEW: PASS
+REMAINING_REVIEW_FINDINGS: 0
+DECLARED_RUN_COUNT: 24
+EXPLICITLY_SCHEDULED_RUN_COUNT: 24
+FIELD_VALIDATION_HYPOTHESES_AUTHORIZED: 12
+FIELD_VALIDATION_EXECUTION_INVARIANTS_FROZEN: 48
+FIELD_VALIDATION_AUTHORIZED: YES
+FIELD_VALIDATION_PERFORMED: NO
+CANONICAL_PACK_MATERIALIZATION_AUTHORIZED: NO
+FINAL_QUESTION_INVENTORIES_FROZEN: NO
+PL_V39_09_09_B_COMPLETE: NO
+NEXT_SINGLE_GATE: RUN_PL_V39_09_09-B_FIELD_VALIDATION
+```
+
+The authorized execution is exactly one bounded phase over RP-13's 24 explicit
+applications and H01-H12 result space. It must preserve the owner-authorization,
+PL08 Attempt, actor, verifier, and scaffold-state bindings; predeclared criteria;
+INVALID_RUN handling; per-run evidence before aggregation; and all 48 frozen
+execution invariants. Its primary output is the noncanonical external
+`RP-14_FIELD_VALIDATION_RESULTS.md`; the optional bounded auxiliary filenames
+are `RP-14_RUN_EVIDENCE.jsonl` and `RP-14_RUN_SUMMARY.csv`.
+
+The authorization does not permit editing RP-12 or RP-13 after observation,
+canonical pack materialization, final-question freezing, project architecture
+decisions, PL08 evidence verdicts, technology or project-specific acceptance,
+09-E/09-F/comparator work, implementation, release, promotion, or 09-B
+completion. Actual validation has not started.
+<!-- PL_V39_09_09_B_FIELD_VALIDATION_AUTHORIZATION_V1:END -->
 
 The accepted 09-B dependency ledger remains authoritative for downstream work;
 the source-backed content research set, corrected RP-10 preparation, RP-11
