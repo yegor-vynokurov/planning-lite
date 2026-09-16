@@ -5,12 +5,12 @@ repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
 active_change: NONE
-lifecycle_gate: PL_V39_09_09_B_NONCANONICAL_CANDIDATE_PACK_AUTHORING_AUTHORIZED
+lifecycle_gate: PL_V39_09_09_B_FIELD_VALIDATION_PREPARATION_AUTHORIZED
 implementation_authorized: YES
 blockers: NONE
-next_permitted_action: RUN_PL_V39_09_09-B_NONCANONICAL_CANDIDATE_PACK_AUTHORING
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-09-B-NONCANONICAL-CANDIDATE-PACK-AUTHORIZATION-v1.md
-state_as_of: 2026-09-15
+next_permitted_action: RUN_PL_V39_09_09-B_FIELD_VALIDATION_PREPARATION
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-09-B-FIELD-VALIDATION-PREPARATION-AUTHORIZATION-v1.md
+state_as_of: 2026-09-16
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
 <!-- PL_V39_09_09_B_SLICE_CLOSURE_V1:BEGIN -->
@@ -24,7 +24,7 @@ PL-V39-09: ACTIVE / IN_PROGRESS
 09-B artifact: docs/design/project-spine/roadmap/companions/PL-V39-09-ARCHITECTURE-KNOWLEDGE-PACK-VALIDATION-DESIGN-CONTRACT-v1.md
 09-B artifact SHA-256: 26F9BABB88C68338336777D5DA7FB62FE1F0BDDA110768F94FC8C36CFF67487C
 09-B post-commit verification: PASS
-09-B current responsibility: NONCANONICAL CANDIDATE PACK AUTHORING
+09-B current responsibility: FIELD-VALIDATION PREPARATION
 09-B start contract: PREPARED / REVIEW_CLOSED
 09-B ownership disposition: EXISTING_SPLIT_OWNERSHIP
 09-B focused R-07 re-review: PASS
@@ -39,8 +39,16 @@ PL-V39-09: ACTIVE / IN_PROGRESS
 09-B RP-11 SHA-256: 927B1A9134856788D290AF0AA02ADC84DCBF873E5E05AEBC9A789EC6C718F1D1
 09-B clean RP-11 independent review: PASS / NO_FINDINGS
 09-B clean RP-11 review SHA-256: DBD8B8EFA4F81FD7FC76BC78621BDB2C49E7427C2F5517943B0D025F2F8FAA66
-09-B noncanonical candidate pack authoring: AUTHORIZED / NOT_STARTED
-09-B remaining blocker: NONE_FOR_BOUNDED_NONCANONICAL_CANDIDATE_PACK_AUTHORING
+09-B noncanonical candidate pack authoring: COMPLETED / RP-12_PRESENT
+09-B RP-12 candidate baseline: OWNER_ACCEPTED / NONCANONICAL
+09-B accepted RP-12 SHA-256: 9E55E37FF64BDA5A89D8970A1D1937FE44EC641DCD64AB141EF9D43A0E0EDD22
+09-B RP-12 repeat independent review: PASS / NO_OPEN_FINDINGS
+09-B RP-12 repeat review SHA-256: 217BB688C509B18AD9A9421B6ECF07451D60B7B21ADA761F643E6B581D2C913B
+09-B owner decision: ACCEPT_CLEAN_RP12_AS_NONCANONICAL_CANDIDATE_BASELINE
+09-B next phase authorization: FIELD_VALIDATION_PREPARATION
+09-B field-validation preparation authorization: AUTHORIZED / NOT_STARTED
+09-B field-validation preparation complete: NO / SEPARATELY_GATED
+09-B remaining blocker: NONE_FOR_BOUNDED_FIELD_VALIDATION_PREPARATION
 temporary research workspace: D:\documents\planning-lite-evidence-work
 temporary research slice write surface: D:\documents\planning-lite-evidence-work\PL-V39-09\09-B\source-backed-pack-content\
 temporary research workspace class: TEMP_EXTERNAL_NONCANONICAL
@@ -50,22 +58,27 @@ planning-lite-lab identity investigation: DEFERRED / OPTIONAL FUTURE MAINTENANCE
 canonical reconciliation-preparation authorization checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-09-B-CROSS-MODULE-RECONCILIATION-PREPARATION-AUTHORIZATION-v1.md
 canonical reconciliation authorization checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-09-B-CROSS-MODULE-RECONCILIATION-AUTHORIZATION-v1.md
 field validation complete: NO / SEPARATELY GATED
+field-validation preparation complete: NO / NOT_STARTED
 source research execution: COMPLETE_ENOUGH_FOR_RECONCILIATION / NO_NEW_RESEARCH_AUTHORIZED
-pack-content candidate authoring authorized: YES / ONE_NONCANONICAL_RP12_ARTIFACT_ONLY
+pack-content candidate authoring authorized: CONSUMED / RP-12_OWNER_ACCEPTED
 canonical pack materialization authorized: NO
+final question inventories frozen: NO
+field-validation preparation authorized: YES / ONE_NONCANONICAL_RP13_PREPARATION_ONLY
 09-E work authorized: NO
 09-F work authorized: NO
 production implementation authorized: NO
 PL-V39-09 complete: NO
-next permitted action: RUN_PL_V39_09_09-B_NONCANONICAL_CANDIDATE_PACK_AUTHORING
+next permitted action: RUN_PL_V39_09_09-B_FIELD_VALIDATION_PREPARATION
 ```
 
 The accepted 09-B dependency ledger remains authoritative for downstream work;
 the source-backed content research set, corrected RP-10 preparation, RP-11
 reconciliation result, and clean independent review have now been owner-reviewed.
-The reconciliation closure is accepted as sufficient for one bounded,
-noncanonical RP-12 candidate-pack-authoring execution. Candidate authoring is
-authorized but has not started.
+The reconciled result and clean independent-review lineage were owner-accepted
+as the RP-12 noncanonical candidate baseline. Candidate authoring is consumed;
+exactly one bounded field-validation-preparation execution is authorized, while
+preparation, validation, materialization, and downstream promotion remain
+separately gated and have not been performed.
 Canonical pack materialization, final question freezing, accepted-central
 promotion, field validation, 09-E, 09-F, comparator, production implementation,
 promotion, and release remain unauthorized.
