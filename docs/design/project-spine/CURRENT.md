@@ -5,11 +5,11 @@ repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
 active_change: NONE
-lifecycle_gate: PL_V39_09_09_B_CORRECTIVE_FIELD_VALIDATION_AUTHORIZED
+lifecycle_gate: PL_V39_09_09_B_FINAL_QUESTION_INVENTORY_PREPARATION_AUTHORIZED
 implementation_authorized: YES
 blockers: NONE
-next_permitted_action: RUN_PL_V39_09_09-B_CORRECTIVE_FIELD_VALIDATION
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-09-B-CORRECTIVE-FIELD-VALIDATION-AUTHORIZATION-v1.md
+next_permitted_action: PREPARE_PL_V39_09_09-B_FINAL_QUESTION_INVENTORIES
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-09-B-COMBINED-FIELD-VALIDATION-OWNER-ADJUDICATION-v1.md
 state_as_of: 2026-09-16
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
@@ -24,7 +24,7 @@ PL-V39-09: ACTIVE / IN_PROGRESS
 09-B artifact: docs/design/project-spine/roadmap/companions/PL-V39-09-ARCHITECTURE-KNOWLEDGE-PACK-VALIDATION-DESIGN-CONTRACT-v1.md
 09-B artifact SHA-256: 26F9BABB88C68338336777D5DA7FB62FE1F0BDDA110768F94FC8C36CFF67487C
 09-B post-commit verification: PASS
-09-B current responsibility: CORRECTIVE FIELD VALIDATION / EVIDENCE COMPLETION
+09-B current responsibility: FINAL QUESTION INVENTORY PREPARATION
 09-B start contract: PREPARED / REVIEW_CLOSED
 09-B ownership disposition: EXISTING_SPLIT_OWNERSHIP
 09-B focused R-07 re-review: PASS
@@ -52,7 +52,10 @@ PL-V39-09: ACTIVE / IN_PROGRESS
 09-B field-validation authorization checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-09-B-FIELD-VALIDATION-AUTHORIZATION-v1.md
 09-B corrective field-validation authorization: AUTHORIZED / ONE_NEW_BOUNDED_3_RUN_PHASE
 09-B corrective field-validation authorization checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-09-B-CORRECTIVE-FIELD-VALIDATION-AUTHORIZATION-v1.md
-09-B remaining blocker: NONE_FOR_AUTHORIZED_CORRECTIVE_FIELD_VALIDATION
+09-B combined field-validation evidence: OWNER_ADJUDICATED / ACCEPTED
+09-B owner adjudication: ACCEPT_COMBINED_FIELD_VALIDATION_EVIDENCE
+09-B owner route: FINAL_QUESTIONS_THEN_MATERIALIZATION_THEN_CLOSURE
+09-B remaining blocker: NONE_AFTER_OWNER_ADJUDICATION
 temporary research workspace: D:\documents\planning-lite-evidence-work
 temporary research slice write surface: D:\documents\planning-lite-evidence-work\PL-V39-09\09-B\source-backed-pack-content\
 temporary research workspace class: TEMP_EXTERNAL_NONCANONICAL
@@ -61,19 +64,31 @@ planning-lite-lab current 09-B critical path: REMOVED
 planning-lite-lab identity investigation: DEFERRED / OPTIONAL FUTURE MAINTENANCE
 canonical reconciliation-preparation authorization checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-09-B-CROSS-MODULE-RECONCILIATION-PREPARATION-AUTHORIZATION-v1.md
 canonical reconciliation authorization checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-09-B-CROSS-MODULE-RECONCILIATION-AUTHORIZATION-v1.md
-field validation complete: NO / INITIAL_COMPLETE_CORRECTIVE_SEPARATELY_GATED
+field validation complete: YES / COMBINED_RP14_RP15_OWNER_ADJUDICATED
 field-validation preparation complete: YES / REVIEW_CLOSED
 source research execution: COMPLETE_ENOUGH_FOR_RECONCILIATION / NO_NEW_RESEARCH_AUTHORIZED
 pack-content candidate authoring authorized: CONSUMED / RP-12_OWNER_ACCEPTED
 canonical pack materialization authorized: NO
 final question inventories frozen: NO
 field-validation preparation authorized: CONSUMED / RP-13_REPEAT_REVIEW_PASS
-field-validation authorized: YES / CORRECTIVE_3_RUN_PHASE
+field-validation authorized: CONSUMED / CORRECTIVE_3_RUN_PHASE
+field-validation repeat required: NO
+candidate revision required: NO
+owner adjudication performed: YES
+field-validation objective satisfied: YES
+post-field-validation route selected: YES / FINAL_QUESTIONS_THEN_MATERIALIZATION_THEN_CLOSURE
+final question inventory preparation authorized: YES
+final question inventories prepared: NO
+final question inventories reviewed: NO
+final question inventories frozen: NO
+materialization preparation authorized: NO
+canonical pack materialization performed: NO
+09-B closure/readiness authorized: NO
 09-E work authorized: NO
 09-F work authorized: NO
 production implementation authorized: NO
 PL-V39-09 complete: NO
-next permitted action: RUN_PL_V39_09_09-B_CORRECTIVE_FIELD_VALIDATION
+next permitted action: PREPARE_PL_V39_09_09-B_FINAL_QUESTION_INVENTORIES
 ```
 
 <!-- PL_V39_09_09_B_FIELD_VALIDATION_AUTHORIZATION_V1:BEGIN -->
