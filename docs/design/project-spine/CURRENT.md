@@ -5,12 +5,12 @@ repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
 active_change: NONE
-lifecycle_gate: PL_V39_09_09_B_CANONICAL_PACK_MATERIALIZATION_PREPARATION_REVIEW_AUTHORIZED
-implementation_authorized: YES
+lifecycle_gate: CLOSE_PL_V39_09_09-B_POST_MATERIALIZATION_CLOSURE
+implementation_authorized: NO
 blockers: NONE
-next_permitted_action: PREPARE_PL_V39_09_09-B_CANONICAL_PACK_MATERIALIZATION_REVIEW
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-09-B-POST-FREEZE-MATERIALIZATION-PREPARATION-ROUTING-v1.md
-state_as_of: 2026-09-16
+next_permitted_action: OWNER_ADJUDICATION_PL_V39_09_NEXT_SLICE_AFTER_09-B_CLOSURE
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-09-B-POST-MATERIALIZATION-CLOSURE-v1.md
+state_as_of: 2026-09-17
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
 <!-- PL_V39_09_09_B_SLICE_CLOSURE_V1:BEGIN -->
@@ -24,7 +24,7 @@ PL-V39-09: ACTIVE / IN_PROGRESS
 09-B artifact: docs/design/project-spine/roadmap/companions/PL-V39-09-ARCHITECTURE-KNOWLEDGE-PACK-VALIDATION-DESIGN-CONTRACT-v1.md
 09-B artifact SHA-256: 26F9BABB88C68338336777D5DA7FB62FE1F0BDDA110768F94FC8C36CFF67487C
 09-B post-commit verification: PASS
-09-B current responsibility: CANONICAL PACK MATERIALIZATION PREPARATION / REVIEW
+09-B current responsibility: CLOSED / COMPLETE
 09-B start contract: PREPARED / REVIEW_CLOSED
 09-B ownership disposition: EXISTING_SPLIT_OWNERSHIP
 09-B focused R-07 re-review: PASS
@@ -56,6 +56,15 @@ PL-V39-09: ACTIVE / IN_PROGRESS
 09-B owner adjudication: ACCEPT_COMBINED_FIELD_VALIDATION_EVIDENCE
 09-B owner route: FINAL_QUESTIONS_THEN_MATERIALIZATION_THEN_CLOSURE
 09-B remaining blocker: NONE_AFTER_POST_FREEZE_ROUTE_RESOLUTION
+09-B materialization commit: 06fc6508d53d7ebbaa021c3c1711f8da57f1cbde
+09-B canonical pack SHA-256: 4B0C1E862895770C74F47D0770A5E09C461FCB3A1B5FD35F0F5AE5473C2C6A3F
+09-B post-materialization verification: PASS_WITH_NONBLOCKING_LIMITATIONS
+09-B substantive closure blockers: NONE
+09-B closure gate: CLOSE_PL_V39_09_09-B_POST_MATERIALIZATION_CLOSURE
+09-B closure gate meaning: owner-authorized recording of verified canonical pack materialization and bounded 09-B closure; no downstream execution
+09-B closure/readiness: AUTHORIZED / RECORDED
+09-B status: CLOSED / COMPLETE
+09-B closure checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-09-B-POST-MATERIALIZATION-CLOSURE-v1.md
 temporary research workspace: D:\documents\planning-lite-evidence-work
 temporary research slice write surface: D:\documents\planning-lite-evidence-work\PL-V39-09\09-B\source-backed-pack-content\
 temporary research workspace class: TEMP_EXTERNAL_NONCANONICAL
@@ -68,7 +77,7 @@ field validation complete: YES / COMBINED_RP14_RP15_OWNER_ADJUDICATED
 field-validation preparation complete: YES / REVIEW_CLOSED
 source research execution: COMPLETE_ENOUGH_FOR_RECONCILIATION / NO_NEW_RESEARCH_AUTHORIZED
 pack-content candidate authoring authorized: CONSUMED / RP-12_OWNER_ACCEPTED
-canonical pack materialization authorized: NO
+canonical pack materialization authorized: YES / EXPLICIT_HUMAN_OWNER
 final question inventories frozen: YES / EXPLICIT_HUMAN_OWNER
 field-validation preparation authorized: CONSUMED / RP-13_REPEAT_REVIEW_PASS
 field-validation authorized: CONSUMED / CORRECTIVE_3_RUN_PHASE
@@ -83,27 +92,27 @@ final question inventories reviewed: YES / RP-26_PASS
 final question inventories frozen: YES / EXPLICIT_HUMAN_OWNER
 final question inventory owner-freeze checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-09-B-FINAL-QUESTION-INVENTORY-OWNER-FREEZE-v1.md
 materialization preparation authorized: YES / OWNER_ROUTE_DIRECT_SUCCESSOR
-canonical pack materialization performed: NO
-09-B closure/readiness authorized: NO
+canonical pack materialization performed: YES / 06fc6508d53d7ebbaa021c3c1711f8da57f1cbde
+09-B closure/readiness authorized: YES / EXPLICIT_HUMAN_OWNER
 09-E work authorized: NO
 09-F work authorized: NO
 production implementation authorized: NO
 PL-V39-09 complete: NO
-next permitted action: PREPARE_PL_V39_09_09-B_CANONICAL_PACK_MATERIALIZATION_REVIEW
-next gate resolution: RESOLVED_CANONICAL_LABEL
-discovered next gate: PREPARE_PL_V39_09_09-B_CANONICAL_PACK_MATERIALIZATION_REVIEW
+next permitted action: OWNER_ADJUDICATION_PL_V39_09_NEXT_SLICE_AFTER_09-B_CLOSURE
+next gate resolution: RESOLVED_OWNER_ADJUDICATION_LABEL
+discovered next gate: OWNER_ADJUDICATION_PL_V39_09_NEXT_SLICE_AFTER_09-B_CLOSURE
 OWNER_DECISION_SOURCE: EXPLICIT_HUMAN_OWNER
 OWNER_DECISION: FREEZE_FINAL_QUESTION_INVENTORIES
 FINAL_QUESTION_INVENTORIES_FROZEN: YES
-MATERIALIZATION_AUTHORIZED_BY_FREEZE: NO
-CANONICAL_PACK_MATERIALIZATION_AUTHORIZED: NO
-CANONICAL_PACK_MATERIALIZATION_PERFORMED: NO
+MATERIALIZATION_AUTHORIZED_BY_FREEZE: NO / SEPARATE_OWNER_AUTHORIZATION
+CANONICAL_PACK_MATERIALIZATION_AUTHORIZED: YES / EXPLICIT_HUMAN_OWNER
+CANONICAL_PACK_MATERIALIZATION_PERFORMED: YES / 06fc6508d53d7ebbaa021c3c1711f8da57f1cbde
 PL08_EVIDENCE_VERDICT_CREATED: NO
-PL_V39_09_09_B_COMPLETE: NO
+PL_V39_09_09_B_COMPLETE: YES
 PL_V39_09_09_C_STARTED: NO
 MATERIALIZATION_PREPARATION_AUTHORIZED: YES
-NEXT_GATE_RESOLUTION: RESOLVED_CANONICAL_LABEL
-NEXT_SINGLE_GATE: PREPARE_PL_V39_09_09-B_CANONICAL_PACK_MATERIALIZATION_REVIEW
+NEXT_GATE_RESOLUTION: RESOLVED_OWNER_ADJUDICATION_LABEL
+NEXT_SINGLE_GATE: OWNER_ADJUDICATION_PL_V39_09_NEXT_SLICE_AFTER_09-B_CLOSURE
 ```
 
 <!-- PL_V39_09_09_B_FIELD_VALIDATION_AUTHORIZATION_V1:BEGIN -->
