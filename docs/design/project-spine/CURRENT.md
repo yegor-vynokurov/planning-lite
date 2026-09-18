@@ -5,12 +5,12 @@ repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
 active_change: CHG-PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-001
-lifecycle_gate: PLANNING_IN_PROGRESS
+lifecycle_gate: AMENDED_PLANNING_AUTHORITY_CHECKPOINTED
 implementation_authorized: NO
 blockers: NONE
-next_permitted_action: RUN_PL06_OPERATION_DEPTH_OBSERVATION_BRIDGE_FORMAL_READINESS
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-IMPLEMENTATION-PLAN-v1.md
-state_as_of: 2026-09-17
+next_permitted_action: OWNER_AUTHORIZATION_PL06_OPERATION_DEPTH_OBSERVATION_BRIDGE_PRE_READINESS_CANDIDATE_ISOLATION
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-EXECUTION-LEDGER-v1.md
+state_as_of: 2026-09-18
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
 <!-- PL_V39_06_OPERATION_DEPTH_OBSERVATION_BRIDGE_ACTIVATION_V1:BEGIN -->
@@ -19,32 +19,57 @@ state_as_of: 2026-09-17
 ```text
 active_change: CHG-PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-001
 definition: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-CHANGE-DEFINITION-v1.md
-definition_status: APPROVED_BY_OWNER
-activation: ACTIVE / PLANNING_IN_PROGRESS
-owner_definition_decision: APPROVE / USER / EXPLICIT / current conversation
+definition_status: APPROVED_BY_OWNER / PREDECESSOR_SCOPE
+definition_amendment: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-DEFINITION-AMENDMENT-v1.md
+definition_amendment_status: APPROVED_BY_OWNER
+activation: ACTIVE / AMENDED_PLANNING_AUTHORITY_CHECKPOINTED
+owner_definition_decision: APPROVE / USER / EXPLICIT / predecessor + amendment
+owner_amendment_decision: BOTH APPROVED / USER / EXPLICIT / 2026-09-18
+selected_direction: PRODUCER_BOUND_OBSERVATION
 implementation_authorized: NO
 plan: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-IMPLEMENTATION-PLAN-v1.md
-plan_status: APPROVED_BY_OWNER
-owner_plan_decision: APPROVE / USER / EXPLICIT / current conversation
-formal_readiness: NOT_RUN
-planning_authority_checkpoint: PERFORMED / THIS_COMMIT
-next_permitted_action: RUN_PL06_OPERATION_DEPTH_OBSERVATION_BRIDGE_FORMAL_READINESS
+plan_status: APPROVED_BY_OWNER / PREDECESSOR_PLAN
+plan_amendment: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-IMPLEMENTATION-PLAN-AMENDMENT-v1.md
+plan_amendment_status: APPROVED_BY_OWNER
+owner_plan_decision: APPROVE / USER / EXPLICIT / predecessor + amendment
+predecessor_planning_authority: f34429aefbf09fcae43226ff74eafefd580b3b88
+amended_planning_authority: APPROVED / CHECKPOINTED BY THIS GOVERNANCE COMMIT
+formal_readiness: HISTORICAL / PREDECESSOR ONLY / RENEWAL REQUIRED
+formal_readiness_verdict: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-FORMAL-READINESS-VERDICT-v1.md
+planning_authority_checkpoint: PERFORMED / THIS GOVERNANCE COMMIT
+planning_authority: AMENDED / THIS GOVERNANCE COMMIT
+authorized_tasks: NONE / PRE-READINESS ISOLATION NOT AUTHORIZED
+independent_candidate_review: RE_REVIEW_FAIL / F-02 OPEN UNDER PREDECESSOR PLAN
+corrective_pass: HISTORICAL / F-01,F-03,F-04 HARDENING RETAINED / F-02 NOT IMPLEMENTATION-CLOSED
+formal_readiness_rerun: REQUIRED / NOT RUN
+pre_readiness_candidate_isolation: REQUIRED
+isolation_timing: AFTER_PLANNING_AUTHORITY_CHECKPOINT_BEFORE_FORMAL_READINESS
+next_permitted_action: OWNER_AUTHORIZATION_PL06_OPERATION_DEPTH_OBSERVATION_BRIDGE_PRE_READINESS_CANDIDATE_ISOLATION
+implementation_candidate: UNCOMMITTED / RE_REVIEW_FAIL / PENDING_AMENDED_AUTHORITY
+commit_authorized: NO
+execution_ledger: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-EXECUTION-LEDGER-v1.md
 major_pl09_next_slice_gate: OWNER_ADJUDICATION_PL_V39_09_NEXT_SLICE_AFTER_09-B_CLOSURE
 major_pl09_next_slice_selected: NO
 ```
 
-The approved Change is bounded to planning the PL06 operation-depth
-observation bridge. It may reference existing ResumeContext/ContextTrace and
-later explicitly observable expansions, but it does not store raw conversation
-or source bodies and does not authorize implementation. The outstanding PL09
-09-B post-closure owner-adjudication gate remains preserved and is not
-consumed, replaced, or recorded as a selected downstream slice.
+The approved predecessor Definition and Plan remain immutable historical
+authority, and the approved Definition and Plan Amendments now provide the
+amended producer-bound Change scope. The amendments preserve the existing PL06
+ownership and bounded metadata-only observation goal; they do not authorize
+implementation or source/test mutation. The predecessor Planning Authority at
+`f34429aefbf09fcae43226ff74eafefd580b3b88` remains the immutable parent, and
+the amended Planning Authority is checkpointed by this governance commit.
 
-The approved Definition, activation, Implementation Plan, and aligned current
-state are frozen by this governance commit (`THIS_COMMIT` resolves to the
-resulting Planning Authority commit identity). Formal Readiness is the next
-read-only gate; implementation, execution, acceptance, checkpoint commit, and
-closure remain separate later gates.
+The prior implementation authorization does not carry forward. The current
+candidate remains uncommitted and failed under the predecessor mapping trust
+boundary; its F-01/F-03/F-04 hardening and test evidence remain review history,
+while F-02 is architecturally addressed by the approved amendments but is not
+implementation-closed. Renewed Formal Readiness has not run and is required
+after this amended Planning Authority checkpoint and a separately owner-authorized
+candidate-isolation operation. Pre-readiness candidate isolation is required and
+is not authorized by this checkpoint.
+The outstanding PL09 09-B post-closure owner-adjudication gate remains
+preserved and unconsumed.
 <!-- PL_V39_06_OPERATION_DEPTH_OBSERVATION_BRIDGE_ACTIVATION_V1:END -->
 
 <!-- PL_V39_09_09_B_SLICE_CLOSURE_V1:BEGIN -->
