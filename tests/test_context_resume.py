@@ -2,11 +2,21 @@ from __future__ import annotations
 
 import json
 import subprocess
+from copy import deepcopy
 from pathlib import Path
 
 import pytest
 
-from planning_lite.context import ContextError, build_resume_context, classify_storage, validate_handoff
+import planning_lite.context as context_module
+from planning_lite.context import (
+    ContextError,
+    OperationDepthObservationV1,
+    ProducedResumeContextV1,
+    build_observed_resume_context,
+    build_resume_context,
+    classify_storage,
+    validate_handoff,
+)
 from planning_lite.cli import main
 
 
@@ -363,3 +373,192 @@ def test_cli_resume_json_is_read_only(tmp_path: Path, capsys: pytest.CaptureFixt
     after = sorted(path.relative_to(root).as_posix() for path in root.rglob("*") if path.is_file())
     assert output["schema_version"] == 1
     assert before == after
+
+
+def _producer_fixture(tmp_path: Path):
+    root = _project(tmp_path)
+    plan = root / ".planning" / "changes" / "active" / "CHG-1" / "plan.md"
+    plan.write_text("# Plan\n\n## Exact\nselected\n", encoding="utf-8")
+    start = build_observed_resume_context(root)
+    expansion = build_observed_resume_context(
+        root, include=[".planning/changes/active/CHG-1/plan.md#Exact"]
+    )
+    return root, start, expansion
+
+
+def test_genuine_producer_start_and_public_mapping_are_compatible(tmp_path: Path) -> None:
+    root, start, _ = _producer_fixture(tmp_path)
+    assert isinstance(start, ProducedResumeContextV1)
+    assert start.to_dict() == build_resume_context(root)
+    observation = OperationDepthObservationV1.from_produced_context(start, operation_ref="op-1")
+    assert observation.to_dict()["start"]["freshness"] == "CURRENT"
+
+
+def test_genuine_exact_expansion_and_repeat_identity(tmp_path: Path) -> None:
+    _, start, expansion = _producer_fixture(tmp_path)
+    observation = OperationDepthObservationV1.from_produced_context(start)
+    first = observation.record_expansion(expansion)
+    second = first.record_expansion(expansion)
+    assert first.to_dict()["expansions"][0]["completeness"] == "COMPLETE"
+    assert first.to_dict()["expansions"][0]["repeated_or_reopened"] == "NO"
+    assert second.to_dict()["expansions"][1]["repeated_or_reopened"] == "YES"
+    assert second.to_dict()["expansions"][0]["sequence_index"] == 1
+    assert second.to_dict()["expansions"][1]["sequence_index"] == 2
+
+
+def test_plain_mapping_start_and_expansion_are_rejected(tmp_path: Path) -> None:
+    _, start, expansion = _producer_fixture(tmp_path)
+    observation = OperationDepthObservationV1.from_produced_context(start)
+    with pytest.raises(ContextError):
+        OperationDepthObservationV1.from_produced_context(start.to_dict())
+    with pytest.raises(ContextError):
+        OperationDepthObservationV1.from_resume_context(start.to_dict())
+    with pytest.raises(ContextError):
+        observation.record_expansion(expansion.to_dict())
+
+
+def test_perfect_fake_markers_and_copied_metadata_do_not_confer_provenance(tmp_path: Path) -> None:
+    _, start, _ = _producer_fixture(tmp_path)
+    fake = start.to_dict()
+    candidates = [
+        fake,
+        {**fake, "producer": "PL06"},
+        {**fake, "is_observed": True},
+        {**fake, "provenance": "PRODUCER_BOUND"},
+    ]
+    for candidate in candidates:
+        with pytest.raises(ContextError):
+            OperationDepthObservationV1.from_produced_context(candidate)
+
+
+def test_private_capability_not_serialized() -> None:
+    with pytest.raises(ContextError):
+        ProducedResumeContextV1()
+    assert not hasattr(ProducedResumeContextV1, "from_dict")
+    assert not hasattr(ProducedResumeContextV1, "from_mapping")
+    payload = json.dumps({"operation_ref": "x", "carrier": "ordinary"})
+    assert "PRODUCER_CAPABILITY" not in payload
+    assert "_PRODUCER_CAPABILITY" not in payload
+
+
+def test_carrier_json_round_trip_is_untrusted_and_duck_types_fail(tmp_path: Path) -> None:
+    _, start, _ = _producer_fixture(tmp_path)
+    serialized = json.dumps(start.to_dict())
+    assert "_PRODUCER_CAPABILITY" not in serialized
+    assert "PRODUCER_CAPABILITY" not in serialized
+    parsed = json.loads(serialized)
+    with pytest.raises(ContextError):
+        OperationDepthObservationV1.from_produced_context(parsed)
+
+    class Duck:
+        def to_dict(self):
+            return parsed
+
+    with pytest.raises(ContextError):
+        OperationDepthObservationV1.from_produced_context(Duck())
+
+    class Child(ProducedResumeContextV1):
+        pass
+
+    child = object.__new__(Child)
+    with pytest.raises(ContextError):
+        OperationDepthObservationV1.from_produced_context(child)
+
+
+def test_one_producer_occurrence_and_zero_projection_reads(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    root = _project(tmp_path)
+    original = context_module._build_resume_context_mapping
+    calls: list[int] = []
+
+    def counted(*args, **kwargs):
+        calls.append(1)
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(context_module, "_build_resume_context_mapping", counted)
+    public = build_resume_context(root)
+    assert len(calls) == 1
+    calls.clear()
+    carrier = build_observed_resume_context(root)
+    assert len(calls) == 1
+    assert carrier.to_dict() == public
+
+    monkeypatch.setattr(context_module, "_read", lambda *_args, **_kwargs: pytest.fail("projection read"))
+    observation = OperationDepthObservationV1.from_produced_context(carrier)
+    assert observation.to_dict()["start"]["freshness"] == "CURRENT"
+    assert len(calls) == 1
+
+
+def test_observation_expansion_projection_does_not_build_or_read(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    _, start, expansion = _producer_fixture(tmp_path)
+    monkeypatch.setattr(context_module, "_build_resume_context_mapping", lambda *_args, **_kwargs: pytest.fail("second context build"))
+    monkeypatch.setattr(context_module, "_read", lambda *_args, **_kwargs: pytest.fail("projection read"))
+    observation = OperationDepthObservationV1.from_produced_context(start)
+    projected = observation.record_expansion(expansion)
+    assert projected.to_dict()["expansions"][0]["completeness"] == "COMPLETE"
+
+
+def test_start_and_event_bounds_remain_bounded(tmp_path: Path) -> None:
+    _, start, _ = _producer_fixture(tmp_path)
+    observation = OperationDepthObservationV1.from_produced_context(start)
+    for _ in range(context_module.MAX_EXPANSIONS):
+        observation = observation.record_unavailable("NO_APPROVED_SEAM")
+    with pytest.raises(ContextError):
+        observation.record_unavailable("NO_APPROVED_SEAM")
+    fresh = OperationDepthObservationV1.from_produced_context(start)
+    with pytest.raises(ContextError):
+        fresh.record_unavailable("NO_APPROVED_SEAM", sequence_index=2)
+
+
+def test_count_validation_and_raw_material_are_rejected() -> None:
+    start = {
+        "context_trace_ref": None,
+        "source_revision": {"head": "a" * 64, "state": "AVAILABLE"},
+        "freshness": "CURRENT",
+        "selected_sources": [],
+        "selected_artifact_count": 1,
+        "selected_section_count": 0,
+        "selected_character_count": 0,
+        "explicit_expansion_count": 0,
+        "bounds": dict(context_module._DEPTH_BOUNDS),
+    }
+    with pytest.raises(ContextError):
+        OperationDepthObservationV1._create(operation_ref=None, start=start)
+    raw = deepcopy(start)
+    raw["reasoning"] = "raw sentinel"
+    with pytest.raises(ContextError):
+        OperationDepthObservationV1._create(operation_ref=None, start=raw)
+
+
+def test_carrier_and_observation_to_dict_are_detached(tmp_path: Path) -> None:
+    _, start, _ = _producer_fixture(tmp_path)
+    carrier_view = start.to_dict()
+    carrier_view["selected_sources"].clear()
+    assert start.to_dict()["selected_sources"]
+    observation = OperationDepthObservationV1.from_produced_context(start)
+    before = observation.to_dict()
+    returned = observation.to_dict()
+    returned["start"]["selected_sources"].clear()
+    assert observation.to_dict() == before
+
+
+def test_unavailable_start_and_arbitrary_identity_are_fail_closed(tmp_path: Path) -> None:
+    root = _project(tmp_path)
+    (root / ".planning" / "changes" / "active" / "CHG-1" / "context.md").unlink()
+    carrier = build_observed_resume_context(root)
+    observation = OperationDepthObservationV1.from_produced_context(carrier)
+    assert observation.to_dict()["start"]["freshness"] == "UNAVAILABLE"
+    assert observation.to_dict()["overall_completeness"] == "UNAVAILABLE"
+    with pytest.raises(ContextError):
+        observation.record_unavailable("FORBIDDEN_SOURCE", source_ref={"path": ".planning/fake.md", "sha256": "b" * 64})
+
+
+def test_partial_expansion_preserves_unavailable_precedence(tmp_path: Path) -> None:
+    root = _project(tmp_path)
+    large = root / ".planning" / "changes" / "active" / "CHG-1" / "large.md"
+    large.write_text("# Large\n" + ("x" * 5000), encoding="utf-8")
+    start = build_observed_resume_context(root)
+    expansion = build_observed_resume_context(root, include=[".planning/changes/active/CHG-1/large.md#Large"])
+    observation = OperationDepthObservationV1.from_produced_context(start).record_expansion(expansion)
+    assert observation.to_dict()["expansions"][0]["completeness"] == "PARTIAL"
+    unavailable = observation.record_unavailable("NO_APPROVED_SEAM")
+    assert unavailable.to_dict()["overall_completeness"] == "UNAVAILABLE"

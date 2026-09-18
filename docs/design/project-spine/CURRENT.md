@@ -5,10 +5,10 @@ repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
 active_change: CHG-PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-001
-lifecycle_gate: AMENDED_PLANNING_AUTHORITY_CHECKPOINTED
+lifecycle_gate: IMPLEMENTATION_CHECKPOINTED
 implementation_authorized: NO
 blockers: NONE
-next_permitted_action: OWNER_AUTHORIZATION_PL06_OPERATION_DEPTH_OBSERVATION_BRIDGE_PRE_READINESS_CANDIDATE_ISOLATION
+next_permitted_action: OWNER_CLOSURE_DECISION_PL_V39_06
 last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-EXECUTION-LEDGER-v1.md
 state_as_of: 2026-09-18
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
@@ -22,7 +22,7 @@ definition: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSE
 definition_status: APPROVED_BY_OWNER / PREDECESSOR_SCOPE
 definition_amendment: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-DEFINITION-AMENDMENT-v1.md
 definition_amendment_status: APPROVED_BY_OWNER
-activation: ACTIVE / AMENDED_PLANNING_AUTHORITY_CHECKPOINTED
+activation: ACTIVE / IMPLEMENTATION_CHECKPOINTED
 owner_definition_decision: APPROVE / USER / EXPLICIT / predecessor + amendment
 owner_amendment_decision: BOTH APPROVED / USER / EXPLICIT / 2026-09-18
 selected_direction: PRODUCER_BOUND_OBSERVATION
@@ -34,19 +34,24 @@ plan_amendment_status: APPROVED_BY_OWNER
 owner_plan_decision: APPROVE / USER / EXPLICIT / predecessor + amendment
 predecessor_planning_authority: f34429aefbf09fcae43226ff74eafefd580b3b88
 amended_planning_authority: APPROVED / CHECKPOINTED BY THIS GOVERNANCE COMMIT
-formal_readiness: HISTORICAL / PREDECESSOR ONLY / RENEWAL REQUIRED
-formal_readiness_verdict: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-FORMAL-READINESS-VERDICT-v1.md
+formal_readiness: READY / v2
+predecessor_formal_readiness: HISTORICAL / NOT_CURRENT
+formal_readiness_verdict: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-FORMAL-READINESS-VERDICT-v2.md
 planning_authority_checkpoint: PERFORMED / THIS GOVERNANCE COMMIT
-planning_authority: AMENDED / THIS GOVERNANCE COMMIT
-authorized_tasks: NONE / PRE-READINESS ISOLATION NOT AUTHORIZED
-independent_candidate_review: RE_REVIEW_FAIL / F-02 OPEN UNDER PREDECESSOR PLAN
+planning_authority: a6e7c6d761495823a5a157cfa42abf77616d6b26
+authorized_tasks: CONSUMED / IMPLEMENTATION CHECKPOINTED
+independent_candidate_review: REVIEW_PASS / 0 MATERIAL FINDINGS
 corrective_pass: HISTORICAL / F-01,F-03,F-04 HARDENING RETAINED / F-02 NOT IMPLEMENTATION-CLOSED
-formal_readiness_rerun: REQUIRED / NOT RUN
-pre_readiness_candidate_isolation: REQUIRED
+formal_readiness_rerun: COMPLETED / READY
+pre_readiness_candidate_isolation: COMPLETED / PRESERVED IN LOCAL
 isolation_timing: AFTER_PLANNING_AUTHORITY_CHECKPOINT_BEFORE_FORMAL_READINESS
-next_permitted_action: OWNER_AUTHORIZATION_PL06_OPERATION_DEPTH_OBSERVATION_BRIDGE_PRE_READINESS_CANDIDATE_ISOLATION
-implementation_candidate: UNCOMMITTED / RE_REVIEW_FAIL / PENDING_AMENDED_AUTHORITY
-commit_authorized: NO
+next_permitted_action: OWNER_CLOSURE_DECISION_PL_V39_06
+implementation: IMPLEMENTED / INDEPENDENT_REVIEW_PASS / CHECKPOINTED
+implementation_candidate: COMMITTED / INDEPENDENT_REVIEW_PASS
+material_findings: 0
+commit_authorized: CONSUMED / THIS CHECKPOINT
+change_2: NOT STARTED / NOT AUTHORIZED
+next_lifecycle_class: OWNER CLOSURE DECISION
 execution_ledger: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-EXECUTION-LEDGER-v1.md
 major_pl09_next_slice_gate: OWNER_ADJUDICATION_PL_V39_09_NEXT_SLICE_AFTER_09-B_CLOSURE
 major_pl09_next_slice_selected: NO
@@ -58,16 +63,13 @@ amended producer-bound Change scope. The amendments preserve the existing PL06
 ownership and bounded metadata-only observation goal; they do not authorize
 implementation or source/test mutation. The predecessor Planning Authority at
 `f34429aefbf09fcae43226ff74eafefd580b3b88` remains the immutable parent, and
-the amended Planning Authority is checkpointed by this governance commit.
+the amended Planning Authority is `a6e7c6d761495823a5a157cfa42abf77616d6b26`.
 
-The prior implementation authorization does not carry forward. The current
-candidate remains uncommitted and failed under the predecessor mapping trust
-boundary; its F-01/F-03/F-04 hardening and test evidence remain review history,
-while F-02 is architecturally addressed by the approved amendments but is not
-implementation-closed. Renewed Formal Readiness has not run and is required
-after this amended Planning Authority checkpoint and a separately owner-authorized
-candidate-isolation operation. Pre-readiness candidate isolation is required and
-is not authorized by this checkpoint.
+The bounded implementation authorization was consumed by the reviewed
+implementation and its checkpoint commit; it does not carry forward as general
+future mutation authority. The candidate is now committed with an independent
+review pass and zero material findings. F-02 is implementation-closed for this
+checkpoint, while Change closure remains a separate owner decision.
 The outstanding PL09 09-B post-closure owner-adjudication gate remains
 preserved and unconsumed.
 <!-- PL_V39_06_OPERATION_DEPTH_OBSERVATION_BRIDGE_ACTIVATION_V1:END -->

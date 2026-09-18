@@ -6,12 +6,14 @@ state.  It does not create a memory store, scan history, or write the target.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from hashlib import sha256
 import json
 import os
 from pathlib import Path
 import re
 import stat
+from types import MappingProxyType
 from typing import Any, Iterable, Mapping
 
 from .workspace import (
@@ -34,6 +36,117 @@ CURRENT_STATE_MAX_BULLETS = 12
 ACTIVE_CONTEXT_MAX_CHARS = 16384
 ACTIVE_CONTEXT_MAX_FIELDS = 12
 SECTION_MAX_CHARS = 4096
+
+_DEPTH_RAW_KEYS = frozenset(
+    {
+        "body",
+        "content",
+        "prompt",
+        "response",
+        "transcript",
+        "tool_payload",
+        "tool_body",
+        "reasoning",
+        "hidden_reasoning",
+    }
+)
+_DEPTH_REASON_CODES = frozenset(
+    {
+        "INVALID_START_CONTEXT",
+        "NO_APPROVED_SEAM",
+        "STALE_SOURCE",
+        "SUPERSEDED_SOURCE",
+        "MISSING_SOURCE",
+        "FORBIDDEN_SOURCE",
+        "EXPANSION_TOO_LARGE",
+    }
+)
+_DEPTH_COMPLETENESS_RANK = {"COMPLETE": 0, "PARTIAL": 1, "UNAVAILABLE": 2}
+_DEPTH_SOURCE_KEYS = frozenset({"path", "sha256", "role", "storage_class", "reason", "section"})
+_DEPTH_RESUME_KEYS = frozenset(
+    {
+        "schema_version",
+        "status",
+        "project_identity",
+        "git_identity",
+        "current_state",
+        "bootstrap",
+        "selected_sources",
+        "handoff",
+        "expansion_results",
+        "context_trace",
+    }
+)
+_DEPTH_TRACE_KEYS = frozenset(
+    {
+        "selected",
+        "excluded_by_default",
+        "selected_artifact_count",
+        "selected_section_count",
+        "selected_character_count",
+        "explicit_expansion_count",
+        "bounds",
+    }
+)
+_DEPTH_GIT_KEYS = frozenset({"head", "branch", "clean", "state"})
+_DEPTH_PROJECT_KEYS = frozenset({"project_id", "root"})
+_DEPTH_BOOTSTRAP_KEYS = frozenset(
+    {
+        "project_id",
+        "active_change",
+        "last_completed_or_next_pointer",
+        "lifecycle_stage",
+        "stage_status",
+        "implementation_authorized",
+        "open_blocker",
+        "next_permitted_action",
+        "active_context_path",
+        "source_revision",
+    }
+)
+_DEPTH_BOUNDS = {
+    "default_artifacts": DEFAULT_MAX_ARTIFACTS,
+    "explicit_expansions": MAX_EXPANSIONS,
+    "total_artifacts": MAX_TOTAL_ARTIFACTS,
+    "current_state_chars": CURRENT_STATE_MAX_CHARS,
+    "active_context_chars": ACTIVE_CONTEXT_MAX_CHARS,
+    "section_chars": SECTION_MAX_CHARS,
+}
+_DEPTH_SOURCE_REASONS = {
+    "active_state": "authority identity and exact pointers",
+    "current_state": "ACTIVE compact current state",
+    "active_context": "active context packet fields",
+    "explicit_expansion": "explicit exact lineage expansion",
+}
+_DEPTH_EVENT_KEYS = frozenset(
+    {
+        "sequence_index",
+        "source_ref",
+        "role",
+        "storage_class",
+        "reason_family",
+        "section",
+        "source_revision",
+        "freshness",
+        "bounded_volume",
+        "repeated_or_reopened",
+        "completeness",
+    }
+)
+_DEPTH_START_KEYS = frozenset(
+    {
+        "context_trace_ref",
+        "source_revision",
+        "freshness",
+        "selected_sources",
+        "selected_artifact_count",
+        "selected_section_count",
+        "selected_character_count",
+        "explicit_expansion_count",
+        "bounds",
+    }
+)
+_PRODUCER_CAPABILITY = object()
 
 _ACTIVE_FIELDS = (
     "Change",
@@ -370,7 +483,7 @@ def _promote_status(current: str, candidate: str) -> str:
     return candidate if _STATUS_RANK[candidate] > _STATUS_RANK[current] else current
 
 
-def build_resume_context(
+def _build_resume_context_mapping(
     target: str | Path,
     *,
     include: Iterable[str] = (),
@@ -570,12 +683,621 @@ def build_resume_context(
     }
 
 
+def _depth_assert_no_raw(value: Any, *, location: str = "resume_context") -> None:
+    if isinstance(value, Mapping):
+        for key, nested in value.items():
+            normalized = key.lower().replace("-", "_").replace(" ", "_") if isinstance(key, str) else ""
+            if normalized in _DEPTH_RAW_KEYS:
+                raise ContextError(f"OperationDepthObservationV1 rejects raw field: {location}.{key}")
+            _depth_assert_no_raw(nested, location=f"{location}.{key}")
+    elif isinstance(value, (list, tuple)):
+        for index, nested in enumerate(value):
+            _depth_assert_no_raw(nested, location=f"{location}[{index}]")
+
+
+def _depth_assert_json_metadata(value: Any, *, location: str = "resume_context") -> None:
+    if isinstance(value, Mapping):
+        for key, nested in value.items():
+            if not isinstance(key, str):
+                raise ContextError(f"{location} metadata keys must be strings")
+            _depth_assert_json_metadata(nested, location=f"{location}.{key}")
+    elif isinstance(value, (list, tuple)):
+        for index, nested in enumerate(value):
+            _depth_assert_json_metadata(nested, location=f"{location}[{index}]")
+    elif value is not None and not isinstance(value, (str, int, bool)):
+        raise ContextError(f"{location} contains unsupported mutable or non-JSON metadata")
+
+
+def _depth_freeze(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        if any(not isinstance(key, str) for key in value):
+            raise ContextError("OperationDepthObservationV1 metadata keys must be strings")
+        return MappingProxyType({key: _depth_freeze(item) for key, item in value.items()})
+    if isinstance(value, (list, tuple)):
+        return tuple(_depth_freeze(item) for item in value)
+    if value is None or isinstance(value, (str, int, bool)):
+        return value
+    raise ContextError("OperationDepthObservationV1 rejects mutable or non-JSON metadata")
+
+
+def _depth_thaw(value: Any) -> Any:
+    if isinstance(value, Mapping):
+        return {key: _depth_thaw(item) for key, item in value.items()}
+    if isinstance(value, tuple):
+        return [_depth_thaw(item) for item in value]
+    return value
+
+
+def _depth_operation_ref(value: object) -> str | None:
+    if value is None:
+        return None
+    if not isinstance(value, str) or not value.strip() or any(char in value for char in "\r\n"):
+        raise ContextError("operation_ref must be a non-empty single-line string or null")
+    return value.strip()
+
+
+def _depth_path(value: object, *, label: str = "source path") -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise ContextError(f"{label} must be a non-empty repository-relative path")
+    normalized = value.strip().replace("\\", "/")
+    if normalized.startswith("/") or re.match(r"^[A-Za-z]:", normalized):
+        raise ContextError(f"{label} must be repository-relative")
+    if any(token in normalized for token in ("*", "?", "[", "]")):
+        raise ContextError(f"{label} may not contain glob or pattern syntax")
+    parts = normalized.split("/")
+    if any(part in {"", ".", ".."} for part in parts):
+        raise ContextError(f"{label} must be normalized")
+    if normalized == ".git" or normalized.startswith(".git/"):
+        raise ContextError(f"{label} escapes the eligible root")
+    return normalized
+
+
+def _depth_sha(value: object, *, allow_null: bool = False) -> str | None:
+    if value is None and allow_null:
+        return None
+    if not isinstance(value, str) or not re.fullmatch(r"[0-9a-fA-F]{64}", value):
+        raise ContextError("source sha256 must be a 64-character hexadecimal string")
+    return value.lower()
+
+
+def _depth_is_expansion_path(path: str) -> bool:
+    return path.startswith(
+        (
+            ".planning/project/",
+            ".planning/changes/active/",
+            ".planning/changes/completed/",
+            ".planning/decisions/",
+        )
+    )
+
+
+def _depth_source(value: object) -> dict[str, Any]:
+    if not isinstance(value, Mapping) or set(value) != _DEPTH_SOURCE_KEYS:
+        raise ContextError("OperationDepthObservationV1 source metadata has an exact schema")
+    section = value["section"]
+    if not isinstance(section, (str, type(None))):
+        raise ContextError("source section must be a string or null")
+    if isinstance(section, str) and (
+        not section or len(section) > SECTION_MAX_CHARS or any(char in section for char in "\r\n#")
+    ):
+        raise ContextError("source section must be a bounded exact heading")
+    fields = {
+        "path": _depth_path(value["path"]),
+        "sha256": _depth_sha(value["sha256"]),
+        "role": value["role"],
+        "storage_class": value["storage_class"],
+        "reason": value["reason"],
+        "section": section,
+    }
+    if any(not isinstance(fields[key], str) for key in ("role", "storage_class", "reason")):
+        raise ContextError("source role, storage_class, and reason must be strings")
+    role = fields["role"]
+    if role not in _DEPTH_SOURCE_REASONS or fields["reason"] != _DEPTH_SOURCE_REASONS[role]:
+        raise ContextError("source role and reason must match the finite PL06 producer schema")
+    if fields["storage_class"] != classify_storage(fields["path"]):
+        raise ContextError("source storage_class must match the existing PL06 classifier")
+    if role != "explicit_expansion" and section is not None:
+        raise ContextError("only an explicit expansion may carry a section")
+    if role == "explicit_expansion" and not _depth_is_expansion_path(fields["path"]):
+        raise ContextError("explicit expansion source is outside the eligible PL06 paths")
+    return fields
+
+
+def _depth_source_ref(value: object) -> dict[str, Any] | None:
+    if value is None:
+        return None
+    if not isinstance(value, Mapping) or set(value) != {"path", "sha256"}:
+        raise ContextError("source_ref must contain exactly path and sha256")
+    return {"path": _depth_path(value["path"]), "sha256": _depth_sha(value["sha256"])}
+
+
+def _depth_count(value: object) -> int | None:
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        return None
+    return value
+
+
+def _depth_required_count(value: object, *, label: str) -> int:
+    count = _depth_count(value)
+    if count is None:
+        raise ContextError(f"{label} must be a non-negative integer")
+    return count
+
+
+def _depth_exact_keys(value: object, expected: frozenset[str], *, label: str) -> Mapping[str, Any]:
+    if not isinstance(value, Mapping) or set(value) != expected:
+        raise ContextError(f"{label} has an exact schema")
+    return value
+
+
+def _depth_revision(value: object) -> dict[str, Any] | None:
+    if not isinstance(value, Mapping) or set(value) not in ({"head", "state"}, _DEPTH_GIT_KEYS):
+        return None
+    head = value.get("head")
+    state = value.get("state")
+    if not isinstance(head, (str, type(None))) or not isinstance(state, str):
+        return None
+    if state not in {"AVAILABLE", "UNBORN", "UNAVAILABLE"}:
+        return None
+    return {"head": head, "state": state}
+
+
+def _depth_validate_resume_shape(resume_context: Mapping[str, Any], *, require_complete: bool = False) -> None:
+    unknown = set(resume_context) - _DEPTH_RESUME_KEYS
+    if unknown:
+        raise ContextError(f"ResumeContext has unknown keys: {sorted(unknown)}")
+    if require_complete:
+        missing = _DEPTH_RESUME_KEYS - set(resume_context)
+        if missing:
+            raise ContextError(f"ResumeContext is missing producer keys: {sorted(missing)}")
+    if "schema_version" in resume_context and resume_context["schema_version"] != 1:
+        raise ContextError("ResumeContext schema_version must be 1")
+    status = resume_context.get("status")
+    if status is not None and status not in _STATUS_RANK:
+        raise ContextError("ResumeContext status is invalid")
+
+    project_identity = resume_context.get("project_identity")
+    if project_identity is not None:
+        project = _depth_exact_keys(project_identity, _DEPTH_PROJECT_KEYS, label="project_identity")
+        if any(not isinstance(project[key], str) or not project[key] for key in _DEPTH_PROJECT_KEYS):
+            raise ContextError("project_identity values must be non-empty strings")
+
+    git_identity = resume_context.get("git_identity")
+    if git_identity is not None and (
+        set(git_identity) != _DEPTH_GIT_KEYS or _depth_revision(git_identity) is None
+    ):
+        raise ContextError("git_identity has an exact schema")
+
+    bootstrap = resume_context.get("bootstrap")
+    if bootstrap is not None:
+        boot = _depth_exact_keys(bootstrap, _DEPTH_BOOTSTRAP_KEYS, label="bootstrap")
+        if any(not isinstance(boot[key], (str, type(None))) for key in _DEPTH_BOOTSTRAP_KEYS - {"implementation_authorized"}):
+            raise ContextError("bootstrap metadata must use strings or null")
+        if not isinstance(boot["implementation_authorized"], (bool, type(None))):
+            raise ContextError("bootstrap implementation_authorized must be boolean or null")
+        if project_identity is not None and boot["project_id"] != project_identity["project_id"]:
+            raise ContextError("bootstrap project_id must match project_identity")
+        if git_identity is not None and boot["source_revision"] != git_identity["head"]:
+            raise ContextError("bootstrap source_revision must match git_identity")
+
+    current_state = resume_context.get("current_state")
+    if current_state is not None:
+        if not isinstance(current_state, Mapping):
+            raise ContextError("current_state must be a mapping")
+        active_tuple = current_state.get("active_tuple")
+        if not isinstance(active_tuple, (list, tuple)) or len(active_tuple) != 6:
+            raise ContextError("current_state.active_tuple must contain six bounded values")
+        if any(not isinstance(item, (str, bool, type(None))) for item in active_tuple):
+            raise ContextError("current_state.active_tuple contains invalid metadata")
+        for key, value in current_state.items():
+            if not isinstance(key, str) or (key != "active_tuple" and not isinstance(value, (str, type(None)))):
+                raise ContextError("current_state contains invalid metadata")
+
+    handoff = resume_context.get("handoff")
+    if handoff is not None:
+        validate_handoff(handoff)
+
+    normalized_sources: list[dict[str, Any]] | None = None
+    sources = resume_context.get("selected_sources")
+    if sources is not None:
+        if not isinstance(sources, (list, tuple)) or len(sources) > MAX_TOTAL_ARTIFACTS:
+            raise ContextError(f"ResumeContext selected_sources must contain at most {MAX_TOTAL_ARTIFACTS} items")
+        normalized_sources = [_depth_source(source) for source in sources]
+
+    normalized_results: list[dict[str, Any]] | None = None
+    results = resume_context.get("expansion_results")
+    if results is not None:
+        if not isinstance(results, (list, tuple)) or len(results) > MAX_EXPANSIONS:
+            raise ContextError("ResumeContext expansion_results must be bounded")
+        normalized_results = []
+        for result in results:
+            if not isinstance(result, Mapping) or set(result) != {"status", "path", "section", "limit_chars"}:
+                raise ContextError("ResumeContext expansion_results has an exact schema")
+            if result["status"] != "EXPANSION_TOO_LARGE":
+                raise ContextError("ResumeContext expansion_results has an unsupported status")
+            path = _depth_path(result["path"])
+            section = result["section"]
+            if not isinstance(section, str) or not section or len(section) > SECTION_MAX_CHARS or any(char in section for char in "\r\n#"):
+                raise ContextError("Expansion result section is invalid")
+            if _depth_required_count(result["limit_chars"], label="expansion result limit_chars") != SECTION_MAX_CHARS:
+                raise ContextError("Expansion result limit must match the existing PL06 bound")
+            if not _depth_is_expansion_path(path):
+                raise ContextError("Expansion result is outside eligible PL06 paths")
+            normalized_results.append({"status": result["status"], "path": path, "section": section, "limit_chars": SECTION_MAX_CHARS})
+
+    trace = resume_context.get("context_trace")
+    if trace is not None:
+        bounded_trace = _depth_exact_keys(trace, _DEPTH_TRACE_KEYS, label="ContextTrace")
+        selected = bounded_trace["selected"]
+        if not isinstance(selected, (list, tuple)) or len(selected) > MAX_TOTAL_ARTIFACTS:
+            raise ContextError("ContextTrace selected sources exceed the PL06 artifact bound")
+        trace_sources = [_depth_source(source) for source in selected]
+        if normalized_sources is not None and trace_sources != normalized_sources:
+            raise ContextError("ContextTrace selected sources must match ResumeContext selected_sources")
+        if bounded_trace["excluded_by_default"] != [{"category": category, "reason": reason} for category, reason in _EXCLUDED]:
+            raise ContextError("ContextTrace excluded_by_default must match the PL06 producer")
+        counts = {key: _depth_required_count(bounded_trace[key], label=f"ContextTrace.{key}") for key in (
+            "selected_artifact_count", "selected_section_count", "selected_character_count", "explicit_expansion_count"
+        )}
+        if counts["selected_artifact_count"] != len(trace_sources):
+            raise ContextError("ContextTrace selected_artifact_count disagrees with selected sources")
+        if counts["selected_section_count"] != sum(source["section"] is not None for source in trace_sources):
+            raise ContextError("ContextTrace selected_section_count disagrees with selected sources")
+        if counts["explicit_expansion_count"] > MAX_EXPANSIONS:
+            raise ContextError("ContextTrace explicit_expansion_count exceeds the PL06 bound")
+        if any(sum(source["role"] == role for source in trace_sources) > 1 for role in ("active_state", "current_state", "active_context")):
+            raise ContextError("ContextTrace contains duplicate default source roles")
+        bounds = _depth_exact_keys(bounded_trace["bounds"], frozenset(_DEPTH_BOUNDS), label="ContextTrace.bounds")
+        if dict(bounds) != _DEPTH_BOUNDS:
+            raise ContextError("ContextTrace bounds must match the existing PL06 limits")
+        if len(trace_sources) + len(normalized_results or ()) > MAX_TOTAL_ARTIFACTS:
+            raise ContextError("ResumeContext artifacts and results exceed the PL06 total bound")
+        if status == "CURRENT":
+            expansion_count = sum(source["role"] == "explicit_expansion" for source in trace_sources) + len(normalized_results or ())
+            if counts["explicit_expansion_count"] != expansion_count:
+                raise ContextError("ContextTrace expansion count disagrees with selected sources")
+
+
+def _depth_start_projection(resume_context: Mapping[str, Any]) -> dict[str, Any]:
+    status = resume_context.get("status")
+    if status != "CURRENT":
+        reason = {
+            "STALE": "STALE_SOURCE",
+            "SUPERSEDED": "SUPERSEDED_SOURCE",
+            "MISSING_OWNER_ARTIFACT": "MISSING_SOURCE",
+        }.get(status, "INVALID_START_CONTEXT")
+        return {
+            "context_trace_ref": None,
+            "source_revision": None,
+            "freshness": "UNAVAILABLE",
+            "selected_sources": [],
+            "selected_artifact_count": None,
+            "selected_section_count": None,
+            "selected_character_count": None,
+            "explicit_expansion_count": None,
+            "bounds": None,
+            "unavailable_reason": reason,
+        }
+    trace = resume_context.get("context_trace")
+    revision = _depth_revision(resume_context.get("git_identity"))
+    if not isinstance(trace, Mapping) or revision is None:
+        raise ContextError("CURRENT ResumeContext lacks producer trace or revision")
+    selected = trace["selected"]
+    sources = [_depth_source(item) for item in selected]
+    if trace["explicit_expansion_count"] != 0 or any(source["role"] == "explicit_expansion" for source in sources):
+        raise ContextError("Operation start must not contain an explicit expansion")
+    if resume_context.get("expansion_results") not in ([], ()):
+        raise ContextError("Operation start must not contain expansion results")
+    return {
+        "context_trace_ref": None,
+        "source_revision": revision,
+        "freshness": "CURRENT",
+        "selected_sources": sources,
+        "selected_artifact_count": _depth_required_count(trace["selected_artifact_count"], label="start selected_artifact_count"),
+        "selected_section_count": _depth_required_count(trace["selected_section_count"], label="start selected_section_count"),
+        "selected_character_count": _depth_required_count(trace["selected_character_count"], label="start selected_character_count"),
+        "explicit_expansion_count": 0,
+        "bounds": dict(trace["bounds"]),
+    }
+
+
+def _depth_next_sequence(current: tuple[Mapping[str, Any], ...], supplied: object) -> int:
+    expected = len(current) + 1
+    if len(current) >= MAX_EXPANSIONS:
+        raise ContextError(f"OperationDepthObservationV1 allows at most {MAX_EXPANSIONS} expansion events")
+    if supplied is None:
+        return expected
+    if isinstance(supplied, bool) or not isinstance(supplied, int) or supplied != expected:
+        raise ContextError(f"sequence_index must be the next one-based contiguous value ({expected})")
+    return supplied
+
+
+def _depth_identity(event: Mapping[str, Any]) -> tuple[object, object, object] | None:
+    source_ref = event.get("source_ref")
+    if not isinstance(source_ref, Mapping):
+        return None
+    return source_ref.get("path"), source_ref.get("sha256"), event.get("section")
+
+
+def _depth_event(value: Mapping[str, Any], *, expected_sequence: int) -> dict[str, Any]:
+    if set(value) != _DEPTH_EVENT_KEYS or value["sequence_index"] != expected_sequence:
+        raise ContextError("OperationDepthObservationV1 event has an invalid schema or sequence")
+    completeness = value["completeness"]
+    if completeness not in _DEPTH_COMPLETENESS_RANK:
+        raise ContextError("OperationDepthObservationV1 event completeness is invalid")
+    source_ref = _depth_source_ref(value["source_ref"])
+    revision = value["source_revision"]
+    if revision is not None:
+        revision = _depth_revision(revision)
+        if revision is None:
+            raise ContextError("OperationDepthObservationV1 event revision is invalid")
+    section = value["section"]
+    if not isinstance(section, (str, type(None))) or (isinstance(section, str) and (not section or len(section) > SECTION_MAX_CHARS)):
+        raise ContextError("OperationDepthObservationV1 event section is invalid")
+    bounded_volume = value["bounded_volume"]
+    if bounded_volume is not None:
+        bounded_volume = _depth_required_count(bounded_volume, label="event bounded_volume")
+    normalized = dict(value, source_ref=source_ref, source_revision=revision, bounded_volume=bounded_volume)
+    if completeness == "COMPLETE":
+        if source_ref is None or value["role"] != "explicit_expansion" or value["storage_class"] != classify_storage(source_ref["path"]):
+            raise ContextError("Complete expansion event is not producer-derived")
+        if value["reason_family"] != _DEPTH_SOURCE_REASONS["explicit_expansion"] or revision is None or value["freshness"] != "CURRENT":
+            raise ContextError("Complete expansion event is not producer-derived")
+        if value["repeated_or_reopened"] not in {"YES", "NO"}:
+            raise ContextError("Complete expansion repeat status is invalid")
+    elif completeness == "PARTIAL":
+        if source_ref is not None or value["role"] != "explicit_expansion" or value["reason_family"] != "EXPANSION_TOO_LARGE":
+            raise ContextError("Partial expansion event is not producer-derived")
+        if not isinstance(section, str) or revision is None or value["freshness"] != "CURRENT" or value["repeated_or_reopened"] != "UNAVAILABLE":
+            raise ContextError("Partial expansion event is not producer-derived")
+    else:
+        if value["role"] is not None or value["storage_class"] is not None or value["reason_family"] not in _DEPTH_REASON_CODES:
+            raise ContextError("Unavailable expansion event contains unsupported metadata")
+        if section is not None or revision is not None or bounded_volume is not None or value["freshness"] != "UNAVAILABLE" or value["repeated_or_reopened"] != "UNAVAILABLE":
+            raise ContextError("Unavailable expansion event contains unsupported metadata")
+    return normalized
+
+
+@dataclass(frozen=True, slots=True, init=False)
+class ProducedResumeContextV1:
+    """Factory-only producer-bound wrapper around bounded ResumeContext metadata."""
+
+    _payload: Mapping[str, Any]
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        raise ContextError("ProducedResumeContextV1 has no public constructor")
+
+    @classmethod
+    def _from_product(cls, payload: Mapping[str, Any], capability: object) -> "ProducedResumeContextV1":
+        if capability is not _PRODUCER_CAPABILITY:
+            raise ContextError("ProducedResumeContextV1 is producer-controlled")
+        if type(payload) is not dict:
+            raise ContextError("ProducedResumeContextV1 requires the exact producer result")
+        _depth_assert_no_raw(payload)
+        _depth_assert_json_metadata(payload)
+        _depth_validate_resume_shape(payload, require_complete=True)
+        instance = object.__new__(cls)
+        object.__setattr__(instance, "_payload", _depth_freeze(payload))
+        return instance
+
+    def to_dict(self) -> dict[str, Any]:
+        return _depth_thaw(self._payload)
+
+
+def _build_resume_context_product(
+    target: str | Path,
+    *,
+    include: Iterable[str] = (),
+    handoff: Mapping[str, Any] | None = None,
+) -> ProducedResumeContextV1:
+    payload = _build_resume_context_mapping(target, include=include, handoff=handoff)
+    return ProducedResumeContextV1._from_product(payload, _PRODUCER_CAPABILITY)
+
+
+def build_resume_context(
+    target: str | Path,
+    *,
+    include: Iterable[str] = (),
+    handoff: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    return _build_resume_context_product(target, include=include, handoff=handoff).to_dict()
+
+
+def build_observed_resume_context(
+    target: str | Path,
+    *,
+    include: Iterable[str] = (),
+    handoff: Mapping[str, Any] | None = None,
+) -> ProducedResumeContextV1:
+    return _build_resume_context_product(target, include=include, handoff=handoff)
+
+
+@dataclass(frozen=True, slots=True, init=False)
+class OperationDepthObservationV1:
+    """Immutable, bounded observation over producer-bound context products."""
+
+    operation_ref: str | None
+    start: Mapping[str, Any]
+    expansions: tuple[Mapping[str, Any], ...] = ()
+    overall_completeness: str = "COMPLETE"
+    unavailable_reasons: tuple[str, ...] = ()
+
+    def __init__(self, *args: object, **kwargs: object) -> None:
+        raise ContextError("OperationDepthObservationV1 must be created through from_produced_context")
+
+    @classmethod
+    def _create(
+        cls,
+        *,
+        operation_ref: str | None,
+        start: Mapping[str, Any],
+        expansions: tuple[Mapping[str, Any], ...] = (),
+    ) -> "OperationDepthObservationV1":
+        normalized_ref = _depth_operation_ref(operation_ref)
+        _depth_assert_no_raw(start, location="start")
+        _depth_assert_json_metadata(start, location="start")
+        if set(start) != _DEPTH_START_KEYS | ({"unavailable_reason"} if start.get("freshness") == "UNAVAILABLE" else set()):
+            raise ContextError("OperationDepthObservationV1 start has an exact schema")
+        if start["freshness"] == "UNAVAILABLE":
+            if start["unavailable_reason"] not in _DEPTH_REASON_CODES or start["selected_sources"] not in ([], ()):
+                raise ContextError("Unavailable operation start contains invalid metadata")
+            if any(start[key] is not None for key in ("source_revision", "selected_artifact_count", "selected_section_count", "selected_character_count", "explicit_expansion_count", "bounds")):
+                raise ContextError("Unavailable operation start may not retain source metadata")
+        else:
+            if start["freshness"] != "CURRENT" or _depth_revision(start["source_revision"]) is None:
+                raise ContextError("Complete operation start is not producer-derived")
+            sources = [_depth_source(source) for source in start["selected_sources"]]
+            if start["selected_artifact_count"] != len(sources) or start["selected_section_count"] != sum(source["section"] is not None for source in sources):
+                raise ContextError("Operation start counts disagree with retained sources")
+            if start["explicit_expansion_count"] != 0 or dict(start["bounds"]) != _DEPTH_BOUNDS:
+                raise ContextError("Operation start bounds are invalid")
+        if not isinstance(expansions, tuple) or len(expansions) > MAX_EXPANSIONS:
+            raise ContextError(f"OperationDepthObservationV1 allows at most {MAX_EXPANSIONS} expansion events")
+        normalized_events = []
+        for sequence, event in enumerate(expansions, start=1):
+            _depth_assert_no_raw(event, location="expansion")
+            _depth_assert_json_metadata(event, location="expansion")
+            normalized_events.append(_depth_event(event, expected_sequence=sequence))
+        overall = "UNAVAILABLE" if start["freshness"] == "UNAVAILABLE" else "COMPLETE"
+        reasons = []
+        if start.get("unavailable_reason"):
+            reasons.append(start["unavailable_reason"])
+        for event in normalized_events:
+            if _DEPTH_COMPLETENESS_RANK[event["completeness"]] > _DEPTH_COMPLETENESS_RANK[overall]:
+                overall = event["completeness"]
+            if event["completeness"] != "COMPLETE" and event["reason_family"] not in reasons:
+                reasons.append(event["reason_family"])
+        instance = object.__new__(cls)
+        object.__setattr__(instance, "operation_ref", normalized_ref)
+        object.__setattr__(instance, "start", _depth_freeze(start))
+        object.__setattr__(instance, "expansions", tuple(_depth_freeze(event) for event in normalized_events))
+        object.__setattr__(instance, "overall_completeness", overall)
+        object.__setattr__(instance, "unavailable_reasons", tuple(reasons))
+        return instance
+
+    @classmethod
+    def from_produced_context(cls, produced_context: ProducedResumeContextV1, operation_ref: str | None = None) -> "OperationDepthObservationV1":
+        if type(produced_context) is not ProducedResumeContextV1:
+            raise ContextError("from_produced_context requires an exact ProducedResumeContextV1")
+        return cls._create(operation_ref=operation_ref, start=_depth_start_projection(produced_context.to_dict()))
+
+    @classmethod
+    def from_resume_context(cls, resume_context: Mapping[str, Any], operation_ref: str | None = None) -> "OperationDepthObservationV1":
+        raise ContextError("mapping-based observation provenance is disabled; use from_produced_context")
+
+    def _append_event(self, event: Mapping[str, Any], *, sequence_index: object = None) -> "OperationDepthObservationV1":
+        sequence = _depth_next_sequence(self.expansions, sequence_index)
+        normalized = dict(event)
+        normalized["sequence_index"] = sequence
+        return type(self)._create(operation_ref=self.operation_ref, start=self.start, expansions=(*self.expansions, normalized))
+
+    def record_expansion(self, produced_context: ProducedResumeContextV1, sequence_index: int | None = None) -> "OperationDepthObservationV1":
+        if type(produced_context) is not ProducedResumeContextV1:
+            raise ContextError("record_expansion requires an exact ProducedResumeContextV1")
+        _depth_next_sequence(self.expansions, sequence_index)
+        context = produced_context.to_dict()
+        _depth_validate_resume_shape(context, require_complete=True)
+        status = context["status"]
+        stale_reason = {"STALE": "STALE_SOURCE", "SUPERSEDED": "SUPERSEDED_SOURCE", "MISSING_OWNER_ARTIFACT": "MISSING_SOURCE"}.get(status)
+        if stale_reason:
+            return self.record_unavailable(stale_reason, sequence_index=sequence_index)
+        if status != "CURRENT":
+            raise ContextError("Expansion context has no current owner status")
+        trace = context["context_trace"]
+        revision = _depth_revision(context["git_identity"])
+        selected = [_depth_source(item) for item in trace["selected"]]
+        explicit = [item for item in selected if item["role"] == "explicit_expansion"]
+        baseline = [item for item in selected if item["role"] != "explicit_expansion"]
+        results = context["expansion_results"]
+        if trace["explicit_expansion_count"] != 1 or len(explicit) + len(results) != 1:
+            raise ContextError("Expansion observation requires exactly one explicit expansion result")
+        if self.start["freshness"] != "CURRENT" or baseline != _depth_thaw(self.start["selected_sources"]):
+            raise ContextError("Expansion context default sources do not match the operation start")
+        if revision != _depth_thaw(self.start["source_revision"]):
+            raise ContextError("Expansion context revision does not match the operation start")
+        bounded_volume = _depth_required_count(trace["selected_character_count"], label="expansion bounded volume")
+        if explicit:
+            source = explicit[0]
+            identity = (source["path"], source["sha256"], source["section"])
+            event = {
+                "source_ref": {"path": source["path"], "sha256": source["sha256"]},
+                "role": source["role"],
+                "storage_class": source["storage_class"],
+                "reason_family": source["reason"],
+                "section": source["section"],
+                "source_revision": revision,
+                "freshness": status,
+                "bounded_volume": bounded_volume,
+                "repeated_or_reopened": "YES" if any(_depth_identity(previous) == identity for previous in self.expansions) else "NO",
+                "completeness": "COMPLETE",
+            }
+            return self._append_event(event, sequence_index=sequence_index)
+        result = results[0]
+        if result["status"] != "EXPANSION_TOO_LARGE":
+            raise ContextError("Expansion result has an unsupported bounded status")
+        event = {
+            "source_ref": None,
+            "role": "explicit_expansion",
+            "storage_class": classify_storage(_depth_path(result["path"])),
+            "reason_family": "EXPANSION_TOO_LARGE",
+            "section": result["section"],
+            "source_revision": revision,
+            "freshness": status,
+            "bounded_volume": bounded_volume,
+            "repeated_or_reopened": "UNAVAILABLE",
+            "completeness": "PARTIAL",
+        }
+        return self._append_event(event, sequence_index=sequence_index)
+
+    def record_unavailable(self, reason_code: str, sequence_index: int | None = None, source_ref: Mapping[str, Any] | None = None) -> "OperationDepthObservationV1":
+        if reason_code not in _DEPTH_REASON_CODES:
+            raise ContextError(f"Unsupported observation unavailable reason: {reason_code!r}")
+        _depth_next_sequence(self.expansions, sequence_index)
+        normalized_ref = _depth_source_ref(source_ref)
+        if normalized_ref is not None:
+            known = {(source["path"], source["sha256"]) for source in self.start.get("selected_sources", ())}
+            known.update(
+                (event_ref["path"], event_ref["sha256"])
+                for event in self.expansions
+                if isinstance((event_ref := event.get("source_ref")), Mapping)
+            )
+            if (normalized_ref["path"], normalized_ref["sha256"]) not in known:
+                raise ContextError("record_unavailable source_ref must already be bound to this observation")
+        return self._append_event(
+            {
+                "source_ref": normalized_ref,
+                "role": None,
+                "storage_class": None,
+                "reason_family": reason_code,
+                "section": None,
+                "source_revision": None,
+                "freshness": "UNAVAILABLE",
+                "bounded_volume": None,
+                "repeated_or_reopened": "UNAVAILABLE",
+                "completeness": "UNAVAILABLE",
+            },
+            sequence_index=sequence_index,
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "operation_ref": self.operation_ref,
+            "start": _depth_thaw(self.start),
+            "expansions": [_depth_thaw(event) for event in self.expansions],
+            "overall_completeness": self.overall_completeness,
+            "unavailable_reasons": list(self.unavailable_reasons),
+        }
+
+
 validate_resume_context = build_resume_context
 resume_context = build_resume_context
 
 
 __all__ = [
     "ContextError",
+    "OperationDepthObservationV1",
+    "ProducedResumeContextV1",
+    "build_observed_resume_context",
     "build_resume_context",
     "classify_storage",
     "resume_context",
