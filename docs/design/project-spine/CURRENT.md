@@ -4,14 +4,48 @@
 repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
-active_change: NONE
-lifecycle_gate: CLOSE_PL_V39_09_09-B_POST_MATERIALIZATION_CLOSURE
+active_change: CHG-PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-001
+lifecycle_gate: PLANNING_IN_PROGRESS
 implementation_authorized: NO
 blockers: NONE
-next_permitted_action: OWNER_ADJUDICATION_PL_V39_09_NEXT_SLICE_AFTER_09-B_CLOSURE
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-09-B-POST-MATERIALIZATION-CLOSURE-v1.md
+next_permitted_action: RUN_PL06_OPERATION_DEPTH_OBSERVATION_BRIDGE_FORMAL_READINESS
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-IMPLEMENTATION-PLAN-v1.md
 state_as_of: 2026-09-17
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
+
+<!-- PL_V39_06_OPERATION_DEPTH_OBSERVATION_BRIDGE_ACTIVATION_V1:BEGIN -->
+## Current PL-V39-06 Operation-Depth Observation Bridge
+
+```text
+active_change: CHG-PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-001
+definition: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-CHANGE-DEFINITION-v1.md
+definition_status: APPROVED_BY_OWNER
+activation: ACTIVE / PLANNING_IN_PROGRESS
+owner_definition_decision: APPROVE / USER / EXPLICIT / current conversation
+implementation_authorized: NO
+plan: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-IMPLEMENTATION-PLAN-v1.md
+plan_status: APPROVED_BY_OWNER
+owner_plan_decision: APPROVE / USER / EXPLICIT / current conversation
+formal_readiness: NOT_RUN
+planning_authority_checkpoint: PERFORMED / THIS_COMMIT
+next_permitted_action: RUN_PL06_OPERATION_DEPTH_OBSERVATION_BRIDGE_FORMAL_READINESS
+major_pl09_next_slice_gate: OWNER_ADJUDICATION_PL_V39_09_NEXT_SLICE_AFTER_09-B_CLOSURE
+major_pl09_next_slice_selected: NO
+```
+
+The approved Change is bounded to planning the PL06 operation-depth
+observation bridge. It may reference existing ResumeContext/ContextTrace and
+later explicitly observable expansions, but it does not store raw conversation
+or source bodies and does not authorize implementation. The outstanding PL09
+09-B post-closure owner-adjudication gate remains preserved and is not
+consumed, replaced, or recorded as a selected downstream slice.
+
+The approved Definition, activation, Implementation Plan, and aligned current
+state are frozen by this governance commit (`THIS_COMMIT` resolves to the
+resulting Planning Authority commit identity). Formal Readiness is the next
+read-only gate; implementation, execution, acceptance, checkpoint commit, and
+closure remain separate later gates.
+<!-- PL_V39_06_OPERATION_DEPTH_OBSERVATION_BRIDGE_ACTIVATION_V1:END -->
 
 <!-- PL_V39_09_09_B_SLICE_CLOSURE_V1:BEGIN -->
 ## Current PL-V39-09 state
