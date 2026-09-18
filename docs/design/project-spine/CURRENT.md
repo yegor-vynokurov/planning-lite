@@ -4,12 +4,12 @@
 repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
-active_change: CHG-PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-001
-lifecycle_gate: IMPLEMENTATION_CHECKPOINTED
+active_change: NONE
+lifecycle_gate: DISCOVERY_READY
 implementation_authorized: NO
 blockers: NONE
-next_permitted_action: OWNER_CLOSURE_DECISION_PL_V39_06
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-EXECUTION-LEDGER-v1.md
+next_permitted_action: OWNER_DECISION_START_PL09_COMPACT_SEMANTIC_OPERATION_TRACE_CORRECTIVE_CHANGE
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-COMPLETION-REVIEW-v1.md
 state_as_of: 2026-09-18
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
@@ -17,12 +17,16 @@ state_as_of: 2026-09-18
 ## Current PL-V39-06 Operation-Depth Observation Bridge
 
 ```text
-active_change: CHG-PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-001
+active_change: NONE
+closed_change: CHG-PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-001
+change_state: CLOSED / COMPLETE
+completion_verdict: PASS
+completed_capability: PRODUCER_BOUND_OPERATION_DEPTH_OBSERVATION_BRIDGE
 definition: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-CHANGE-DEFINITION-v1.md
 definition_status: APPROVED_BY_OWNER / PREDECESSOR_SCOPE
 definition_amendment: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-DEFINITION-AMENDMENT-v1.md
 definition_amendment_status: APPROVED_BY_OWNER
-activation: ACTIVE / IMPLEMENTATION_CHECKPOINTED
+activation: CLOSED / COMPLETE
 owner_definition_decision: APPROVE / USER / EXPLICIT / predecessor + amendment
 owner_amendment_decision: BOTH APPROVED / USER / EXPLICIT / 2026-09-18
 selected_direction: PRODUCER_BOUND_OBSERVATION
@@ -45,13 +49,19 @@ corrective_pass: HISTORICAL / F-01,F-03,F-04 HARDENING RETAINED / F-02 NOT IMPLE
 formal_readiness_rerun: COMPLETED / READY
 pre_readiness_candidate_isolation: COMPLETED / PRESERVED IN LOCAL
 isolation_timing: AFTER_PLANNING_AUTHORITY_CHECKPOINT_BEFORE_FORMAL_READINESS
-next_permitted_action: OWNER_CLOSURE_DECISION_PL_V39_06
+next_permitted_action: OWNER_DECISION_START_PL09_COMPACT_SEMANTIC_OPERATION_TRACE_CORRECTIVE_CHANGE
 implementation: IMPLEMENTED / INDEPENDENT_REVIEW_PASS / CHECKPOINTED
+implementation_checkpoint: 420113cce4c1cb56d2b620c9b770773b952c7825
 implementation_candidate: COMMITTED / INDEPENDENT_REVIEW_PASS
+independent_review: REVIEW_PASS
+open_material_findings: NONE
 material_findings: 0
-commit_authorized: CONSUMED / THIS CHECKPOINT
+completion_review: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-COMPLETION-REVIEW-v1.md
 change_2: NOT STARTED / NOT AUTHORIZED
-next_lifecycle_class: OWNER CLOSURE DECISION
+pl08_runreceipt_correction: NOT STARTED / NOT AUTHORIZED
+runtime_prompt_dedup_activation: NOT AUTHORIZED
+major_pl09_next_slice_gate_status: PRESERVED / UNCONSUMED
+next_lifecycle_class: OWNER DECISION FOR NEXT BOUNDED CORRECTIVE CHANGE
 execution_ledger: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-EXECUTION-LEDGER-v1.md
 major_pl09_next_slice_gate: OWNER_ADJUDICATION_PL_V39_09_NEXT_SLICE_AFTER_09-B_CLOSURE
 major_pl09_next_slice_selected: NO
@@ -67,9 +77,10 @@ the amended Planning Authority is `a6e7c6d761495823a5a157cfa42abf77616d6b26`.
 
 The bounded implementation authorization was consumed by the reviewed
 implementation and its checkpoint commit; it does not carry forward as general
-future mutation authority. The candidate is now committed with an independent
-review pass and zero material findings. F-02 is implementation-closed for this
-checkpoint, while Change closure remains a separate owner decision.
+future mutation authority. The producer-bound Operation Depth Observation
+Bridge is closed complete with Formal Readiness v2, independent review pass,
+and zero open material findings. The next action is only an owner decision for
+a distinct bounded corrective Change.
 The outstanding PL09 09-B post-closure owner-adjudication gate remains
 preserved and unconsumed.
 <!-- PL_V39_06_OPERATION_DEPTH_OBSERVATION_BRIDGE_ACTIVATION_V1:END -->
