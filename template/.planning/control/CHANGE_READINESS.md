@@ -22,6 +22,12 @@ Verify:
 - tasks are dependency-ordered and blocking edges are explicit;
 - architecture, seams, public contracts, data, migration, recovery, security, compatibility, dependencies, tests, documentation, blast radius, and rollback are addressed where applicable;
 - no execution detail still requires an unapproved architecture decision.
+- for every affected journey, the carrier, applicability, current/expected
+  state, first broken seam, downstream-unreachable seams, blocking disposition,
+  placeholder policy, no-false-PASSING rule, and evidence-backed bypass are
+  exhaustive and consistent;
+- no journey path transfers Project Spine ownership, validator purity, or
+  reconciliation authority to runtime code;
 
 Record evidence and one verdict in `readiness.md`:
 
@@ -87,12 +93,20 @@ N/A
 `N/A` is explicit and legal for immaterial dimensions. Simple leaf work must be
 allowed to remain light.
 
+For a CriticalJourney, Shared Contract Closure consumes the same exact carrier
+serialization, journey IDs, ordered seams, gap fields, and system-proof fields
+used by the Definition and Plan. It must not create a second journey schema.
+
 ### Determinacy
 
 Where exact identity, bytes, canonical encoding, evidence, persistence, or
 interface representation is material, include a determinacy check.
 
 Do not impose determinacy machinery where representation is immaterial.
+
+When journey identity, state, seam order, first broken seam, downstream
+unreachability, or proof disposition is material, determinacy covers the exact
+carrier encoding and the observation-to-reconciliation boundary.
 
 ### Materiality / Simplicity challenge
 

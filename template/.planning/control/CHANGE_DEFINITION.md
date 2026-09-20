@@ -17,6 +17,7 @@ Follow `CHANGE_LIFECYCLE.md`. Load `disciplines/DOMAIN_MODELING.md` only when do
    - `requirements-checklist.md`.
 7. Leave later-stage files in initialized template state.
 8. State goal, scope, non-goals, user-visible outcome, interfaces, invariants, constraints, risks, migration or recovery needs, and measurable acceptance criteria.
+8a. For every materially affected applicable CriticalJourney, record `AFFECTED_CRITICAL_JOURNEYS`, `EXPECTED_JOURNEY_STATE_DELTA`, `SYSTEM_PROOF_REQUIRED`, `SYSTEM_PROOF_NOT_APPLICABLE_REASON`, and `AFFECTED_JOURNEY_SURFACE_CHECK`. If a journey is material, identify the expected `FIRST_BROKEN_SEAM` when known; an unaffected journey requires an evidence-backed bypass.
 9. Record exact lineage for the bounded scope. When a Roadmap outcome is the source, record its canonical ID, the direct/dependent Gap refs actually served by this Change, and whether the Change is a partial contribution or genuinely completes the outcome. Link source recommendations in both directions under `RECOMMENDATION_LIFECYCLE.md`; when semantic units exist, record the exact `Source recommendation units` selected by scope rather than implying whole-parent coverage.
 10. Preserve the boundaries `Change completion != RoadmapOutcome completion` and `Change completion != Gap closure`; a Roadmap outcome may require several governed Changes.
 11. Verify scaffold integrity and confirm no nested `.gitkeep` or unexpected scaffold artifact exists.
@@ -25,3 +26,7 @@ Follow `CHANGE_LIFECYCLE.md`. Load `disciplines/DOMAIN_MODELING.md` only when do
 ## Approval
 
 Only explicit user confirmation changes the proposal status to `Approved`. After approval, transition to `Planning / In progress`; implementation remains unauthorized.
+
+The exact Scope journey block is consumed by Planning without reinterpretation.
+Definition and Planning must preserve the same journey IDs, applicability
+decision, ordered seam surface, proof obligation, and bypass reason.

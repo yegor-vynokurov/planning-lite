@@ -15,6 +15,8 @@ May update only:
 
 - `.planning/project/TARGET_STATE.md`;
 - `.planning/project/CAPABILITY_MODEL.md`;
+- `.planning/project/CRITICAL_JOURNEYS.md` when the Target contains an
+  applicable materially multi-stage flow;
 - `.planning/ACTIVE.md` for the next planning gate.
 
 ## Question ownership
@@ -169,8 +171,10 @@ Current satisfaction, `PARTIAL`, `SATISFIED`, evidence confidence, and causal Ga
 7. If no Target-boundary question remains, set `PROVISIONAL_TARGET_BASELINE`.
 8. Derive or refresh `CAPABILITY_MODEL.md` from the calibrated Target.
 9. Present the calibrated Target and Capability Model as the direction baseline. If the user explicitly accepts the Target, record evidence and set Target status `ACCEPTED`. If the user explicitly accepts the Capability Model, record evidence and set its status `CURRENT_BASELINE`.
-10. Downstream Current Capability Assessment requires both an `ACCEPTED` Target and a `CURRENT_BASELINE` Capability Model.
-11. Do not assess current coverage or derive Gaps.
+10. For each materially multi-stage Target flow, decide `REQUIRED` or `NOT_APPLICABLE` with a reason. For `REQUIRED`, create the durable CriticalJourney carrier record and establish `DEFINED` before downstream planning.
+11. Hand the earliest feasible journey edge to a System Walking Skeleton when end-to-end shape matters; do not treat local Capability Walking Skeleton evidence as system traversal evidence.
+12. Downstream Current Capability Assessment requires both an `ACCEPTED` Target and a `CURRENT_BASELINE` Capability Model.
+13. Do not assess current coverage or derive Gaps.
 
 ## Hard checks
 

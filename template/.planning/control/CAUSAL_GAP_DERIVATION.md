@@ -61,6 +61,20 @@ A Gap is not:
 - an evidence limitation by itself;
 - a stronger capability than the accepted Target requires.
 
+Traversability-related causal Gaps use this bounded taxonomy:
+
+```text
+IMPLEMENTATION_GAP
+WIRING_GAP
+ORCHESTRATION_GAP
+EVIDENCE_GAP
+```
+
+`Activation` is a qualifier/subclass of `WIRING_GAP`, not a fifth class.
+Journey-linked evidence records `FIRST_BROKEN_SEAM`; every seam after it is
+`DOWNSTREAM_UNREACHABLE`. Journey closure must distinguish the Gap from the
+journey state and must not create a parallel registry or database.
+
 Use stable project-local IDs such as `GAP-001`, `GAP-002`, ... . Preserve an existing accepted Gap ID when the causal meaning is materially the same.
 
 ## Causal compression
@@ -125,6 +139,11 @@ Evidence required for closure
 Dependencies on other Gap identities, if logically required
 Owned downstream CAPABILITY_DESIGN_QUESTION / RESEARCH_QUESTION
 Known implementation candidates or historical signals, only if already present in current evidence
+Journey-linked traversability refs when applicable:
+CriticalJourney refs
+FIRST_BROKEN_SEAM
+DOWNSTREAM_UNREACHABLE seam refs
+observation disposition and reconciliation evidence
 ```
 
 ### Outcome-oriented closure
@@ -189,6 +208,10 @@ Individual newly derived Gaps start `OPEN`. This workflow defines closure condit
 - `CHK-GAP-008`: Gap identity remains distinct from RoadmapOutcome and Change identity.
 - `CHK-GAP-009`: `CURRENT_BASELINE` has explicit user acceptance evidence.
 - `CHK-GAP-010`: broad recommendation/Roadmap history is deferred to the later reconciliation workflow.
+- `CHK-GAP-011`: applicable materially multi-stage flows have a durable CriticalJourney carrier or an explicit NOT_APPLICABLE decision with a reason.
+- `CHK-GAP-012`: traversability Gaps use only IMPLEMENTATION_GAP, WIRING_GAP, ORCHESTRATION_GAP, or EVIDENCE_GAP; Activation is only a WIRING_GAP qualifier.
+- `CHK-GAP-013`: a journey-linked Gap records FIRST_BROKEN_SEAM and marks downstream seams DOWNSTREAM_UNREACHABLE without minting a parallel registry.
+- `CHK-GAP-014`: journey closure evidence does not silently promote a derived observation into durable state; governed reconciliation remains required.
 
 ## Stop conditions
 

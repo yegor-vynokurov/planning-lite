@@ -1,0 +1,137 @@
+# Planning Lite / PL-V39-09 System Traversability Contract and Critical Journey Binding - Plan Approval + Readiness Entry v1
+
+Document ID: PL-V39-09-SYSTEM-TRAVERSABILITY-CONTRACT-PLAN-APPROVAL-READINESS-ENTRY-001
+Date: 2026-09-19
+Baseline HEAD: befa1780093335c99318526a3b3368c0f2a23ee0
+Change: CHG-PL-V39-09-SYSTEM-TRAVERSABILITY-CONTRACT-001
+Change name: System Traversability Contract and Critical Journey Binding
+Approval authority: EXPLICIT_HUMAN_OWNER
+Owner Plan decision: APPROVE_PL_SYSTEM_TRAVERSABILITY_FINAL_IMPLEMENTATION_PLAN
+
+## Bound authority
+
+~~~text
+CANONICAL_DEFINITION:
+docs/design/project-spine/checkpoints/PL-V39-09-SYSTEM-TRAVERSABILITY-CONTRACT-CHANGE-DEFINITION-v1.md
+CANONICAL_DEFINITION_SHA256:
+764E8D2702B964DD6F7B7C4A37289DB49271331A07270AE1BE9D99089C592820
+
+DEFINITION_ACTIVATION:
+docs/design/project-spine/checkpoints/PL-V39-09-SYSTEM-TRAVERSABILITY-CONTRACT-DEFINITION-ACTIVATION-v1.md
+DEFINITION_ACTIVATION_SHA256:
+2953BFD736B72AC08525EE095CCE89958EF0EC3B8AB189F6A7CCCB447BC11805
+
+APPROVED_SOURCE_PLAN:
+.local/work/experiments/PL_SYSTEM_TRAVERSABILITY_IMPLEMENTATION_PLAN_CANDIDATE.md
+APPROVED_SOURCE_PLAN_SHA256:
+71FF99DDAB1C49D5183C30FE2724DC32E777AC5066E5D302A8FDEE1F9CA94B4B
+
+FINAL_FOCUSED_PLAN_REVIEW:
+.local/work/experiments/PL_SYSTEM_TRAVERSABILITY_FINAL_IMPLEMENTATION_PLAN_FOCUSED_REVIEW.md
+FINAL_FOCUSED_PLAN_REVIEW_SHA256:
+89C3F250AB1FB9A9D474F9F8C0986F9D2ABCFDA1FC14AFF0C7313B50CDA69991
+FINAL_FOCUSED_PLAN_REVIEW_VERDICT: PASS
+
+CANONICAL_PLAN:
+docs/design/project-spine/checkpoints/PL-V39-09-SYSTEM-TRAVERSABILITY-CONTRACT-IMPLEMENTATION-PLAN-v1.md
+CANONICAL_PLAN_RAW_SHA256:
+5B77D3C4D7FA727713E3944B041C846CFB37C0F0C9A1328C9B39616F2F044201
+
+SEMANTIC_DELTA_FROM_APPROVED_PLAN: NONE
+BYTE_DELTA_REASON: CANONICAL_HEADER_STATUS_PATH_LINEAGE_AND_RECEIPT_METADATA_ONLY
+~~~
+
+The approved Plan remains the sole implementation-scope and later-readiness
+evidence authority for this Change. This entry records canonicalization and
+owner approval; it does not run Formal Readiness or authorize implementation.
+
+## Approval result
+
+~~~text
+PLAN_APPROVED: YES
+PLAN_CANONICALIZED: YES
+PLAN_STATUS: PLAN_APPROVED / FORMAL_READINESS_NOT_YET_AUTHORIZED / IMPLEMENTATION_NOT_AUTHORIZED
+OWNER_PLAN_APPROVAL: RECORDED / EXPLICIT_HUMAN_OWNER / 2026-09-19
+PLAN_REVIEW: PASS / 0 NEW MATERIAL FINDINGS
+FORMAL_READINESS_RUN: NO
+FORMAL_READINESS_STATUS: NOT_YET_AUTHORIZED
+FORMAL_READINESS_AUTHORIZED_BY_THIS_ENTRY: NO
+IMPLEMENTATION_AUTHORIZED: NO
+~~~
+
+The approved Plan preserves the Definition's complete 15-path semantic surface,
+resolves zero semantic projections, adds exactly two mechanical integrity paths,
+and retains the total planned path count of 17. No Plan-time architecture STOP
+is active, and no architecture choice is silently introduced.
+
+## Lifecycle and preserved boundaries
+
+~~~text
+DEFINITION_APPROVED_AND_ACTIVATED
+-> PLAN_APPROVED_AND_CANONICALIZED
+-> OWNER_AUTHORIZATION_PL_SYSTEM_TRAVERSABILITY_FORMAL_READINESS
+-> FORMAL_READINESS_RUN
+-> separate owner implementation authorization
+-> implementation
+
+CURRENT_MUTATION_REQUIRED_BY_CONVENTION: NO
+CURRENT_MUTATED: NO
+IMPLEMENTATION_PATHS_MUTATED: 0
+FORMAL_READINESS_RUN: NO
+IMPLEMENTATION: NO
+STAGED_PATHS: 0
+COMMIT: NO
+PUSH: NO
+~~~
+
+The following boundaries remain unchanged:
+
+~~~text
+CHG-PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-001
+BLOCKED / VALID / PAUSED
+IMPLEMENTATION: NO
+
+CHG-PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-001
+SHAPED / PAUSED_BEFORE_EMPIRICAL_DISCOVERY
+
+OWNER_ADJUDICATION_PL_V39_09_NEXT_SLICE_AFTER_09-B_CLOSURE
+PRESERVED / UNCONSUMED
+
+SAFE_FILE_MUTATION_HYGIENE
+PRESERVED / SEPARATE
+~~~
+
+No source, template, test, runtime prerequisite, Change 2, consumer project,
+Roadmap vertebra, major PL09 gate, runtime prompt deduplication, Change 3,
+registry/database/scheduler/graph engine, or authority boundary is changed or
+consumed by this canonicalization.
+
+## Convention evidence
+
+~~~text
+CANONICAL_PLAN_CONVENTION_SOURCE:
+docs/design/project-spine/checkpoints/PL-V39-09-EXECUTION-EFFICIENCY-BOOTSTRAP-IMPLEMENTATION-PLAN-v1.md
+
+PLAN_APPROVAL_CONVENTION_SOURCE:
+docs/design/project-spine/checkpoints/PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-PLAN-APPROVAL-READINESS-ENTRY-v1.md
+
+CONVENTION_RESULT:
+SEPARATE_CANONICAL_PLAN_AND_PLAN_APPROVAL_READINESS_ENTRY_REQUIRED
+~~~
+
+The canonical Plan and this approval/readiness entry are the minimum normal
+checkpoint pair for the approved Plan. CURRENT.md remains the authoritative
+resume pointer for the already-active paused Change 2 and is not rewritten by
+this bounded action.
+
+## Next permitted action
+
+~~~text
+NEXT_SINGLE_GATE:
+OWNER_AUTHORIZATION_PL_SYSTEM_TRAVERSABILITY_FORMAL_READINESS
+FORMAL_READINESS_AUTHORIZED: NO
+IMPLEMENTATION_AUTHORIZED: NO
+~~~
+
+No Formal Readiness run, readiness verdict, implementation authorization,
+implementation path, stage, commit, push, or release is implied by this entry.

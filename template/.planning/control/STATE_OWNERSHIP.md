@@ -24,6 +24,7 @@ Each fact has one primary home.
 | `assessments/current/ROADMAP_SYNTHESIS.md` | evidence snapshot comparing coherent Roadmap outcome candidates, qualitative priority, alternatives, and proposed sequence; not canonical until explicit acceptance |
 | `project/ROADMAP.md` | accepted current Roadmap outcome identities, sequence positions, Gap/capability lineage, exit conditions, exclusions, and accepted preferred direction; not Change authorization |
 | project documents | current durable facts, not session history |
+| `project/CRITICAL_JOURNEYS.md` | sole authority for durable CriticalJourney identity, applicability, ordered seams, durable journey state, and latest reconciled observation pointer |
 | skill usage CSV | optional best-effort frequency log; never authoritative project state |
 | `project_policy` in effective configuration | topology/safety policy resolved from managed defaults plus project-owned `CONFIG.yml`; never lifecycle or history |
 
@@ -42,6 +43,11 @@ state, and a later invocation cannot use a prior guidance result as authority.
 - `context.md` summarizes only what is needed to resume; it does not copy full specifications.
 - `progress.md` records evidence; it does not redefine tasks.
 - Indexes are summaries, not independent status authorities.
+- Runtime history, derived traversability validation, and evidence remain in
+  their existing owners; `project/CRITICAL_JOURNEYS.md` is not a runtime
+  history store, validator registry, or second evidence authority.
+- No second CriticalJourney registry or database may be introduced to mirror
+  the durable carrier.
 - When duplicate state disagrees, repair it before closure or handoff.
 - The home registry stores locators only; it never becomes a second home for
   project documents, recommendations, Changes, or receipt history.

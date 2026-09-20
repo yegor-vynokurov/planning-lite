@@ -17,6 +17,7 @@ consumer, or live consumer authority.
 2. Read `.planning/ACTIVE.md`, active `context.md`, current task, exact relevant plan and specification sections, and targeted code or tests.
 3. Execute approved tasks in dependency order, one coherent slice at a time.
 4. Keep edits inside approved scope and respect named seams, interfaces, blocking edges, and blast radius.
+4a. The Execution Envelope must name the affected journey IDs, approved system-proof IDs, observation channel, and governed reconciliation boundary. Execute the System Walking Skeleton early enough to expose the first broken seam.
 5. Run the narrowest meaningful check after each slice and configured broader checks at milestones.
 6. Update `tasks.md`, append evidence to `progress.md`, and refresh `context.md` at meaningful checkpoints.
 7. Do not narrate routine reads, edits, or checks. Report only a blocker, decision, risk, or completed milestone that changes the next action.
@@ -94,6 +95,22 @@ approved Plan.
 
 Writes outside the allowed surface, ownership transfers, or downstream
 responsibility require the existing Change amendment/approval path.
+
+For traversability-aware work, the Envelope also carries:
+
+```text
+CriticalJourney IDs
+approved system proof IDs
+observation channel / last-observation shape
+governed reconciliation boundary
+FIRST_BROKEN_SEAM when observed
+GAP_CLASS when observed
+DOWNSTREAM_UNREACHABLE seam set when observed
+evidence disposition and bypass reason when applicable
+```
+
+The pure validator may return observations only. It must not mutate the durable
+carrier directly, pump runtime lifecycle, or absorb runtime authority.
 
 ### Structured blocked outcome
 

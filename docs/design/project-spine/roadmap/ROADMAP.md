@@ -420,6 +420,12 @@ Routine bugfix/docs/local edits must not require:
 
 Depth is routed by material change facts.
 
+When an applicable materially multi-stage Target flow is affected, the Change
+must carry the cheapest adequate system traversability proof for that journey.
+Genuinely unaffected work may retain an evidence-backed per-Change bypass with
+the reason recorded. This is a traversability non-regression rule, not a
+requirement to build a general workflow engine.
+
 
 ## 4.8 Project Spine consistency precedes Gap derivation
 
@@ -933,6 +939,19 @@ Missing capability must remain visibly:
 
 No fake production success.
 
+Keep two skeletons distinct:
+
+```text
+Capability Walking Skeleton
+-> proves a local capability slice or contract
+
+System Walking Skeleton
+-> proves the cheapest adequate traversable path across the affected system
+```
+
+The second may use honest placeholders, but it must expose the first broken
+seam and must not be inferred from local capability evidence alone.
+
 Ownership boundary:
 
 ```text
@@ -969,6 +988,17 @@ DEFINED
 WIRED
 PASSING
 ```
+
+For applicable materially multi-stage flows, bind a durable `CriticalJourney`
+carrier with these canonical states:
+
+```text
+NOT_DEFINED -> DEFINED -> WIRED_FAIL -> WIRED_TRAVERSABLE -> PASSING
+```
+
+`CriticalJourney` state is Project Spine state and is distinct from the
+Target Scenario shorthand above. A journey may be `WIRED_TRAVERSABLE` when an
+honest placeholder proves system reachability; that is not `PASSING` behavior.
 
 Track:
 
@@ -2491,6 +2521,9 @@ recommendation marked completed with semantic residue
 future seed whose trigger is now true
 target capability with no implementation/research path
 repository capability not represented in Target State
+applicable journey without a CriticalJourney carrier
+applicable journey without a DEFINED state, entry, ordered seam, runtime
+lifetime owner, evidence channel, Gap lineage, or Roadmap lineage
 ```
 
 The last item is a signal, not an automatic error: current implementation may

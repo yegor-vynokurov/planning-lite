@@ -1,6 +1,6 @@
 # Planning Lite 4.x template `.planning` manifest
 
-Files: **163**.
+Files: **166**.
 
 ## Files
 
@@ -103,6 +103,7 @@ Files: **163**.
 - `.planning/drift/README.md`
 - `.planning/drift/reviews/.gitkeep`
 - `.planning/drift/reviews/TEMPLATE.md`
+- `.planning/framework/architecture-knowledge/ARCHITECTURE_KNOWLEDGE_PACK.md`
 - `.planning/framework/OWNERSHIP.yml`
 - `.planning/framework/SHA256SUMS.txt`
 - `.planning/framework/defaults.yml`
@@ -114,6 +115,7 @@ Files: **163**.
 - `.planning/observability/SKILL_USAGE.csv`
 - `.planning/project/ARCHITECTURE_OVERVIEW.md`
 - `.planning/project/CAPABILITY_MODEL.md`
+- `.planning/project/CRITICAL_JOURNEYS.md`
 - `.planning/project/CURRENT_STATE.md`
 - `.planning/project/DEFINITION_OF_DONE.md`
 - `.planning/project/GAP_MAP.md`
@@ -156,6 +158,7 @@ Files: **163**.
 - `.planning/templates/observability/SKILL_USAGE.csv`
 - `.planning/templates/project/ARCHITECTURE_OVERVIEW.md`
 - `.planning/templates/project/CAPABILITY_MODEL.md`
+- `.planning/templates/project/CRITICAL_JOURNEYS.md`
 - `.planning/templates/project/CURRENT_STATE.md`
 - `.planning/templates/project/DEFINITION_OF_DONE.md`
 - `.planning/templates/project/GAP_MAP.md`

@@ -31,6 +31,10 @@ A failed mandatory criterion is not an accepted limitation.
 3. Run **Pass 1: spec conformance** against approved scope, non-goals, requirements, criteria, plan, and amendments.
 4. Run **Pass 2: standards conformance** against project rules, Definition of Done, architecture, tests, failure handling, data, migration, recovery, compatibility, security, operations, and maintainability.
 5. Record `Pass`, `Fail`, or `Partial` and exact evidence for every criterion and material standard finding.
+5a. Compare each affected journey's observed state, first broken seam, Gap
+class, downstream-unreachable seams, evidence disposition, and placeholder
+policy with the durable carrier. Fail closed on unexplained drift; only
+governed reconciliation may update durable journey state.
 6. Separate blockers, accepted limitations, follow-up recommendations, and unrelated observations.
 7. Complete `review.md` with both pass verdicts and the proposed completion verdict.
 8. Set `Verification / Awaiting approval` when closure authorization is still required.
@@ -44,6 +48,11 @@ For every source recommendation, verify links and apply `RECOMMENDATION_LIFECYCL
 ## Roadmap / Gap contribution
 
 When the Change references a source Roadmap outcome or Gaps, record what evidence the Change contributes to each declared exit/closure condition. Do not automatically change Roadmap outcome state or Gap state merely because the Change closes. Preserve `Change completion != RoadmapOutcome completion` and `Change completion != Gap closure`. Any Roadmap/Gap transition requires its own evidence-based project-state reconciliation and applicable authority.
+
+For an affected CriticalJourney, record the latest observation and final
+disposition separately from the durable journey-state reconciliation. Preserve
+the first broken seam and downstream-unreachable evidence even when the Change
+is otherwise complete.
 
 ## Project-memory synchronization
 

@@ -16,6 +16,12 @@ Use tracer bullets by default for behavioral work. Each task should deliver a co
 
 Use expand-contract for broad migrations, schema changes, compatibility transitions, or mechanical changes that cannot be safely delivered as one vertical slice.
 
+For materially multi-stage flows, add an early System Walking Skeleton tracer
+bullet: the smallest honest cross-system path that exposes the first broken
+seam, supports a placeholder when appropriate, and produces an observable
+system-proof result. Keep this distinct from a local Capability Walking
+Skeleton.
+
 Avoid horizontal layer tasks such as `create all models`, `add all repositories`, or `write tests later` unless the task is independently necessary and verifiable.
 
 For every task record:
@@ -31,4 +37,4 @@ Keep a task small enough for one fresh context window unless a named blocking ed
 
 ## Completion criterion
 
-A task list is ready when each task has an observable outcome, dependency order is explicit, no verification is deferred to an unnamed final phase, and the sequence can stop safely after any completed slice.
+A task list is ready when each task has an observable outcome, dependency order is explicit, no verification is deferred to an unnamed final phase, and the sequence can stop safely after any completed slice. For each CriticalJourney task, name the verification seam, blocking edge, blast radius, recovery behavior, stable task ID, and stable proof ID.

@@ -68,6 +68,8 @@ A candidate outcome records:
 - logical dependencies or gates;
 - explicit exclusions / non-goals;
 - likely delivery shape;
+- applicable CriticalJourney IDs, ordered seam surface, System Walking Skeleton
+  or honest-placeholder obligation, and the cheapest adequate proof boundary;
 - uncertainty that matters to sequencing.
 
 ### Natural Gap bundling
@@ -202,6 +204,10 @@ The handoff supplies:
 - exact source recommendation units when they fall inside the proposed Change scope;
 - outcome exit condition and exclusions;
 - likely delivery shape / protocol-first constraint where applicable.
+- applicable CriticalJourney IDs and exact carrier lineage;
+- System Walking Skeleton or honest-placeholder obligation;
+- unresolved no-path visibility in candidate fields rather than silent omission;
+- downstream Change proof obligations for the journey state and first broken seam.
 
 A RoadmapOutcome may require several governed Changes. Therefore:
 
