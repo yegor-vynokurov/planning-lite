@@ -5,6 +5,7 @@ from fnmatch import fnmatchcase
 import hashlib
 import os
 from pathlib import Path
+from pathlib import PureWindowsPath
 import re
 import shutil
 import subprocess
@@ -70,6 +71,29 @@ def _normalize(path: str | Path) -> str:
     return normalized
 
 
+def _normalize_repository_relative(path: str | Path) -> str:
+    """Normalize one repository-relative path without resolving filesystem links."""
+
+    normalized = _normalize(path)
+    candidate = Path(normalized)
+    windows_candidate = PureWindowsPath(normalized)
+    if (
+        normalized.startswith("/")
+        or candidate.is_absolute()
+        or windows_candidate.is_absolute()
+        or windows_candidate.drive
+    ):
+        raise LocalUpdateError(f"Ownership path must be repository-relative: {path}")
+    parts: list[str] = []
+    for part in normalized.split("/"):
+        if part in ("", "."):
+            continue
+        if part == "..":
+            raise LocalUpdateError(f"Ownership path traverses parent: {path}")
+        parts.append(part)
+    return "/".join(parts)
+
+
 def _pattern_specificity(pattern: str) -> tuple[int, int, int]:
     """Prefer exact paths, then fewer wildcards, then longer patterns."""
     wildcard_count = pattern.count("*") + pattern.count("?") + pattern.count("[")
@@ -104,14 +128,45 @@ def load_ownership_policy(root: Path) -> OwnershipPolicy:
     return OwnershipPolicy(**values)
 
 
-def classify_path(path: str, policy: OwnershipPolicy) -> OwnershipClass:
+def classify_path(
+    path: str,
+    policy: OwnershipPolicy,
+    *,
+    literal_project_owned_roots: Iterable[str | Path] = (),
+) -> OwnershipClass:
     normalized = _normalize(path)
+    dynamic_path = _normalize_repository_relative(path)
     matches = {
         "managed": _best_match(normalized, policy.managed),
         "project_owned": _best_match(normalized, policy.project_owned),
         "installer_metadata": _best_match(normalized, policy.installer_metadata),
     }
     present = {key: value for key, value in matches.items() if value is not None}
+    ranks: dict[str, tuple[int, int, int]] = {
+        key: _pattern_specificity(value) for key, value in present.items()
+    }
+    dynamic_boundaries: list[Path] = []
+    for raw_root in literal_project_owned_roots:
+        root_text = _normalize_repository_relative(raw_root)
+        if not root_text:
+            raise LocalUpdateError("Literal project-owned root must not be empty")
+        root = Path(root_text)
+        if root.is_absolute():
+            raise LocalUpdateError(f"Literal project-owned root must be relative: {raw_root}")
+        dynamic_boundaries.append(root)
+    if dynamic_boundaries:
+        path_object = Path(dynamic_path)
+        matching_boundaries = [
+            boundary
+            for boundary in dynamic_boundaries
+            if path_object == boundary or path_object.is_relative_to(boundary)
+        ]
+        if matching_boundaries:
+            boundary = max(matching_boundaries, key=lambda item: len(item.as_posix()))
+            dynamic_match = f"<literal:{boundary.as_posix()}>"
+            if "project_owned" not in present or ranks["project_owned"] < (0, -2, len(boundary.as_posix()) + 3):
+                present["project_owned"] = dynamic_match
+                ranks["project_owned"] = (0, -2, len(boundary.as_posix()) + 3)
     if not present:
         return "unknown"
     if len(present) == 1:
@@ -126,9 +181,11 @@ def classify_path(path: str, policy: OwnershipPolicy) -> OwnershipClass:
     managed = present.get("managed")
     project = present.get("project_owned")
     if managed is not None and project is not None:
-        if _pattern_specificity(managed) > _pattern_specificity(project):
+        managed_rank = ranks["managed"]
+        project_rank = ranks["project_owned"]
+        if managed_rank > project_rank:
             return "managed"
-        if _pattern_specificity(project) > _pattern_specificity(managed):
+        if project_rank > managed_rank:
             return "project_owned"
 
     raise LocalUpdateError(
@@ -286,11 +343,15 @@ def _local_source_is_dirty(source: str) -> bool:
 def _classify_candidate(
     candidate_files: dict[str, Path],
     policy: OwnershipPolicy,
+    *,
+    literal_project_owned_roots: Iterable[str | Path] = (),
 ) -> dict[str, OwnershipClass]:
     classified: dict[str, OwnershipClass] = {}
     unknown: list[str] = []
     for relative in sorted(candidate_files):
-        ownership = classify_path(relative, policy)
+        ownership = classify_path(
+            relative, policy, literal_project_owned_roots=literal_project_owned_roots
+        )
         classified[relative] = ownership
         if ownership == "unknown":
             unknown.append(relative)
@@ -303,7 +364,11 @@ def _classify_candidate(
 
 
 def build_local_update_plan(
-    target: Path, candidate: Path, *, forbidden_read_paths: Iterable[str] = ()
+    target: Path,
+    candidate: Path,
+    *,
+    forbidden_read_paths: Iterable[str] = (),
+    literal_project_owned_roots: Iterable[str | Path] = (),
 ) -> LocalUpdatePlan:
     target = target.resolve()
     candidate = candidate.resolve()
@@ -315,7 +380,10 @@ def build_local_update_plan(
     new_policy = load_ownership_policy(candidate)
     target_files = iter_files(target, forbidden_read_paths=patterns)
     candidate_files = iter_files(candidate, forbidden_read_paths=patterns)
-    candidate_classes = _classify_candidate(candidate_files, new_policy)
+    literal_roots = tuple(literal_project_owned_roots)
+    candidate_classes = _classify_candidate(
+        candidate_files, new_policy, literal_project_owned_roots=literal_roots
+    )
 
     mutations: list[Mutation] = []
 
@@ -328,7 +396,9 @@ def build_local_update_plan(
 
         if ownership == "managed":
             if exists:
-                old_class = classify_path(relative, old_policy)
+                old_class = classify_path(
+                    relative, old_policy, literal_project_owned_roots=literal_roots
+                )
                 if old_class == "project_owned":
                     raise LocalUpdateError(
                         f"Unsafe ownership transition for `{relative}`: "
@@ -362,10 +432,14 @@ def build_local_update_plan(
     for relative, path in sorted(target_files.items()):
         if relative in candidate_paths:
             continue
-        old_class = classify_path(relative, old_policy)
+        old_class = classify_path(
+            relative, old_policy, literal_project_owned_roots=literal_roots
+        )
         if old_class != "managed":
             continue
-        new_class = classify_path(relative, new_policy)
+        new_class = classify_path(
+            relative, new_policy, literal_project_owned_roots=literal_roots
+        )
         if new_class == "project_owned":
             continue
         if path.is_file():
@@ -376,11 +450,22 @@ def build_local_update_plan(
 
 
 def _project_owned_hashes(
-    target: Path, policy: OwnershipPolicy, *, forbidden_read_paths: Iterable[str] = ()
+    target: Path,
+    policy: OwnershipPolicy,
+    *,
+    forbidden_read_paths: Iterable[str] = (),
+    literal_project_owned_roots: Iterable[str | Path] = (),
 ) -> dict[str, str]:
     result: dict[str, str] = {}
     for relative, path in iter_files(target, forbidden_read_paths=forbidden_read_paths).items():
-        if classify_path(relative, policy) == "project_owned":
+        if (
+            classify_path(
+                relative,
+                policy,
+                literal_project_owned_roots=literal_project_owned_roots,
+            )
+            == "project_owned"
+        ):
             result[relative] = hashlib.sha256(path.read_bytes()).hexdigest()
     return result
 
@@ -402,16 +487,21 @@ def apply_local_update_plan(
     plan: LocalUpdatePlan,
     *,
     forbidden_read_paths: Iterable[str] = (),
+    literal_project_owned_roots: Iterable[str | Path] = (),
 ) -> None:
     target = target.resolve()
     candidate = candidate.resolve()
     patterns = tuple(forbidden_read_paths)
+    literal_roots = tuple(literal_project_owned_roots)
     for root in (target, candidate):
         if _forbidden_read(root, OWNERSHIP_FILE, patterns):
             raise LocalUpdateError(f"Forbidden read path intersects scan: {OWNERSHIP_FILE}")
     new_policy = load_ownership_policy(candidate)
     before_project = _project_owned_hashes(
-        target, new_policy, forbidden_read_paths=patterns
+        target,
+        new_policy,
+        forbidden_read_paths=patterns,
+        literal_project_owned_roots=literal_roots,
     )
     changed = plan.changed()
 
@@ -440,7 +530,10 @@ def apply_local_update_plan(
 
             _verify_applied_plan(target, candidate, plan)
             after_project = _project_owned_hashes(
-                target, new_policy, forbidden_read_paths=patterns
+                target,
+                new_policy,
+                forbidden_read_paths=patterns,
+                literal_project_owned_roots=literal_roots,
             )
             for relative, digest in before_project.items():
                 if after_project.get(relative) != digest:

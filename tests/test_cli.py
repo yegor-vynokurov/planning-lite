@@ -46,6 +46,41 @@ def test_release_command_accepts_short_bump() -> None:
     assert args.dry_run is True
 
 
+def test_authorize_issuers_have_explicit_required_contract() -> None:
+    parser = build_parser()
+    preparation = parser.parse_args(
+        [
+            "authorize-preparation",
+            "consumer",
+            "--change-id",
+            "CHG-1",
+            "--task-or-operation-id",
+            "TASK-1",
+            "--decision-provenance-ref",
+            "PROV-1",
+        ]
+    )
+    assert preparation.command == "authorize-preparation"
+    assert preparation.target == "consumer"
+    assert preparation.change_id == "CHG-1"
+    assert preparation.task_or_operation_id == "TASK-1"
+    assert preparation.decision_provenance_ref == "PROV-1"
+
+    recovery = parser.parse_args(
+        [
+            "authorize-recovery",
+            "consumer",
+            "--attempt-id",
+            "ATTEMPT-1",
+            "--decision-provenance-ref",
+            "PROV-2",
+        ]
+    )
+    assert recovery.command == "authorize-recovery"
+    assert recovery.attempt_id == "ATTEMPT-1"
+    assert not hasattr(recovery, "change_id")
+
+
 def test_resume_command_accepts_bounded_inputs() -> None:
     parser = build_parser()
     args = parser.parse_args(

@@ -18,6 +18,11 @@ import yaml
 from packaging.version import InvalidVersion, Version
 
 from . import __version__
+from .authorization import (
+    AuthorizationError,
+    issue_preparation_authorization,
+    issue_recovery_authorization,
+)
 from .context import ContextError, build_resume_context
 from .execution_guidance import select_operation_guidance
 from .local_update import (
@@ -404,6 +409,10 @@ def _command_local_only_update(
     forbidden = project_policy.get("forbidden_read_paths", [])
     if not isinstance(forbidden, list) or not all(isinstance(item, str) for item in forbidden):
         raise PlanningLiteError("project_policy.forbidden_read_paths must be a list of strings")
+    planning_root = project_policy.get("planning_root")
+    if not isinstance(planning_root, str) or not planning_root.strip():
+        raise PlanningLiteError("project_policy.planning_root must be a non-empty string")
+    literal_project_owned_roots = (Path(planning_root) / "project",)
     temporary = _render_local_update_candidate(
         target=target,
         answers_data=answers_data,
@@ -414,7 +423,10 @@ def _command_local_only_update(
         candidate = Path(temporary.name)
         try:
             plan = build_local_update_plan(
-                target, candidate, forbidden_read_paths=forbidden
+                target,
+                candidate,
+                forbidden_read_paths=forbidden,
+                literal_project_owned_roots=literal_project_owned_roots,
             )
         except LocalUpdateError as exc:
             raise PlanningLiteError(str(exc)) from exc
@@ -424,7 +436,11 @@ def _command_local_only_update(
             return 0
         try:
             apply_local_update_plan(
-                target, candidate, plan, forbidden_read_paths=forbidden
+                target,
+                candidate,
+                plan,
+                forbidden_read_paths=forbidden,
+                literal_project_owned_roots=literal_project_owned_roots,
             )
         except LocalUpdateError as exc:
             raise PlanningLiteError(str(exc)) from exc
@@ -517,6 +533,31 @@ def command_update(args: argparse.Namespace) -> int:
     if source_backup is not None and (code != 0 or args.dry_run):
         answers.write_bytes(source_backup)
     return code
+
+
+def command_authorize_preparation(args: argparse.Namespace) -> int:
+    try:
+        reference = issue_preparation_authorization(
+            Path(args.target).resolve(),
+            args.change_id,
+            args.task_or_operation_id,
+            args.decision_provenance_ref,
+        )
+    except AuthorizationError as exc:
+        raise PlanningLiteError(str(exc)) from exc
+    print(reference)
+    return 0
+
+
+def command_authorize_recovery(args: argparse.Namespace) -> int:
+    try:
+        reference = issue_recovery_authorization(
+            Path(args.target).resolve(), args.attempt_id, args.decision_provenance_ref
+        )
+    except AuthorizationError as exc:
+        raise PlanningLiteError(str(exc)) from exc
+    print(reference)
+    return 0
 
 
 def _registration_preview(args: argparse.Namespace) -> dict[str, object]:
@@ -1019,6 +1060,25 @@ def build_parser() -> argparse.ArgumentParser:
     )
     configure.add_argument("--template-source", required=True)
     configure.set_defaults(func=command_configure)
+
+    authorize_preparation = subparsers.add_parser(
+        "authorize-preparation",
+        help="Issue one owner authorization for bounded Attempt preparation.",
+    )
+    authorize_preparation.add_argument("target")
+    authorize_preparation.add_argument("--change-id", required=True)
+    authorize_preparation.add_argument("--task-or-operation-id", required=True)
+    authorize_preparation.add_argument("--decision-provenance-ref", required=True)
+    authorize_preparation.set_defaults(func=command_authorize_preparation)
+
+    authorize_recovery = subparsers.add_parser(
+        "authorize-recovery",
+        help="Issue one owner authorization for bounded interrupted Attempt resolution.",
+    )
+    authorize_recovery.add_argument("target")
+    authorize_recovery.add_argument("--attempt-id", required=True)
+    authorize_recovery.add_argument("--decision-provenance-ref", required=True)
+    authorize_recovery.set_defaults(func=command_authorize_recovery)
 
     adopt = subparsers.add_parser("adopt", help="Install Planning Lite into an existing Git repository.")
     adopt.add_argument("target", nargs="?", default=".")

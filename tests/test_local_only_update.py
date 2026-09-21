@@ -9,6 +9,12 @@ import subprocess
 import pytest
 import yaml
 
+from planning_lite.authorization import (
+    AuthorizationAction,
+    PreparationScopeV1,
+    ResolutionOutcome,
+    resolve_authorization,
+)
 import planning_lite.cli as cli
 from planning_lite.local_update import (
     ANSWERS_FILE,
@@ -161,6 +167,28 @@ def _render_working_template(destination: Path, *, installed_ref: str) -> None:
         shutil.copy2(source, output)
 
 
+def _init_empty_git_repo(target: Path) -> None:
+    target.mkdir(parents=True, exist_ok=True)
+    _run("git", "init", cwd=target)
+    _run("git", "config", "user.email", "planning-lite@example.invalid", cwd=target)
+    _run("git", "config", "user.name", "Planning Lite Test", cwd=target)
+    (target / "README.md").write_text("# consumer\n", encoding="utf-8")
+    _run("git", "add", "README.md", cwd=target)
+    _run("git", "commit", "-m", "initial", cwd=target)
+
+
+def _create_v21_git_source(source: Path) -> None:
+    source.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(ROOT / "copier.yml", source / "copier.yml")
+    shutil.copytree(ROOT / "template", source / "template")
+    _run("git", "init", cwd=source)
+    _run("git", "config", "user.email", "planning-lite@example.invalid", cwd=source)
+    _run("git", "config", "user.name", "Planning Lite Test", cwd=source)
+    _run("git", "add", ".", cwd=source)
+    _run("git", "commit", "-m", "template baseline", cwd=source)
+    _run("git", "tag", "-a", "v0.0.0.dev1", "-m", "template baseline", cwd=source)
+
+
 def test_current_template_is_fully_classified_for_local_only_update() -> None:
     policy = load_ownership_policy(ROOT / "template")
     unknown = [
@@ -175,6 +203,197 @@ def test_current_template_is_fully_classified_for_local_only_update() -> None:
     assert ".planning/drift/reviews/.gitkeep" in iter_files(ROOT / "template")
     assert classify_path(".planning/drift/reviews/.gitkeep", policy) == "managed"
     assert classify_path(".planning/drift/reviews/TEMPLATE.md", policy) == "managed"
+
+
+def test_literal_project_root_is_bounded_and_uses_host_path_semantics() -> None:
+    from planning_lite.local_update import OwnershipPolicy
+
+    policy = OwnershipPolicy(
+        managed=("managed-planning/framework/**",),
+        project_owned=(),
+        installer_metadata=(ANSWERS_FILE,),
+    )
+    roots = (Path("managed-planning") / "project",)
+    assert classify_path("managed-planning/project/state.md", policy, literal_project_owned_roots=roots) == "project_owned"
+    assert classify_path("managed-planning/projectile/state.md", policy, literal_project_owned_roots=roots) == "unknown"
+    assert classify_path(r"managed-planning\project\state.md", policy, literal_project_owned_roots=roots) == "project_owned"
+    assert classify_path(".planning/project/state.md", policy, literal_project_owned_roots=roots) == "unknown"
+
+
+@pytest.mark.parametrize("root", [".planning", "managed-planning", "managed[1]-planning", "star*root", "query?root"])
+def test_literal_root_metacharacters_and_subtree_boundaries(root: str) -> None:
+    from planning_lite.local_update import OwnershipPolicy
+
+    policy = OwnershipPolicy(managed=(), project_owned=(), installer_metadata=())
+    boundary = Path(root) / "project"
+    roots = (boundary,)
+    assert classify_path(f"{root}/project", policy, literal_project_owned_roots=roots) == "project_owned"
+    assert classify_path(f"{root}/project/authorizations/x.json", policy, literal_project_owned_roots=roots) == "project_owned"
+    assert classify_path(f"{root}-other/project/x", policy, literal_project_owned_roots=roots) == "unknown"
+    assert classify_path(f"{root}/framework/x", policy, literal_project_owned_roots=roots) == "unknown"
+    assert classify_path(f"{root}/other/x", policy, literal_project_owned_roots=roots) == "unknown"
+    assert classify_path(f"{root}/./project//state", policy, literal_project_owned_roots=roots) == "project_owned"
+    with pytest.raises(LocalUpdateError):
+        classify_path(f"../{root}/project/x", policy, literal_project_owned_roots=roots)
+    with pytest.raises(LocalUpdateError):
+        classify_path(f"/{root}/project/x", policy, literal_project_owned_roots=roots)
+
+
+def test_literal_project_root_precedence_is_fail_closed_on_equal_cross_class_match() -> None:
+    from planning_lite.local_update import OwnershipPolicy
+
+    policy = OwnershipPolicy(
+        managed=("managed-planning/project/**",),
+        project_owned=(),
+        installer_metadata=(),
+    )
+    with pytest.raises(LocalUpdateError, match="Ambiguous ownership"):
+        classify_path(
+            "managed-planning/project/state.md",
+            policy,
+            literal_project_owned_roots=(Path("managed-planning") / "project",),
+        )
+
+    metadata_policy = OwnershipPolicy(
+        managed=(), project_owned=(), installer_metadata=("managed-planning/**",)
+    )
+    assert classify_path(
+        "managed-planning/project/state.md",
+        metadata_policy,
+        literal_project_owned_roots=(Path("managed-planning") / "project",),
+    ) == "installer_metadata"
+
+
+def test_literal_project_root_precedence_covers_broad_exact_and_lookalike_paths() -> None:
+    from planning_lite.local_update import OwnershipPolicy
+
+    boundary = Path("managed-planning") / "project"
+    broad_policy = OwnershipPolicy(
+        managed=("managed-planning/**",), project_owned=(), installer_metadata=()
+    )
+    assert classify_path(
+        "managed-planning/project/state.md",
+        broad_policy,
+        literal_project_owned_roots=(boundary,),
+    ) == "project_owned"
+
+    exact_policy = OwnershipPolicy(
+        managed=("managed-planning/project/state.md",),
+        project_owned=(),
+        installer_metadata=(),
+    )
+    assert classify_path(
+        "managed-planning/project/state.md",
+        exact_policy,
+        literal_project_owned_roots=(boundary,),
+    ) == "managed"
+    assert classify_path(
+        "managed1-planning/project/state.md",
+        OwnershipPolicy(managed=(), project_owned=(), installer_metadata=()),
+        literal_project_owned_roots=(Path("managed[1]-planning") / "project",),
+    ) == "unknown"
+
+
+def test_v21_causal_tagged_local_update_preserves_literal_root_authorization(
+    tmp_path: Path, capsys
+) -> None:
+    source = tmp_path / "source"
+    consumer = tmp_path / "consumer"
+    _create_v21_git_source(source)
+    _init_empty_git_repo(consumer)
+
+    assert cli.main(
+        [
+            "adopt",
+            str(consumer),
+            "--template-source",
+            str(source),
+            "--vcs-ref",
+            "v0.0.0.dev1",
+        ]
+    ) == 0
+    capsys.readouterr()
+    _run("git", "add", "-A", cwd=consumer)
+    _run("git", "commit", "-m", "adopt baseline", cwd=consumer)
+    (consumer / ".gitignore").write_text(".planning\n.agents\n", encoding="utf-8")
+    (consumer / ".planning/CONFIG.yml").write_text(
+        "project_policy:\n  planning_root: managed[1]-planning\n",
+        encoding="utf-8",
+    )
+    _run("git", "rm", "-r", "--cached", ".planning", ".agents", cwd=consumer)
+    _run("git", "add", ".gitignore", cwd=consumer)
+    _run("git", "commit", "-m", "adoption bridge and local-only policy", cwd=consumer)
+
+    assert cli.main(
+        [
+            "authorize-preparation",
+            str(consumer),
+            "--change-id",
+            "CHG-V21",
+            "--task-or-operation-id",
+            "TASK-V21",
+            "--decision-provenance-ref",
+            "PROV-V21",
+        ]
+    ) == 0
+    authorization_ref = capsys.readouterr().out.strip()
+    authorization_path = (
+        consumer / "managed[1]-planning/project/authorizations" / f"{authorization_ref}.json"
+    )
+    sentinel_sha = hashlib.sha256(authorization_path.read_bytes()).hexdigest()
+    _run("git", "add", "managed[1]-planning", cwd=consumer)
+    _run("git", "commit", "-m", "issued V21 authorization sentinel", cwd=consumer)
+    assert _run("git", "status", "--short", cwd=consumer) == ""
+
+    source_readme = source / "template/.planning/README.md"
+    source_readme.write_text(
+        source_readme.read_text(encoding="utf-8") + "\nPL09_V21_AFTER\n", encoding="utf-8"
+    )
+    candidate = source / f"template/managed[1]-planning/project/authorizations/{authorization_ref}.json"
+    candidate.parent.mkdir(parents=True, exist_ok=True)
+    candidate.write_bytes(b"deliberately-conflicting-candidate-bytes\n")
+    assert candidate.read_bytes() != authorization_path.read_bytes()
+    _run("git", "add", ".", cwd=source)
+    _run("git", "commit", "-m", "V21 conflicting candidate", cwd=source)
+    _run("git", "tag", "-a", "v0.0.0.dev2", "-m", "V21 conflicting candidate", cwd=source)
+
+    assert cli.main(
+        [
+            "check",
+            str(consumer),
+            "--template-source",
+            str(source),
+            "--vcs-ref",
+            "v0.0.0.dev2",
+            "--local-only",
+        ]
+    ) == 0
+    preview = capsys.readouterr().out
+    assert "KEEP_PROJECT" in preview
+    assert "UPDATE_MANAGED" in preview
+
+    assert cli.main(
+        [
+            "update",
+            str(consumer),
+            "--template-source",
+            str(source),
+            "--vcs-ref",
+            "v0.0.0.dev2",
+            "--local-only",
+        ]
+    ) == 0
+    capsys.readouterr()
+    assert hashlib.sha256(authorization_path.read_bytes()).hexdigest() == sentinel_sha
+    assert resolve_authorization(
+        consumer,
+        authorization_ref,
+        AuthorizationAction.PREPARATION,
+        PreparationScopeV1("CHG-V21", "TASK-V21"),
+    ).outcome is ResolutionOutcome.AUTHORIZED
+    assert "PL09_V21_AFTER" in (consumer / ".planning/README.md").read_text(encoding="utf-8")
+    answers = yaml.safe_load((consumer / ANSWERS_FILE).read_text(encoding="utf-8"))
+    assert answers["_commit"] == "v0.0.0.dev2"
 
 
 def test_local_only_plan_preserves_project_owned_and_removes_only_old_managed(tmp_path: Path) -> None:
