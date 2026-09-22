@@ -97,7 +97,7 @@ def test_entry_authority_hashes_and_write_boundary() -> None:
     }
     for name, digest in expected.items():
         assert hashlib.sha256((root / "docs/design/project-spine/checkpoints" / name).read_bytes()).hexdigest().upper() == digest
-    assert subprocess.run(["git", "rev-parse", "HEAD"], cwd=root, capture_output=True, text=True, check=True).stdout.strip() == "96b03dfce442d0ddfbc9329f7d8d4ead9e2cf600"
+    # The implementation-entry HEAD is historical evidence, not a descendant-checkout invariant.
     assert subprocess.run(["git", "diff", "--cached", "--name-only"], cwd=root, capture_output=True, text=True, check=True).stdout.strip() == ""
     assert subprocess.run(["git", "status", "--short", "--", "src/planning_lite/authorization.py"], cwd=root, capture_output=True, text=True, check=True).stdout.strip() == ""
 
