@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import re
 from dataclasses import asdict
 from pathlib import Path
@@ -18,6 +19,16 @@ from planning_lite.attempt_evaluation import (
     evaluate_technical,
 )
 from planning_lite.execution_guidance import OperationGuidanceV1, select_operation_guidance
+from planning_lite.attempt_runtime import (
+    AdmissibilityOutcome,
+    LookupOutcome,
+    attempt_store_path,
+    check_activation_admissibility,
+    claim_attempt,
+    lookup_attempt,
+)
+from planning_lite.authorization import issue_preparation_authorization, issue_recovery_authorization
+from planning_lite.cli import main
 from planning_lite.telemetry import validate_receipt
 from planning_lite.traversability import (
     APPLICABILITY_VALUES,
@@ -826,3 +837,109 @@ def test_validator_has_no_authority_or_filesystem_surface() -> None:
         carrier_text = path.read_text(encoding="utf-8").lower()
         assert "registry" not in carrier_text
         assert "event store" not in carrier_text
+
+
+def test_attempt_access_seam_is_wired_traversable(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    change_id = "CHG-PL-V39-09-AUTHORITATIVE-ATTEMPT-RUNTIME-ACCESS-001"
+    task_id = "T-08"
+    head = "a" * 40
+    authorization = issue_preparation_authorization(tmp_path, change_id, task_id, "OWNER-DECISION")
+    payload = tmp_path / "preparation.json"
+    payload.write_text(
+        json.dumps(
+            {
+                "change_id": change_id,
+                "task_or_operation_id": task_id,
+                "authorization_ref": authorization,
+                "acceptance_contract_ref": "AC-22",
+                "candidate_identity": {"kind": "GIT_COMMIT", "head": head, "dirty_manifest": []},
+                "baseline_refs": [{"ref": "HEAD", "identity": head}],
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert main(["attempt-prepare", str(tmp_path), "--input", str(payload)]) == 0
+    attempt_id = capsys.readouterr().out.strip()
+    assert lookup_attempt(tmp_path, attempt_id).outcome is LookupOutcome.FOUND
+    assert check_activation_admissibility(tmp_path, attempt_id).outcome is AdmissibilityOutcome.ADMISSIBLE
+    assert claim_attempt(tmp_path, attempt_id).runtime_state == "IN_FLIGHT"
+    recovery = issue_recovery_authorization(tmp_path, attempt_id, "OWNER-RECOVERY")
+    assert main(
+        [
+            "attempt-resolve-interrupted",
+            str(tmp_path),
+            attempt_id,
+            "--authorization-ref",
+            recovery,
+        ]
+    ) == 0
+    capsys.readouterr()
+    assert json.loads(attempt_store_path(tmp_path).read_text(encoding="utf-8"))["attempts"][0]["runtime_state"] == "TERMINAL"
+
+    projection = check_critical_journey_smoke(
+        _journey(
+            _seam("Attempt Runtime Access"),
+            _seam(
+                "Governed Executor Callable Binding",
+                status="FAIL",
+                reachable=False,
+                reason="GOVERNED_EXECUTOR_CALLABLE_BINDING / WIRING_GAP",
+                gap_class="WIRING_GAP",
+            ),
+        )
+    )
+    assert projection.seams[0].disposition == "PASS"
+    assert projection.first_broken_seam == "Governed Executor Callable Binding"
+    assert projection.gap_class == "WIRING_GAP"
+
+
+def test_decoy_authority_sources_cannot_authorize_attempts(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    payload = tmp_path / "decoy.json"
+    payload.write_text(
+        json.dumps(
+            {
+                "change_id": "CHG-PL-V39-09-AUTHORITATIVE-ATTEMPT-RUNTIME-ACCESS-001",
+                "task_or_operation_id": "T-08",
+                "authorization_ref": "authz_" + "0" * 32,
+                "acceptance_contract_ref": "AC-22",
+                "candidate_identity": {"kind": "GIT_COMMIT", "head": "a" * 40, "dirty_manifest": []},
+                "baseline_refs": [{"ref": "HEAD", "identity": "a" * 40}],
+                "decoy_source": ".local/CURRENT.md",
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert main(["attempt-prepare", str(tmp_path), "--input", str(payload)]) == 2
+    capsys.readouterr()
+    assert not attempt_store_path(tmp_path).exists()
+
+
+def test_downstream_executor_remains_next_break() -> None:
+    result = check_critical_journey_smoke(
+        _journey(
+            _seam("Attempt Runtime Access"),
+            _seam(
+                "Governed Executor Callable Binding",
+                status="FAIL",
+                reachable=False,
+                gap_class="WIRING_GAP",
+            ),
+        )
+    )
+    assert result.first_broken_seam == "Governed Executor Callable Binding"
+    assert result.gap_class == "WIRING_GAP"
+    assert result.observed_traversability_state == "WIRED_FAIL"
+
+
+def test_false_done_shortcuts_are_rejected(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    assert main(
+        [
+            "attempt-resolve-interrupted",
+            str(tmp_path),
+            "CHG/T/A1",
+            "--authorization-ref",
+            "authz_" + "0" * 32,
+        ]
+    ) == 2
+    capsys.readouterr()
+    assert not attempt_store_path(tmp_path).exists()

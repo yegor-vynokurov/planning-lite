@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import hashlib
 import json
 
 import yaml
@@ -8,6 +9,28 @@ import pytest
 
 from planning_lite import cli
 from planning_lite.cli import BRIDGE_START, _ensure_agents_bridge, build_parser, main
+from planning_lite.attempt_runtime import attempt_store_path, claim_attempt, lookup_attempt
+from planning_lite.authorization import (
+    authorization_store_path,
+    issue_preparation_authorization,
+    issue_recovery_authorization,
+)
+
+
+_ATTEMPT_CHANGE = "CHG-PL-V39-09-AUTHORITATIVE-ATTEMPT-RUNTIME-ACCESS-001"
+_ATTEMPT_TASK = "T-04"
+_ATTEMPT_HEAD = "a" * 40
+
+
+def _attempt_payload(reference: str, *, task_id: str = _ATTEMPT_TASK) -> dict[str, object]:
+    return {
+        "change_id": _ATTEMPT_CHANGE,
+        "task_or_operation_id": task_id,
+        "authorization_ref": reference,
+        "acceptance_contract_ref": "AC-04",
+        "candidate_identity": {"kind": "GIT_COMMIT", "head": _ATTEMPT_HEAD, "dirty_manifest": []},
+        "baseline_refs": [{"ref": "HEAD", "identity": _ATTEMPT_HEAD}],
+    }
 
 
 def test_bridge_is_appended_once(tmp_path: Path) -> None:
@@ -79,6 +102,119 @@ def test_authorize_issuers_have_explicit_required_contract() -> None:
     assert recovery.command == "authorize-recovery"
     assert recovery.attempt_id == "ATTEMPT-1"
     assert not hasattr(recovery, "change_id")
+
+
+def test_attempt_prepare_uses_production_runtime_adapter(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    reference = issue_preparation_authorization(tmp_path, _ATTEMPT_CHANGE, _ATTEMPT_TASK, "OWNER-DECISION")
+    payload_path = tmp_path / "preparation.json"
+    payload_path.write_text(json.dumps(_attempt_payload(reference)), encoding="utf-8")
+    authorization_before = next(authorization_store_path(tmp_path).glob(f"{reference}.json")).read_bytes()
+
+    assert main(["attempt-prepare", str(tmp_path), "--input", str(payload_path)]) == 0
+    attempt_id = capsys.readouterr().out.strip()
+    assert attempt_id == f"{_ATTEMPT_CHANGE}/{_ATTEMPT_TASK}/A1"
+    found = lookup_attempt(tmp_path, attempt_id)
+    assert found.outcome.value == "FOUND"
+    assert found.runtime_state == "ACTIVATABLE"
+    assert found.attempt.authorization_ref == reference
+    assert next(authorization_store_path(tmp_path).glob(f"{reference}.json")).read_bytes() == authorization_before
+
+
+def test_cli_preparation_authorization_negative_matrix(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    wrong_scope = issue_preparation_authorization(tmp_path, _ATTEMPT_CHANGE, "T-WRONG", "OWNER-DECISION")
+    payload_path = tmp_path / "preparation.json"
+    for reference in ("malformed", "authz_" + "0" * 32, wrong_scope):
+        payload_path.write_text(json.dumps(_attempt_payload(reference)), encoding="utf-8")
+        assert main(["attempt-prepare", str(tmp_path), "--input", str(payload_path)]) == 2
+        capsys.readouterr()
+    assert not attempt_store_path(tmp_path).exists()
+
+
+def test_attempt_commands_are_thin_adapters(tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+    called: list[Path] = []
+
+    class Result:
+        attempt_id = "CHG/T/A1"
+        runtime_state = "ACTIVATABLE"
+        observed_result = None
+
+    def fake_prepare(target, preparation):
+        called.append(Path(target))
+        return Result()
+
+    monkeypatch.setattr(cli, "prepare_attempt", fake_prepare)
+    payload = tmp_path / "input.json"
+    payload.write_text("{}", encoding="utf-8")
+    assert main(["attempt-prepare", str(tmp_path), "--input", str(payload)]) == 0
+    assert capsys.readouterr().out.strip() == "CHG/T/A1"
+    assert called == [tmp_path.resolve()]
+    source = Path(cli.__file__).read_text(encoding="utf-8")
+    assert "resolve_authorization(" not in source
+    assert "os.replace" not in source
+
+
+def test_attempt_runtime_reuses_closed_authorization_boundary() -> None:
+    root = Path(__file__).resolve().parents[1]
+    authorization = root / "src/planning_lite/authorization.py"
+    digest_before = hashlib.sha256(authorization.read_bytes()).hexdigest()
+    source = Path(cli.__file__).read_text(encoding="utf-8")
+    assert "from .attempt_runtime import" in source
+    assert hashlib.sha256(authorization.read_bytes()).hexdigest() == digest_before
+
+
+def test_clean_target_production_preparation_materialization(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    reference = issue_preparation_authorization(tmp_path, _ATTEMPT_CHANGE, _ATTEMPT_TASK, "OWNER-DECISION")
+    payload = tmp_path / "payload.json"
+    payload.write_text(json.dumps(_attempt_payload(reference)), encoding="utf-8")
+    assert main(["attempt-prepare", str(tmp_path), "--input", str(payload), "--json"]) == 0
+    output = json.loads(capsys.readouterr().out)
+    assert output["attempt_id"].endswith("/A1")
+    assert json.loads(attempt_store_path(tmp_path).read_text(encoding="utf-8"))["attempts"][0]["runtime_state"] == "ACTIVATABLE"
+
+
+def test_clean_target_production_interrupted_recovery(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    preparation = issue_preparation_authorization(tmp_path, _ATTEMPT_CHANGE, _ATTEMPT_TASK, "OWNER-DECISION")
+    payload = tmp_path / "payload.json"
+    payload.write_text(json.dumps(_attempt_payload(preparation)), encoding="utf-8")
+    assert main(["attempt-prepare", str(tmp_path), "--input", str(payload)]) == 0
+    attempt_id = capsys.readouterr().out.strip()
+    claim_attempt(tmp_path, attempt_id)
+    recovery = issue_recovery_authorization(tmp_path, attempt_id, "OWNER-RECOVERY")
+    assert main(
+        [
+            "attempt-resolve-interrupted",
+            str(tmp_path),
+            "--attempt-id",
+            attempt_id,
+            "--authorization-ref",
+            recovery,
+            "--json",
+        ]
+    ) == 0
+    result = json.loads(capsys.readouterr().out)
+    assert result == {"attempt_id": attempt_id, "execution_status": "INTERRUPTED", "runtime_state": "TERMINAL"}
+
+
+def test_cli_recovery_authorization_negative_matrix(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    preparation = issue_preparation_authorization(tmp_path, _ATTEMPT_CHANGE, _ATTEMPT_TASK, "OWNER-DECISION")
+    payload = tmp_path / "payload.json"
+    payload.write_text(json.dumps(_attempt_payload(preparation)), encoding="utf-8")
+    assert main(["attempt-prepare", str(tmp_path), "--input", str(payload)]) == 0
+    attempt_id = capsys.readouterr().out.strip()
+    claim_attempt(tmp_path, attempt_id)
+    other = issue_recovery_authorization(tmp_path, f"{_ATTEMPT_CHANGE}/{_ATTEMPT_TASK}/A9", "OWNER-RECOVERY")
+    for reference in ("malformed", "authz_" + "0" * 32, preparation, other):
+        assert main(
+            [
+                "attempt-resolve-interrupted",
+                str(tmp_path),
+                attempt_id,
+                "--authorization-ref",
+                reference,
+            ]
+        ) == 2
+        capsys.readouterr()
+    assert lookup_attempt(tmp_path, attempt_id).runtime_state == "IN_FLIGHT"
 
 
 def test_resume_command_accepts_bounded_inputs() -> None:

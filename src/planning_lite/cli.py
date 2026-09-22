@@ -23,6 +23,11 @@ from .authorization import (
     issue_preparation_authorization,
     issue_recovery_authorization,
 )
+from .attempt_runtime import (
+    AttemptRuntimeError,
+    prepare_attempt,
+    resolve_interrupted_attempt,
+)
 from .context import ContextError, build_resume_context
 from .execution_guidance import select_operation_guidance
 from .local_update import (
@@ -560,6 +565,61 @@ def command_authorize_recovery(args: argparse.Namespace) -> int:
     return 0
 
 
+def command_attempt_prepare(args: argparse.Namespace) -> int:
+    """Adapt one machine preparation payload to the reusable runtime owner."""
+
+    try:
+        result = prepare_attempt(Path(args.target).resolve(), Path(args.input))
+    except (AttemptRuntimeError, OSError) as exc:
+        raise PlanningLiteError(str(exc)) from exc
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "attempt_id": result.attempt_id,
+                    "runtime_state": result.runtime_state,
+                },
+                sort_keys=True,
+            )
+        )
+    else:
+        print(result.attempt_id)
+    return 0
+
+
+def command_attempt_resolve_interrupted(args: argparse.Namespace) -> int:
+    """Adapt explicit owner recovery input to the reusable runtime owner."""
+
+    attempt_id = args.attempt_id_option or args.attempt_id
+    if not attempt_id:
+        raise PlanningLiteError("attempt_id is required")
+    try:
+        result = resolve_interrupted_attempt(
+            Path(args.target).resolve(),
+            attempt_id,
+            args.authorization_ref,
+            result_id=args.result_id,
+        )
+    except (AttemptRuntimeError, OSError) as exc:
+        raise PlanningLiteError(str(exc)) from exc
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "attempt_id": result.attempt_id,
+                    "runtime_state": result.runtime_state,
+                    "execution_status": result.observed_result.execution_status
+                    if result.observed_result
+                    else None,
+                },
+                sort_keys=True,
+            )
+        )
+    else:
+        print(result.attempt_id)
+    return 0
+
+
 def _registration_preview(args: argparse.Namespace) -> dict[str, object]:
     try:
         plan = plan_registration(
@@ -1079,6 +1139,27 @@ def build_parser() -> argparse.ArgumentParser:
     authorize_recovery.add_argument("--attempt-id", required=True)
     authorize_recovery.add_argument("--decision-provenance-ref", required=True)
     authorize_recovery.set_defaults(func=command_authorize_recovery)
+
+    attempt_prepare = subparsers.add_parser(
+        "attempt-prepare",
+        help="Materialize one owner-authorized Attempt from a preparation JSON payload.",
+    )
+    attempt_prepare.add_argument("target")
+    attempt_prepare.add_argument("--input", required=True, help="Path to the preparation JSON payload.")
+    attempt_prepare.add_argument("--json", action="store_true", help="Render a structured result.")
+    attempt_prepare.set_defaults(func=command_attempt_prepare)
+
+    attempt_recover = subparsers.add_parser(
+        "attempt-resolve-interrupted",
+        help="Owner-authorizedly terminalize one exact interrupted Attempt.",
+    )
+    attempt_recover.add_argument("target")
+    attempt_recover.add_argument("attempt_id", nargs="?")
+    attempt_recover.add_argument("--attempt-id", dest="attempt_id_option")
+    attempt_recover.add_argument("--authorization-ref", "--authz-ref", required=True)
+    attempt_recover.add_argument("--result-id")
+    attempt_recover.add_argument("--json", action="store_true", help="Render a structured result.")
+    attempt_recover.set_defaults(func=command_attempt_resolve_interrupted)
 
     adopt = subparsers.add_parser("adopt", help="Install Planning Lite into an existing Git repository.")
     adopt.add_argument("target", nargs="?", default=".")
