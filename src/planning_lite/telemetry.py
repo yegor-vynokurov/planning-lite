@@ -1,4 +1,4 @@
-"""Validation and append-only collection of externally supplied RunReceipt v1."""
+"""Validation and append-only collection of RunReceipt v1 and v2."""
 
 from __future__ import annotations
 
@@ -27,6 +27,9 @@ TOP_LEVEL_KEYS = {
     "verifier_used", "reviewer_used", "model_escalation", "retry", "recheck",
     "reads", "runtime_source",
 }
+TOP_LEVEL_KEYS_V1 = TOP_LEVEL_KEYS
+TOP_LEVEL_KEYS_V2 = TOP_LEVEL_KEYS_V1 | {"attempt_id", "execution_invocation_id"}
+SCHEMA_TOP_LEVEL_KEYS = {1: TOP_LEVEL_KEYS_V1, 2: TOP_LEVEL_KEYS_V2}
 TOKEN_KEYS = {"input", "output", "cached", "reasoning", "total", "source"}
 READ_KEYS = {"planning", "non_planning", "source"}
 _LOCKS: dict[Path, threading.Lock] = {}
@@ -111,31 +114,32 @@ def _validate_timestamp(value: object) -> None:
         raise ReceiptError("occurred_at_utc must be an ISO-8601 timestamp") from exc
 
 
-def validate_receipt(
+def _validate_receipt_record(
     value: Mapping[str, Any],
     *,
     registered_project_id: str,
-    planning_lite_ref: str,
 ) -> dict[str, Any]:
-    """Validate a receipt and return a detached canonical mapping."""
+    """Validate stored-record structure without current-ref authority."""
 
     if not isinstance(value, Mapping):
         raise ReceiptError("RunReceipt must be a JSON object")
     data = deepcopy(dict(value))
-    if set(data) != TOP_LEVEL_KEYS:
-        missing = sorted(TOP_LEVEL_KEYS - set(data))
-        extra = sorted(set(data) - TOP_LEVEL_KEYS)
-        raise ReceiptError(f"RunReceipt shape mismatch; missing={missing}, extra={extra}")
-    if data["schema_version"] != 1:
+    schema_version = data.get("schema_version")
+    if isinstance(schema_version, bool) or not isinstance(schema_version, int) or schema_version not in SCHEMA_TOP_LEVEL_KEYS:
         raise ReceiptError("Unsupported RunReceipt schema_version")
+    expected_keys = SCHEMA_TOP_LEVEL_KEYS[schema_version]
+    if set(data) != expected_keys:
+        missing = sorted(expected_keys - set(data))
+        extra = sorted(set(data) - expected_keys)
+        raise ReceiptError(f"RunReceipt shape mismatch; missing={missing}, extra={extra}")
     _nullable_string(data["receipt_id"], "receipt_id")
     if data["receipt_id"] is None:
         raise ReceiptError("receipt_id is required")
     _validate_timestamp(data["occurred_at_utc"])
     if data["project_id"] != registered_project_id:
         raise ReceiptError("receipt project_id does not match registered target")
-    if data["planning_lite_ref"] != planning_lite_ref:
-        raise ReceiptError("planning_lite_ref is collector-owned and does not match answers")
+    if not isinstance(data["planning_lite_ref"], str) or not data["planning_lite_ref"].strip():
+        raise ReceiptError("planning_lite_ref must be a non-empty string")
     for field in ("change_id", "task_id", "run_family", "agent_role", "model_id", "model_tier", "runtime_source"):
         _nullable_string(data[field], field)
     _nullable_nonnegative_int(data["invocation_index"], "invocation_index")
@@ -158,6 +162,24 @@ def validate_receipt(
     for field in ("verifier_used", "reviewer_used", "model_escalation", "retry", "recheck"):
         if data[field] is not None and not isinstance(data[field], bool):
             raise ReceiptError(f"{field} must be boolean or null")
+    if schema_version == 2:
+        for field in ("attempt_id", "execution_invocation_id"):
+            if not isinstance(data[field], str) or not data[field].strip():
+                raise ReceiptError(f"{field} must be a non-empty string")
+    return data
+
+
+def validate_receipt(
+    value: Mapping[str, Any],
+    *,
+    registered_project_id: str,
+    planning_lite_ref: str,
+) -> dict[str, Any]:
+    """Validate a receipt and return a detached current-authority mapping."""
+
+    data = _validate_receipt_record(value, registered_project_id=registered_project_id)
+    if data["planning_lite_ref"] != planning_lite_ref:
+        raise ReceiptError("planning_lite_ref is collector-owned and does not match answers")
     return data
 
 
@@ -178,6 +200,85 @@ def _load_answers_ref(path: Path) -> str:
     return value.strip()
 
 
+def _scan_existing_records(
+    path: Path,
+    *,
+    registered_project_id: str,
+) -> dict[str, tuple[dict[str, Any], bytes]]:
+    """Read and structurally validate every persisted record."""
+
+    if not path.exists():
+        return {}
+    raw = path.read_bytes()
+    if raw and not raw.endswith(b"\n"):
+        raise ReceiptError("Receipt stream ends with a partial line")
+    if not raw:
+        return {}
+    records: dict[str, tuple[dict[str, Any], bytes]] = {}
+    for line in raw.split(b"\n")[:-1]:
+        if not line.strip():
+            raise ReceiptError("Receipt stream contains an empty line")
+        try:
+            previous = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise ReceiptError("Receipt stream contains invalid JSON") from exc
+        if not isinstance(previous, dict):
+            raise ReceiptError("Receipt stream contains a non-object record")
+        validated = _validate_receipt_record(previous, registered_project_id=registered_project_id)
+        receipt_id = validated["receipt_id"]
+        if receipt_id in records:
+            raise ReceiptError("Receipt stream contains a duplicate receipt_id")
+        records[receipt_id] = (validated, line)
+    return records
+
+
+def _append_validated_receipt(
+    validated: dict[str, Any],
+    *,
+    receipt_path: str | Path,
+    registered_project_id: str,
+) -> bool:
+    """Append a structurally and current-authority validated receipt."""
+
+    path = Path(receipt_path).expanduser().resolve()
+    payload = canonical_bytes(validated)
+    with _serialized_receipt(path):
+        existing = _scan_existing_records(path, registered_project_id=registered_project_id)
+        previous = existing.get(validated["receipt_id"])
+        if previous is not None:
+            if previous[1] == payload:
+                return False
+            raise ReceiptError("Conflicting reuse of receipt_id")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("ab") as handle:
+            handle.write(payload + b"\n")
+            handle.flush()
+            try:
+                os.fsync(handle.fileno())
+            except OSError:
+                pass
+    return True
+
+
+def _read_receipt_by_id(
+    receipt_id: str,
+    *,
+    receipt_path: str | Path,
+    registered_project_id: str,
+    expected_payload: bytes,
+) -> dict[str, Any]:
+    """Return the exact persisted receipt whose bytes match the expectation."""
+
+    path = Path(receipt_path).expanduser().resolve()
+    existing = _scan_existing_records(path, registered_project_id=registered_project_id)
+    matching = existing.get(receipt_id)
+    if matching is None:
+        raise ReceiptError("Persisted receipt_id was not found")
+    if matching[1] != expected_payload:
+        raise ReceiptError("Persisted receipt bytes do not match expected payload")
+    return deepcopy(matching[0])
+
+
 def append_receipt(
     receipt: Mapping[str, Any],
     *,
@@ -190,42 +291,60 @@ def append_receipt(
 
     if not enabled:
         raise ReceiptError("Telemetry is disabled for this project; no receipt was written")
+    if isinstance(receipt, Mapping) and receipt.get("schema_version") == 2:
+        raise ReceiptError("RunReceipt v2 requires collect_governed_receipt")
     validated = validate_receipt(
         receipt,
         registered_project_id=registered_project_id,
         planning_lite_ref=planning_lite_ref,
     )
-    path = Path(receipt_path).expanduser().resolve()
-    payload = canonical_bytes(validated)
-    with _serialized_receipt(path):
-        if path.exists():
-            raw = path.read_bytes()
-            if raw and not raw.endswith(b"\n"):
-                raise ReceiptError("Receipt stream ends with a partial line")
-            for line in raw.splitlines():
-                if not line.strip():
-                    raise ReceiptError("Receipt stream contains an empty line")
-                try:
-                    previous = json.loads(line)
-                except json.JSONDecodeError as exc:
-                    raise ReceiptError("Receipt stream contains invalid JSON") from exc
-                if not isinstance(previous, dict):
-                    raise ReceiptError("Receipt stream contains a non-object record")
-                if previous.get("receipt_id") == validated["receipt_id"]:
-                    if line == payload:
-                        return False
-                    raise ReceiptError("Conflicting reuse of receipt_id")
-        path.parent.mkdir(parents=True, exist_ok=True)
-        with path.open("ab") as handle:
-            handle.write(payload + b"\n")
-            handle.flush()
-            try:
-                import os
+    return _append_validated_receipt(
+        validated,
+        receipt_path=receipt_path,
+        registered_project_id=registered_project_id,
+    )
 
-                os.fsync(handle.fileno())
-            except OSError:
-                pass
-    return True
+
+def collect_governed_receipt(
+    receipt: Mapping[str, Any],
+    *,
+    project_root: str | Path,
+    receipt_path: str | Path,
+    registered_project_id: str,
+    attempt_id: str,
+    execution_invocation_id: str,
+    enabled: bool,
+) -> dict[str, Any]:
+    """Collect a v2 receipt with caller-supplied governed identity context."""
+
+    if not enabled:
+        raise ReceiptError("Telemetry is disabled for this project; no receipt was written")
+    if not isinstance(receipt, Mapping) or receipt.get("schema_version") != 2:
+        raise ReceiptError("collect_governed_receipt requires RunReceipt schema_version 2")
+    for value, field in ((attempt_id, "attempt_id"), (execution_invocation_id, "execution_invocation_id")):
+        if not isinstance(value, str) or not value.strip():
+            raise ReceiptError(f"{field} authority context must be a non-empty string")
+    data = dict(receipt)
+    data["planning_lite_ref"] = _load_answers_ref(Path(project_root).resolve() / ".copier-answers.planning-lite.yml")
+    data["attempt_id"] = attempt_id
+    data["execution_invocation_id"] = execution_invocation_id
+    validated = validate_receipt(
+        data,
+        registered_project_id=registered_project_id,
+        planning_lite_ref=data["planning_lite_ref"],
+    )
+    payload = canonical_bytes(validated)
+    _append_validated_receipt(
+        validated,
+        receipt_path=receipt_path,
+        registered_project_id=registered_project_id,
+    )
+    return _read_receipt_by_id(
+        validated["receipt_id"],
+        receipt_path=receipt_path,
+        registered_project_id=registered_project_id,
+        expected_payload=payload,
+    )
 
 
 def collect_receipt(
@@ -247,6 +366,8 @@ def collect_receipt(
         raise ReceiptError(f"Cannot read receipt input {source}: {exc}") from exc
     if not isinstance(raw, dict):
         raise ReceiptError("Receipt input must be a JSON object")
+    if raw.get("schema_version") == 2:
+        raise ReceiptError("RunReceipt v2 requires collect_governed_receipt")
     raw["planning_lite_ref"] = _load_answers_ref(Path(project_root).resolve() / ".copier-answers.planning-lite.yml")
     return append_receipt(
         raw,

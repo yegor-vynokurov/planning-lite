@@ -7,7 +7,17 @@ from pathlib import Path
 import pytest
 import yaml
 
-from planning_lite.telemetry import ReceiptError, append_receipt, collect_receipt
+from planning_lite.telemetry import (
+    TOP_LEVEL_KEYS,
+    TOP_LEVEL_KEYS_V2,
+    ReceiptError,
+    _read_receipt_by_id,
+    append_receipt,
+    canonical_bytes,
+    collect_governed_receipt,
+    collect_receipt,
+    validate_receipt,
+)
 from planning_lite.workspace import inspect_project, register_project
 
 
@@ -54,6 +64,23 @@ def _receipt(project_id: str = "demo") -> dict:
         "reads": {"planning": None, "non_planning": None, "source": "unavailable"},
         "runtime_source": None,
     }
+
+
+def _v2_receipt(project_id: str = "demo") -> dict:
+    receipt = _receipt(project_id)
+    receipt.update(
+        {
+            "schema_version": 2,
+            "attempt_id": "external-attempt",
+            "execution_invocation_id": "external-invocation",
+        }
+    )
+    return receipt
+
+
+def _write_existing_stream(path: Path, raw: bytes) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(raw)
 
 
 def _append_worker(path: str, receipt_id: str, queue, outcome: str = "UNKNOWN") -> None:  # type: ignore[no-untyped-def]
@@ -161,3 +188,311 @@ def test_partial_line_and_invalid_shape_fail_closed(tmp_path: Path) -> None:
     del bad["reads"]
     with pytest.raises(ReceiptError, match="shape"):
         append_receipt(bad, receipt_path=tmp_path / "bad.jsonl", registered_project_id="demo", planning_lite_ref="v9.9.9", enabled=True)
+
+
+def test_v2_exact_schema_and_version_dispatch(tmp_path: Path) -> None:
+    _, _, path = _fixture(tmp_path)
+    v1 = validate_receipt(_receipt(), registered_project_id="demo", planning_lite_ref="v9.9.9")
+    v2 = validate_receipt(_v2_receipt(), registered_project_id="demo", planning_lite_ref="v9.9.9")
+    assert set(v1) == TOP_LEVEL_KEYS
+    assert set(v2) == TOP_LEVEL_KEYS_V2
+    unsupported = _receipt()
+    unsupported["schema_version"] = 3
+    with pytest.raises(ReceiptError, match="Unsupported"):
+        validate_receipt(unsupported, registered_project_id="demo", planning_lite_ref="v9.9.9")
+    extra = _v2_receipt()
+    extra["unexpected"] = True
+    with pytest.raises(ReceiptError, match="shape"):
+        validate_receipt(extra, registered_project_id="demo", planning_lite_ref="v9.9.9")
+    with pytest.raises(ReceiptError, match="governed"):
+        append_receipt(v2, receipt_path=path, registered_project_id="demo", planning_lite_ref="v9.9.9", enabled=True)
+
+
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("attempt_id", None),
+        ("attempt_id", ""),
+        ("attempt_id", "   "),
+        ("attempt_id", 1),
+        ("execution_invocation_id", None),
+        ("execution_invocation_id", ""),
+        ("execution_invocation_id", "   "),
+        ("execution_invocation_id", 1),
+    ],
+)
+def test_v2_identity_fields_reject_missing_or_malformed_values(
+    field: str, value: object
+) -> None:
+    receipt = _v2_receipt()
+    receipt[field] = value
+    with pytest.raises(ReceiptError, match=field):
+        validate_receipt(receipt, registered_project_id="demo", planning_lite_ref="v9.9.9")
+
+
+@pytest.mark.parametrize("field", ["attempt_id", "execution_invocation_id"])
+def test_v2_missing_identity_fields_fail_closed(field: str) -> None:
+    receipt = _v2_receipt()
+    del receipt[field]
+    with pytest.raises(ReceiptError, match="shape"):
+        validate_receipt(receipt, registered_project_id="demo", planning_lite_ref="v9.9.9")
+
+
+def test_governed_collector_injects_authority_and_reads_persisted_bytes(tmp_path: Path) -> None:
+    root, _, path = _fixture(tmp_path)
+    receipt = _v2_receipt()
+    receipt["planning_lite_ref"] = "attacker-ref"
+    result = collect_governed_receipt(
+        receipt,
+        project_root=root,
+        receipt_path=path,
+        registered_project_id="demo",
+        attempt_id="authoritative-attempt",
+        execution_invocation_id="authoritative-invocation",
+        enabled=True,
+    )
+    assert result["attempt_id"] == "authoritative-attempt"
+    assert result["execution_invocation_id"] == "authoritative-invocation"
+    assert result["planning_lite_ref"] == "v9.9.9"
+    raw_line = path.read_bytes().splitlines()[0]
+    assert raw_line == canonical_bytes(result)
+    result["attempt_id"] = "mutated-after-readback"
+    stored = json.loads(raw_line)
+    assert stored["attempt_id"] == "authoritative-attempt"
+
+
+def test_governed_collector_neutralizes_both_external_identities(tmp_path: Path) -> None:
+    root, _, path = _fixture(tmp_path)
+    receipt = _v2_receipt()
+    receipt["attempt_id"] = "ATTEMPT_B"
+    receipt["execution_invocation_id"] = "INVOCATION_2"
+    result = collect_governed_receipt(
+        receipt,
+        project_root=root,
+        receipt_path=path,
+        registered_project_id="demo",
+        attempt_id="ATTEMPT_A",
+        execution_invocation_id="INVOCATION_1",
+        enabled=True,
+    )
+    assert result["attempt_id"] == "ATTEMPT_A"
+    assert result["execution_invocation_id"] == "INVOCATION_1"
+    stored = json.loads(path.read_bytes().splitlines()[0])
+    assert stored["attempt_id"] == "ATTEMPT_A"
+    assert stored["execution_invocation_id"] == "INVOCATION_1"
+
+
+def test_governed_collector_neutralizes_cross_attempt_spoof(tmp_path: Path) -> None:
+    root, _, path = _fixture(tmp_path)
+    receipt = _v2_receipt()
+    receipt["attempt_id"] = "ATTEMPT_B"
+    result = collect_governed_receipt(
+        receipt,
+        project_root=root,
+        receipt_path=path,
+        registered_project_id="demo",
+        attempt_id="ATTEMPT_A",
+        execution_invocation_id="INVOCATION_1",
+        enabled=True,
+    )
+    assert result["attempt_id"] == "ATTEMPT_A"
+    assert json.loads(path.read_bytes().splitlines()[0])["attempt_id"] == "ATTEMPT_A"
+
+
+def test_governed_collector_neutralizes_cross_invocation_spoof(tmp_path: Path) -> None:
+    root, _, path = _fixture(tmp_path)
+    receipt = _v2_receipt()
+    receipt["execution_invocation_id"] = "INVOCATION_2"
+    result = collect_governed_receipt(
+        receipt,
+        project_root=root,
+        receipt_path=path,
+        registered_project_id="demo",
+        attempt_id="ATTEMPT_A",
+        execution_invocation_id="INVOCATION_1",
+        enabled=True,
+    )
+    assert result["execution_invocation_id"] == "INVOCATION_1"
+    assert json.loads(path.read_bytes().splitlines()[0])["execution_invocation_id"] == "INVOCATION_1"
+
+
+def test_governed_collector_rejects_legacy_v1(tmp_path: Path) -> None:
+    root, _, path = _fixture(tmp_path)
+    with pytest.raises(ReceiptError, match="schema_version 2"):
+        collect_governed_receipt(
+            _receipt(),
+            project_root=root,
+            receipt_path=path,
+            registered_project_id="demo",
+            attempt_id="attempt",
+            execution_invocation_id="invocation",
+            enabled=True,
+        )
+    assert not path.exists()
+
+
+def test_legacy_collect_receipt_rejects_governed_v2(tmp_path: Path) -> None:
+    root, _, path = _fixture(tmp_path)
+    input_path = tmp_path / "v2-input.json"
+    input_path.write_text(json.dumps(_v2_receipt()), encoding="utf-8")
+    with pytest.raises(ReceiptError, match="governed"):
+        collect_receipt(input_path, project_root=root, receipt_path=path, registered_project_id="demo", enabled=True)
+    assert not path.exists()
+
+
+def test_v2_identical_duplicate_idempotence(tmp_path: Path) -> None:
+    root, _, path = _fixture(tmp_path)
+    receipt = _v2_receipt()
+    receipt["receipt_id"] = "v2-duplicate"
+    first = collect_governed_receipt(
+        receipt,
+        project_root=root,
+        receipt_path=path,
+        registered_project_id="demo",
+        attempt_id="ATTEMPT_A",
+        execution_invocation_id="INVOCATION_1",
+        enabled=True,
+    )
+    second = collect_governed_receipt(
+        receipt,
+        project_root=root,
+        receipt_path=path,
+        registered_project_id="demo",
+        attempt_id="ATTEMPT_A",
+        execution_invocation_id="INVOCATION_1",
+        enabled=True,
+    )
+    assert second == first
+    assert path.read_bytes().splitlines() == [canonical_bytes(first)]
+
+
+def test_mixed_version_same_id_conflict_preserves_v1_stream(tmp_path: Path) -> None:
+    root, _, path = _fixture(tmp_path)
+    v1 = _receipt()
+    v1["receipt_id"] = "mixed-version-same-id"
+    assert append_receipt(
+        v1,
+        receipt_path=path,
+        registered_project_id="demo",
+        planning_lite_ref="v9.9.9",
+        enabled=True,
+    )
+    original = path.read_bytes()
+    v2 = _v2_receipt()
+    v2["receipt_id"] = "mixed-version-same-id"
+    with pytest.raises(ReceiptError, match="Conflicting"):
+        collect_governed_receipt(
+            v2,
+            project_root=root,
+            receipt_path=path,
+            registered_project_id="demo",
+            attempt_id="ATTEMPT_A",
+            execution_invocation_id="INVOCATION_1",
+            enabled=True,
+        )
+    assert path.read_bytes() == original
+
+
+def _assert_historical_refs_do_not_block_current_append_or_readback(tmp_path: Path) -> None:
+    root, _, path = _fixture(tmp_path)
+    historical_v1 = _receipt()
+    historical_v1["receipt_id"] = "historical-v1"
+    historical_v1["planning_lite_ref"] = "old-ref-a"
+    historical_v2 = _v2_receipt()
+    historical_v2["receipt_id"] = "historical-v2"
+    historical_v2["planning_lite_ref"] = "old-ref-b"
+    historical_bytes = canonical_bytes(historical_v1) + b"\n" + canonical_bytes(historical_v2) + b"\n"
+    _write_existing_stream(path, historical_bytes)
+
+    current_v1 = _receipt()
+    current_v1["receipt_id"] = "current-v1"
+    assert append_receipt(current_v1, receipt_path=path, registered_project_id="demo", planning_lite_ref="v9.9.9", enabled=True)
+    before_governed = path.read_bytes()
+    current_v2 = _v2_receipt()
+    current_v2["receipt_id"] = "current-v2"
+    result = collect_governed_receipt(
+        current_v2,
+        project_root=root,
+        receipt_path=path,
+        registered_project_id="demo",
+        attempt_id="current-attempt",
+        execution_invocation_id="current-invocation",
+        enabled=True,
+    )
+    assert result["planning_lite_ref"] == "v9.9.9"
+    assert path.read_bytes().startswith(historical_bytes)
+    assert path.read_bytes().startswith(before_governed)
+    assert _read_receipt_by_id(
+        "current-v2",
+        receipt_path=path,
+        registered_project_id="demo",
+        expected_payload=canonical_bytes(result),
+    ) == result
+
+
+def test_historical_planning_lite_refs_do_not_block_current_append_or_readback(tmp_path: Path) -> None:
+    _assert_historical_refs_do_not_block_current_append_or_readback(tmp_path)
+
+
+def test_stored_record_historical_ref_current_append_and_readback(tmp_path: Path) -> None:
+    _assert_historical_refs_do_not_block_current_append_or_readback(tmp_path)
+
+
+def test_historical_ref_same_receipt_id_conflict_is_fail_closed(tmp_path: Path) -> None:
+    _, _, path = _fixture(tmp_path)
+    historical = _receipt()
+    historical["receipt_id"] = "same-id"
+    historical["planning_lite_ref"] = "old-ref"
+    original = canonical_bytes(historical) + b"\n"
+    _write_existing_stream(path, original)
+    current = _receipt()
+    current["receipt_id"] = "same-id"
+    with pytest.raises(ReceiptError, match="Conflicting"):
+        append_receipt(current, receipt_path=path, registered_project_id="demo", planning_lite_ref="v9.9.9", enabled=True)
+    assert path.read_bytes() == original
+
+
+def test_unrelated_historical_ref_mixed_version_stream_remains_readable(tmp_path: Path) -> None:
+    root, _, path = _fixture(tmp_path)
+    historical = _receipt()
+    historical["receipt_id"] = "unrelated-old"
+    historical["planning_lite_ref"] = "old-ref"
+    original = canonical_bytes(historical) + b"\n"
+    _write_existing_stream(path, original)
+    current = _v2_receipt()
+    current["receipt_id"] = "new-current"
+    result = collect_governed_receipt(
+        current,
+        project_root=root,
+        receipt_path=path,
+        registered_project_id="demo",
+        attempt_id="new-attempt",
+        execution_invocation_id="new-invocation",
+        enabled=True,
+    )
+    assert result["receipt_id"] == "new-current"
+    assert path.read_bytes().startswith(original)
+
+
+@pytest.mark.parametrize(
+    ("raw", "message"),
+    [
+        (b"\n", "empty"),
+        (b"not-json\n", "invalid JSON"),
+        (b"[]\n", "non-object"),
+    ],
+)
+def test_historical_stream_corruption_fails_closed(tmp_path: Path, raw: bytes, message: str) -> None:
+    _, _, path = _fixture(tmp_path)
+    _write_existing_stream(path, raw)
+    with pytest.raises(ReceiptError, match=message):
+        append_receipt(_receipt(), receipt_path=path, registered_project_id="demo", planning_lite_ref="v9.9.9", enabled=True)
+
+
+def test_historical_stream_wrong_project_fails_closed(tmp_path: Path) -> None:
+    _, _, path = _fixture(tmp_path)
+    historical = _receipt(project_id="other")
+    historical["planning_lite_ref"] = "old-ref"
+    _write_existing_stream(path, canonical_bytes(historical) + b"\n")
+    with pytest.raises(ReceiptError, match="project_id"):
+        append_receipt(_receipt(), receipt_path=path, registered_project_id="demo", planning_lite_ref="v9.9.9", enabled=True)
