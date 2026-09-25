@@ -5,14 +5,15 @@ repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
 active_change: CHG-PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-001
-lifecycle_gate: S6_CORRECTION_PLANNED / PENDING_FRESH_FORMAL_READINESS
+lifecycle_gate: S6_CORRECTION_READY / AWAITING_EXACT_IMPLEMENTATION_AUTHORIZATION
+formal_readiness: READY
 implementation_authorized: NO
 blockers: OPEN_MATERIAL_FINDING / POST_PL08_DOWNSTREAM_HANDOFF_ABSENT
 first_broken_seam: PL08 Result/Evidence -> authoritative Next Gate
 gap_class: WIRING_GAP
 critical_journey: WIRED_FAIL
 change_2: BLOCKED / VALID / PAUSED
-next_permitted_action: FRESH_FORMAL_READINESS_PL09_LIFECYCLE_S6_CORRECTION_V3
+next_permitted_action: OWNER_AUTHORIZATION_PL09_LIFECYCLE_S6_CORRECTION_IMPLEMENTATION_FOR_EXACT_R3
 last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-IMPLEMENTATION-PLAN-AMENDMENT-v2.md
 state_as_of: 2026-09-25
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->

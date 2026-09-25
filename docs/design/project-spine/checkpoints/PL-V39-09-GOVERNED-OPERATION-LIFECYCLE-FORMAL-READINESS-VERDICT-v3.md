@@ -1,0 +1,223 @@
+# PL09 Governed Operation Lifecycle - S6 Correction Formal Readiness Verdict v3
+
+## Verdict identity
+
+TITLE:
+PL09 Governed Operation Lifecycle - S6 Correction Formal Readiness Verdict v3
+
+CHANGE_ID:
+CHG-PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-001
+
+REVIEW_KIND:
+FRESH_FORMAL_READINESS / S6 CORRECTION V3
+
+ENTRY_HEAD:
+5d71f60d67f04dd8620d4672d703e0971d67bda0
+
+EFFECTIVE_PLAN:
+Plan v1
++ Implementation Plan Amendment v1
++ Implementation Plan Amendment v2
++ Implementation Plan Amendment v3
+
+FORMAL_READINESS:
+READY
+
+OWNER_REVIEW:
+PASS / ACCEPTED
+
+IMPLEMENTATION_AUTHORIZED:
+NO
+
+## Authority bindings
+
+BASE_PLAN:
+docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-IMPLEMENTATION-PLAN-v1.md
+
+BASE_PLAN_SHA256:
+B38B977FD6858597380DD2DB7D7685E7272BC3881776A69370C4E615E671ABEC
+
+AMENDMENT_V1:
+docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-IMPLEMENTATION-PLAN-AMENDMENT-v1.md
+
+AMENDMENT_V1_SHA256:
+6639A27B1ED6504814A56FD55A21BFD49A3C69745DD981226D92872143D46BE1
+
+AMENDMENT_V2:
+docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-IMPLEMENTATION-PLAN-AMENDMENT-v2.md
+
+AMENDMENT_V2_SHA256:
+7BFDFEBCCFB25ADE027FA23D3E1B0FA4384B5A163997ED21DCF75D87B0B5595F
+
+AMENDMENT_V3:
+docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-IMPLEMENTATION-PLAN-AMENDMENT-v3.md
+
+AMENDMENT_V3_SHA256:
+79E528E17C83F5E317F24159D98B36E05787288D9E327E16E6C52862DA59E485
+
+CLOSURE_CORRECTION:
+docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-CLOSURE-CORRECTION-v1.md
+
+CLOSURE_CORRECTION_SHA256:
+441B7C75A5C1E17BF079EE1A055C925D316BB24B3B3D334CED64223C7994118B
+
+## Accepted readiness findings
+
+V3_EVALUATION_BINDING:
+PASS
+
+V3_DOWNSTREAM_BINDING:
+PASS
+
+V3_SNAPSHOT_BINDING:
+PASS
+
+V3_ALL_CALLERS_COVERED:
+PASS
+
+LIVE_CALLERS:
+- src/planning_lite/cli.py::command_execute
+- src/planning_lite/cli.py::command_finish
+
+SEVEN_PATH_SURFACE:
+PASS
+
+ADDITIONAL_REQUIRED_PATHS:
+NONE
+
+PROJECT_SPINE_ADAPTER:
+PASS
+
+AUTHORIZATION_BINDING:
+PASS
+
+TEMPORAL_ORDER:
+PASS
+
+POST_PL08_FAILURE_TRUTH:
+PASS
+
+COMPACT_DOWNSTREAM_PROJECTION:
+PASS
+
+PURE_REDUCER_BOUNDARY:
+PASS
+
+PRODUCTION_SHAPED_S6_EVIDENCE_CONSTRUCTION:
+PASS
+
+TRAVERSABILITY_SOURCE_MUTATION_REQUIRED:
+NO
+
+FALSE_DONE_RESISTANCE:
+PASS
+
+REAL_S6_TESTABILITY:
+PASS
+
+CHANGE_2_SEPARATION:
+PASS
+
+CHANGE_3_SEPARATION:
+PASS
+
+ARCHITECTURE_BLOCKER_COUNT:
+0
+
+MATERIAL_FINDING_COUNT:
+0
+
+UNBOUND_MATERIAL_CHOICE_COUNT:
+0
+
+NONBLOCKING_FINDING_COUNT:
+0
+
+## Approved future implementation surface
+
+Exactly seven paths are approved for a separate implementation authorization:
+
+ADD:
+src/planning_lite/project_spine.py
+tests/test_project_spine.py
+
+MODIFY:
+src/planning_lite/operation_lifecycle.py
+src/planning_lite/cli.py
+tests/test_operation_lifecycle.py
+tests/test_cli.py
+tests/test_system_traversability.py
+
+The following remain read-only and are not modified by the approved surface:
+
+src/planning_lite/traversability.py:
+READ_ONLY / NO MUTATION
+
+src/planning_lite/context.py:
+READ_ONLY / NO MUTATION
+
+src/planning_lite/attempt_evaluation.py:
+READ_ONLY / NO MUTATION
+
+src/planning_lite/attempt_runtime.py:
+READ_ONLY / NO MUTATION
+
+src/planning_lite/telemetry.py:
+READ_ONLY / NO MUTATION
+
+src/planning_lite/governed_executor.py:
+READ_ONLY / NO MUTATION
+
+WRITE_PATH_COUNT:
+7
+
+## Preserved current state
+
+S1:
+PASS / PRESERVED
+
+S2:
+PASS / PRESERVED
+
+S3:
+PASS / PRESERVED
+
+S4:
+PASS / PRESERVED
+
+S5:
+PASS / PRESERVED
+
+S6:
+CORRECTION READY FOR SEPARATE IMPLEMENTATION AUTHORIZATION
+
+LIFECYCLE_PREREQUISITE:
+REOPENED / S6 CORRECTION READY FOR IMPLEMENTATION AUTHORIZATION
+
+CHANGE_2:
+BLOCKED / VALID / PAUSED
+
+CHANGE_2_FRESH_FORMAL_READINESS:
+NOT AUTHORIZED
+
+CHANGE_3:
+NOT_ABSORBED
+
+MAJOR_PL09_NEXT_SLICE_GATE:
+PRESERVED / UNCONSUMED
+
+## Materialization boundary
+
+This verdict records accepted readiness only. It does not authorize implementation.
+
+Allowed governance writes for this materialization were:
+
+docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-FORMAL-READINESS-VERDICT-v3.md
+docs/design/project-spine/CURRENT.md
+
+Product, test, template, recommendation, and implementation mutations are not part of this verdict.
+
+## Next gate
+
+NEXT_SINGLE_GATE:
+OWNER_AUTHORIZATION_PL09_LIFECYCLE_S6_CORRECTION_IMPLEMENTATION_FOR_EXACT_R3
