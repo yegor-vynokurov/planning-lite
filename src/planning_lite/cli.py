@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tomllib
 import tempfile
+from collections.abc import Mapping
 from urllib.parse import urlparse
 from datetime import date
 from pathlib import Path
@@ -30,6 +31,10 @@ from .attempt_runtime import (
 )
 from .context import ContextError, build_compact_status, build_resume_context
 from .execution_guidance import select_operation_guidance
+from .governed_executor import (
+    GovernedExecutionCompletionV1,
+    GovernedExecutionResultV1,
+)
 from .operation_lifecycle import execute_governed_operation
 from .local_update import (
     LocalUpdateError,
@@ -737,11 +742,67 @@ def _read_json_input(path: str) -> dict[str, object]:
     return value
 
 
+def _cli_json_projection(value: object) -> object:
+    """Project lifecycle result carriers into stable display mappings."""
+
+    if isinstance(value, GovernedExecutionResultV1):
+        return {
+            "attempt_id": value.attempt_id,
+            "execution_invocation_id": value.execution_invocation_id,
+            "accepted": value.accepted,
+            "outcome": value.outcome,
+            "failure_category": value.failure_category,
+            "result_id": value.result_id,
+            "execution_status": value.execution_status,
+            "operation_id": value.operation_id,
+            "task_or_operation_id": value.task_or_operation_id,
+            "envelope_digest": value.envelope_digest,
+            "changed_paths": _cli_json_projection(value.changed_paths),
+            "fact_refs": _cli_json_projection(value.fact_refs),
+            "artifact_refs": _cli_json_projection(value.artifact_refs),
+            "receipt_id": value.receipt_id,
+            "completion": _cli_json_projection(value.completion),
+        }
+    if isinstance(value, GovernedExecutionCompletionV1):
+        return {
+            "attempt_id": value.attempt_id,
+            "execution_invocation_id": value.execution_invocation_id,
+            "envelope_digest": value.envelope_digest,
+            "operation_id": value.operation_id,
+            "task_or_operation_id": value.task_or_operation_id,
+            "result_id": value.result_id,
+            "execution_status": value.execution_status,
+            "changed_paths": _cli_json_projection(value.changed_paths),
+            "fact_refs": _cli_json_projection(value.fact_refs),
+            "artifact_refs": _cli_json_projection(value.artifact_refs),
+            "acceptance_contract_ref": value.acceptance_contract_ref,
+            "acceptance_contract": _cli_json_projection(value.acceptance_contract),
+            "verifier_contracts": _cli_json_projection(value.verifier_contracts),
+            "verifier_evidence": _cli_json_projection(value.verifier_evidence),
+            "findings": _cli_json_projection(value.findings),
+            "evaluation_scope_ref": value.evaluation_scope_ref,
+            "supersession": _cli_json_projection(value.supersession),
+            "evaluation_id": value.evaluation_id,
+            "evaluation_run": value.evaluation_run,
+            "candidate_quality": value.candidate_quality,
+            "receipt_id": value.receipt_id,
+        }
+    if isinstance(value, Mapping):
+        return {key: _cli_json_projection(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_cli_json_projection(item) for item in value]
+    method = getattr(value, "to_mapping", None)
+    if callable(method):
+        return _cli_json_projection(method())
+    return value
+
+
 def _render_json_or_yaml(value: object, *, as_json: bool) -> None:
+    projected = _cli_json_projection(value)
     if as_json:
-        print(json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":")))
+        print(json.dumps(projected, sort_keys=True, ensure_ascii=False, separators=(",", ":")))
     else:
-        print(yaml.safe_dump(value, sort_keys=False, allow_unicode=True), end="")
+        print(yaml.safe_dump(projected, sort_keys=False, allow_unicode=True), end="")
 
 
 def _execute_guidance(target: Path, data: dict[str, object]) -> dict[str, object]:

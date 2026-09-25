@@ -9,6 +9,7 @@ import pytest
 
 from planning_lite import cli
 from planning_lite.cli import BRIDGE_START, _ensure_agents_bridge, build_parser, main
+from planning_lite.governed_executor import GovernedExecutionResultV1
 from planning_lite.operation_lifecycle import GovernedLifecycleResultV1
 from planning_lite.attempt_runtime import attempt_store_path, claim_attempt, lookup_attempt
 from planning_lite.authorization import (
@@ -309,6 +310,63 @@ def test_execute_prepare_complete_route(tmp_path: Path, capsys: pytest.CaptureFi
         assert json.loads(capsys.readouterr().out)["disposition"] == "COMPLETED_WITH_FACTS"
     finally:
         monkeypatch.undo()
+
+
+def test_execute_renders_typed_result_when_receipt_is_incomplete(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    execution = GovernedExecutionResultV1(
+        attempt_id="CHG/T/A1",
+        execution_invocation_id="A" * 64,
+        accepted=True,
+        outcome="COMPLETED",
+        result_id="RESULT-1",
+        execution_status="COMPLETED",
+        changed_paths=("artifact.txt",),
+        fact_refs=("FACT-1",),
+        artifact_refs=("artifact.txt",),
+    )
+    stopped = GovernedLifecycleResultV1(
+        disposition="STOPPED_FAIL_CLOSED",
+        attempt_id="CHG/T/A1",
+        first_broken_seam="GOVERNED_RECEIPT_COLLECTION",
+        reason_code="RECEIPT_MISSING",
+        execution=execution,
+    )
+    monkeypatch.setattr(cli, "execute_governed_operation", lambda *args, **kwargs: stopped)
+    input_path = tmp_path / "execute.json"
+    input_path.write_text(
+        '{"attempt_id":"CHG/T/A1","guidance":{"outcome":"MATCHED"}}',
+        encoding="utf-8",
+    )
+
+    assert main(["execute", str(tmp_path), "--input", str(input_path), "--json"]) == 2
+
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["disposition"] == "STOPPED_FAIL_CLOSED"
+    assert payload["reason_code"] == "RECEIPT_MISSING"
+    assert payload["execution"] == {
+        "accepted": True,
+        "artifact_refs": ["artifact.txt"],
+        "attempt_id": "CHG/T/A1",
+        "changed_paths": ["artifact.txt"],
+        "completion": None,
+        "envelope_digest": None,
+        "execution_invocation_id": "A" * 64,
+        "execution_status": "COMPLETED",
+        "fact_refs": ["FACT-1"],
+        "failure_category": None,
+        "operation_id": None,
+        "outcome": "COMPLETED",
+        "receipt_id": None,
+        "result_id": "RESULT-1",
+        "task_or_operation_id": None,
+    }
+    assert payload["receipt"] is None
+    assert payload["observed_result"] is None
+    assert payload["technical_evaluation"] is None
+    assert payload["terminal_attempt"] is None
+    assert payload["downstream"] is None
 
 
 def test_finish_requires_typed_current_cycle(tmp_path: Path) -> None:
