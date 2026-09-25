@@ -368,19 +368,19 @@ Implementation Plan status: APPROVED_BY_OWNER / CANONICAL
 Plan Approval / Activation: docs/design/project-spine/checkpoints/PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-PLAN-APPROVAL-READINESS-ENTRY-v1.md
 Plan approval: EXPLICIT_HUMAN_OWNER
 Plan review: PASS / 0 MATERIAL FINDINGS
-Formal Readiness: HISTORICAL BLOCKED / FRESH REVIEW REQUIRED
-Formal Readiness verdict: docs/design/project-spine/checkpoints/PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-FORMAL-READINESS-VERDICT-v1.md
-Formal Readiness blocker count: 1
+Formal Readiness: READY
+Formal Readiness verdict: docs/design/project-spine/checkpoints/PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-FORMAL-READINESS-VERDICT-v3.md
+Formal Readiness blocker count: 0
 Implementation: NOT AUTHORIZED
 Implementation performed: NO
-Change 3: NOT STARTED / NOT AUTHORIZED
+Change 3: NOT_ABSORBED
 runtime prompt dedup: NOT AUTHORIZED
 Plan Amendment: docs/design/project-spine/checkpoints/PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-IMPLEMENTATION-PLAN-AMENDMENT-v3.md
 Plan Amendment status: MATERIALIZED / OWNER-AUTHORIZED / V3
 Runtime prerequisite: CLOSED / COMPLETE
 Critical Journey: PL_SELF_HOSTED_GOVERNED_OPERATION / PASS / PASSING
-Change 2 state: VALID / PAUSED_PENDING_FRESH_FORMAL_READINESS
-next_permitted_action: FRESH_FORMAL_READINESS_CHANGE_2_AFTER_AMENDMENT_V3
+Change 2 state: VALID / READY_FOR_SEPARATE_IMPLEMENTATION_AUTHORIZATION
+next_permitted_action: OWNER_AUTHORIZATION_CHANGE_2_IMPLEMENTATION_FOR_EXACT_R4
 major_pl09_next_slice_gate: OWNER_ADJUDICATION_PL_V39_09_NEXT_SLICE_AFTER_09-B_CLOSURE
 major_pl09_next_slice_gate_status: PRESERVED / UNCONSUMED
 major_pl09_next_slice_selected: NO

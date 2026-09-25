@@ -1,0 +1,368 @@
+# PL-V39-09 Compact Semantic Operation Trace
+## Formal Readiness Verdict v3
+
+```text
+TITLE:
+PL09 Compact Semantic Operation Trace - Formal Readiness Verdict v3
+
+CHANGE_ID:
+CHG-PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-001
+
+REVIEW_KIND:
+FRESH_FORMAL_READINESS / POST-AMENDMENT-V3 DELTA REVIEW
+
+ENTRY_HEAD:
+69d57eb295b85e6c34a6543d33af3eefd5050e26
+
+EFFECTIVE_PLAN:
+Implementation Plan v1
++ Amendment v1
++ Amendment v2
++ Amendment v3
+
+FORMAL_READINESS:
+READY
+
+OWNER_REVIEW:
+PASS / ACCEPTED
+
+IMPLEMENTATION_AUTHORIZED:
+NO
+```
+
+```text
+CHANGE2_PLAN_SHA256:
+953292D4EF6D3477FF45C1E8983C69677AF40ED3881616CF08C4C7718D126E31
+
+CHANGE2_AMENDMENT_V1_SHA256:
+3B2972C56E85915BED43D12A109D309036AE0B0C6E6C497B55F59077E7D0C43A
+
+CHANGE2_AMENDMENT_V2_SHA256:
+B692DD8316BBCA90574C921027F70402C75BE504CFBE83F1699FED60CFE382B4
+
+CHANGE2_AMENDMENT_V3_SHA256:
+AD202431438CE6B49DFABAB10C5068097CCDF4258A63B8101703D357F4BF1994
+
+LIFECYCLE_RECLOSURE_SHA256:
+5899084FED87B160FC61FEB6789EE4B7231D208E1D60315B5B97F933FCBBCFED
+```
+
+## 2. Authority and verdict
+
+Materialize:
+
+```text
+TITLE:
+PL09 Compact Semantic Operation Trace - Formal Readiness Verdict v3
+
+CHANGE_ID:
+CHG-PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-001
+
+REVIEW_KIND:
+FRESH_FORMAL_READINESS / POST-AMENDMENT-V3 DELTA REVIEW
+
+ENTRY_HEAD:
+69d57eb295b85e6c34a6543d33af3eefd5050e26
+
+EFFECTIVE_PLAN:
+Implementation Plan v1
++ Implementation Plan Amendment v1
++ Implementation Plan Amendment v2
++ Implementation Plan Amendment v3
+
+FORMAL_READINESS:
+READY
+
+OWNER_REVIEW:
+PASS / ACCEPTED
+
+IMPLEMENTATION_AUTHORIZED:
+NO
+```
+
+Bind the exact Plan, Amendment, and lifecycle-reclosure SHA-256 identities from
+the preflight.
+
+## 3. Accepted readiness result
+
+Materialize exactly:
+
+```text
+SIX_PATH_SURFACE:
+PASS
+
+WRITE_PATH_COUNT:
+6
+
+STRICTLY_REQUIRED_ADDITIONAL_PATHS:
+NONE
+
+PROGRESS_TEMPLATE_COVERED_BY_SHA256SUMS:
+YES
+
+CHECKSUM_ENTRY_UNIQUE:
+YES
+
+CHECKSUM_UPDATE_DETERMINISTIC:
+YES
+
+UNRELATED_CHECKSUM_ENTRIES_PRESERVABLE:
+YES
+
+MANIFEST_UPDATE_REQUIRED:
+NO
+
+OTHER_INTEGRITY_PATH_REQUIRED:
+NO
+
+SECOND_ORDER_INTEGRITY_DEPENDENCY:
+NONE
+
+AMENDMENT_V3_SEMANTIC_DELTA:
+NONE
+```
+
+Also:
+
+```text
+F01_BINDING:
+PASS
+
+F02_BINDING:
+PASS
+
+F03_BINDING:
+PASS
+
+OPTIONAL_DURING_BINDING:
+PASS
+
+PROGRESS_PATH_BINDING:
+PASS
+
+MARKER_GRAMMAR:
+PASS
+
+PRE_PERSISTENCE:
+PASS
+
+POST_ENRICHMENT:
+PASS
+
+STALE_WRITE_PROTECTION:
+PASS
+
+TRACE_NONAUTHORITY:
+PASS
+
+OPERATION_TRACE_PURITY:
+PASS
+
+LIFECYCLE_TRANSPORT_BOUNDARY:
+PASS
+
+BACKWARD_COMPATIBILITY:
+PASS
+```
+
+And:
+
+```text
+WALKING_SKELETON_A_TESTABLE:
+YES
+
+WALKING_SKELETON_B_TESTABLE:
+YES
+
+TEST_SURFACE_SUFFICIENT:
+YES
+
+CHANGE3_SEPARATION:
+PASS
+
+FALSE_DONE_RESISTANCE:
+PASS
+```
+
+## 4. Finding counts
+
+Materialize:
+
+```text
+ARCHITECTURE_BLOCKER_COUNT:
+0
+
+MATERIAL_FINDING_COUNT:
+0
+
+UNBOUND_MATERIAL_CHOICE_COUNT:
+0
+
+NONBLOCKING_FINDING_COUNT:
+0
+
+MATERIAL_FINDINGS:
+NONE
+
+NONBLOCKING_FINDINGS:
+NONE
+```
+
+The prior checksum-path blocker is historical and resolved by Amendment v3.
+
+Do not reclassify it as open.
+
+## 5. Exact implementation surface approved by readiness
+
+Record, but do not execute:
+
+```text
+ADD:
+src/planning_lite/operation_trace.py
+tests/test_operation_trace.py
+
+MODIFY:
+src/planning_lite/operation_lifecycle.py
+tests/test_operation_lifecycle.py
+template/.planning/changes/templates/progress.md
+template/.planning/framework/SHA256SUMS.txt
+```
+
+Exactly six paths.
+
+Record explicitly as read-only for Change 2 implementation:
+
+```text
+src/planning_lite/cli.py
+src/planning_lite/context.py
+src/planning_lite/telemetry.py
+src/planning_lite/attempt_evaluation.py
+src/planning_lite/project_spine.py
+src/planning_lite/traversability.py
+```
+
+## 6. Frozen implementation boundaries
+
+Record:
+
+```text
+PRIMARY_OPERATION_IDENTITY:
+AttemptRecordV1.attempt_id
+
+TRACE:
+DERIVED / NONAUTHORITATIVE
+
+TRACE_STORE:
+NONE / EXISTING progress.md OWNER ONLY
+
+operation_trace.py:
+PURE / NO FILESYSTEM EFFECT
+
+operation_lifecycle.py:
+BOUNDED PERSISTENCE TRANSPORT ONLY
+
+PL06:
+CONTEXT OBSERVATION OWNER
+
+PL07:
+ROUTE OWNER
+
+PL08:
+RESULT / EVALUATION OWNER
+
+PROJECT_SPINE:
+NEXT GATE / NEXT PERMITTED ACTION OWNER
+
+CHANGE_3:
+NOT_ABSORBED
+```
+
+## 7. Preserved state
+
+Materialize:
+
+```text
+CHANGE_2:
+VALID / READY_FOR_SEPARATE_IMPLEMENTATION_AUTHORIZATION
+
+FORMAL_READINESS:
+READY
+
+IMPLEMENTATION_AUTHORIZED:
+NO
+
+LIFECYCLE_PREREQUISITE:
+CLOSED / COMPLETE
+
+CRITICAL_JOURNEY:
+PASSING
+
+CHANGE_3:
+NOT_ABSORBED
+
+MAJOR_PL09_NEXT_SLICE_GATE:
+PRESERVED / UNCONSUMED
+```
+
+No implementation is authorized merely by materializing this verdict.
+
+## 8. CURRENT projection
+
+Update only the bounded Change 2 resume projection in:
+
+`docs/design/project-spine/CURRENT.md`
+
+to:
+
+```text
+ACTIVE_CHANGE:
+CHG-PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-001
+
+CHANGE_2:
+VALID / READY_FOR_SEPARATE_IMPLEMENTATION_AUTHORIZATION
+
+FORMAL_READINESS:
+READY
+
+IMPLEMENTATION_AUTHORIZED:
+NO
+
+LIFECYCLE_PREREQUISITE:
+CLOSED / COMPLETE
+
+CRITICAL_JOURNEY:
+PASSING
+
+CHANGE_3:
+NOT_ABSORBED
+
+NEXT_PERMITTED_ACTION:
+OWNER_AUTHORIZATION_CHANGE_2_IMPLEMENTATION_FOR_EXACT_R4
+```
+
+Preserve unrelated CURRENT content.
+
+## 9. Allowed writes
+
+Exactly:
+
+```text
+docs/design/project-spine/checkpoints/PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-FORMAL-READINESS-VERDICT-v3.md
+docs/design/project-spine/CURRENT.md
+```
+
+Require:
+
+```text
+PRODUCT_MUTATIONS:
+0
+
+TEST_MUTATIONS:
+0
+
+TEMPLATE_MUTATIONS:
+0
+
+RECOMMENDATION_MUTATIONS:
+0
+```
