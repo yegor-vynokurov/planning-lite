@@ -5,16 +5,16 @@ repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
 active_change: CHG-PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-001
-lifecycle_gate: S6_CORRECTION_READY / AWAITING_EXACT_IMPLEMENTATION_AUTHORIZATION
+lifecycle_gate: CLOSED / COMPLETE
 formal_readiness: READY
 implementation_authorized: NO
-blockers: OPEN_MATERIAL_FINDING / POST_PL08_DOWNSTREAM_HANDOFF_ABSENT
-first_broken_seam: PL08 Result/Evidence -> authoritative Next Gate
-gap_class: WIRING_GAP
-critical_journey: WIRED_FAIL
+blockers: NONE
+first_broken_seam: NONE
+gap_class: NONE
+critical_journey: PASSING
 change_2: BLOCKED / VALID / PAUSED
-next_permitted_action: OWNER_AUTHORIZATION_PL09_LIFECYCLE_S6_CORRECTION_IMPLEMENTATION_FOR_EXACT_R3
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-IMPLEMENTATION-PLAN-AMENDMENT-v2.md
+next_permitted_action: OWNER_REVIEW_CHANGE_2_IMPLEMENTATION_PLAN_AMENDMENT_AFTER_LIFECYCLE_RECLOSURE
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-RECLOSURE-v1.md
 state_as_of: 2026-09-25
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
@@ -964,15 +964,22 @@ PLAN_SHA256: B38B977FD6858597380DD2DB7D7685E7272BC3881776A69370C4E615E671ABEC
 FORMAL_READINESS: READY
 FORMAL_READINESS_VERDICT: docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-FORMAL-READINESS-VERDICT-v1.md
 MATERIAL_BLOCKERS: NONE
+GOVERNED_OPERATION_LIFECYCLE: CLOSED / COMPLETE
+LIFECYCLE_PREREQUISITE: CLOSED / COMPLETE
+S6_CORRECTION: COMPLETE
+CRITICAL_JOURNEY: PASSING
 IMPLEMENTATION_AUTHORIZED: NO
-NEXT_PERMITTED_ACTION: OWNER_AUTHORIZATION_PL09_GOVERNED_OPERATION_LIFECYCLE_IMPLEMENTATION
+NEXT_PERMITTED_ACTION: OWNER_REVIEW_CHANGE_2_IMPLEMENTATION_PLAN_AMENDMENT_AFTER_LIFECYCLE_RECLOSURE
 CHANGE_2: BLOCKED / VALID / PAUSED
+CHANGE_2_FRESH_FORMAL_READINESS: NOT AUTHORIZED
 CHANGE_3: NOT_ABSORBED
 MAJOR_PL09_NEXT_SLICE_GATE: PRESERVED / UNCONSUMED
 ```
 
-The independently reviewed Plan is canonical and owner-approved, and fresh
-Formal Readiness is READY with no material blockers. This projection does not
-authorize implementation; a separate owner decision remains required, and the
-major PL09 next-slice gate remains preserved and unconsumed.
+The independently reviewed Plan is canonical and owner-approved, the S6
+correction is implemented and reclosed, and the lifecycle prerequisite is
+CLOSED / COMPLETE. This projection does not authorize Change 2 Formal
+Readiness or implementation; the next owner decision is review of the Change 2
+Implementation Plan Amendment, and the major PL09 next-slice gate remains
+preserved and unconsumed.
 <!-- PL09_GOVERNED_OPERATION_LIFECYCLE_PLAN_APPROVAL_V1:END -->
