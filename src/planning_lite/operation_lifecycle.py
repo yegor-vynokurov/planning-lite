@@ -398,8 +398,8 @@ def execute_governed_operation(
             envelope=envelope,
             execution=execution,
         )
-    typed = execution.completion
-    if not _evaluation_carriers_valid(typed):
+    typed = _typed_completion(execution.completion)
+    if typed is None or not _evaluation_carriers_valid(typed):
         return _stopped(
             attempt_id,
             "TYPED_EVALUATION_CARRIERS",

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import replace
 from pathlib import Path
 
@@ -114,6 +115,23 @@ def _completion(attempt: AttemptRecordV1) -> GovernedExecutionCompletionV1:
     )
 
 
+def _production_completion_mapping(completion: GovernedExecutionCompletionV1) -> dict[str, object]:
+    def detached(value: object) -> object:
+        if isinstance(value, Mapping):
+            return {key: detached(item) for key, item in value.items()}
+        if isinstance(value, (list, tuple)):
+            return [detached(item) for item in value]
+        method = getattr(value, "to_mapping", None)
+        if callable(method):
+            return detached(method())
+        return value
+
+    return {
+        field: detached(getattr(completion, field))
+        for field in GovernedExecutionCompletionV1.__dataclass_fields__
+    }
+
+
 def _wire(monkeypatch: pytest.MonkeyPatch, calls: list[str], attempt: AttemptRecordV1, completion: GovernedExecutionCompletionV1):
     guidance = _guidance()
     activatable = AttemptEnvelopeV1(attempt, "ACTIVATABLE")
@@ -128,6 +146,7 @@ def _wire(monkeypatch: pytest.MonkeyPatch, calls: list[str], attempt: AttemptRec
     monkeypatch.setattr(lifecycle, "terminalize_attempt", lambda *_: (calls.append("terminal") or terminal))
     monkeypatch.setattr(lifecycle, "evaluate_technical", lambda *args, **kwargs: (calls.append("pl08") or {"evaluation": "typed"}))
     return guidance
+
 
 def test_pattern_b_order_and_identity_triangle(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     attempt = _attempt()
@@ -148,6 +167,99 @@ def test_pattern_b_order_and_identity_triangle(monkeypatch: pytest.MonkeyPatch, 
     assert result.disposition == "COMPLETED_WITH_FACTS"
     assert result.receipt["receipt_id"] == "RECEIPT-1"
     assert calls == ["lookup", "admissibility", "claim", "execute", "receipt", "terminal", "pl08"]
+
+
+def test_production_shaped_completion_crosses_typed_boundary(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    attempt = _attempt()
+    completion = replace(_completion(attempt), receipt_id="RECEIPT-1")
+    finding = FindingV1(
+        "F-1",
+        "Boundary fixture is non-blocking.",
+        "NON_MATERIAL",
+        ("FIXTURE_HARNESS",),
+        "NON_BLOCKING",
+        "CLOSED",
+        ("FACT-1",),
+        "OWNER-REVIEW-PL09",
+        lifecycle.FindingApplicabilityV1(
+            attempt.attempt_id,
+            attempt.candidate_identity,
+            "AC-1",
+            "SCOPE-1",
+            attempt.baseline_refs,
+        ),
+    )
+    completion = replace(
+        completion,
+        findings=(finding,),
+        supersession=(
+            lifecycle.EvidenceSupersessionV1(
+                "E-0", "E-1", "SCOPE-1", ("FACT-1",), "Fresh boundary verification"
+            ),
+        ),
+    )
+    production_completion = _production_completion_mapping(completion)
+    raw_boundary_completion = GovernedExecutionCompletionV1(**production_completion)
+    assert isinstance(raw_boundary_completion, GovernedExecutionCompletionV1)
+    assert not lifecycle._evaluation_carriers_valid(raw_boundary_completion)
+    calls: list[str] = []
+    converted: list[GovernedExecutionCompletionV1 | None] = []
+    pl08_inputs: list[dict[str, object]] = []
+    real_typed_completion = lifecycle._typed_completion
+    monkeypatch.setattr(
+        lifecycle,
+        "_typed_completion",
+        lambda value: (converted.append(real_typed_completion(value)) or converted[-1]),
+    )
+    guidance = _wire(monkeypatch, calls, attempt, completion)
+    monkeypatch.setattr(
+        lifecycle,
+        "evaluate_technical",
+        lambda **kwargs: (calls.append("pl08") or pl08_inputs.append(kwargs) or {"evaluation": "typed"}),
+    )
+
+    result = lifecycle.execute_governed_operation(
+        tmp_path,
+        attempt.attempt_id,
+        guidance=guidance,
+        bounded_payload={"task": "T-01"},
+        completion=production_completion,
+        receipt={"schema_version": 2, "receipt_id": "RECEIPT-1"},
+        receipt_path=tmp_path / "receipts.jsonl",
+        registered_project_id="demo",
+        telemetry_enabled=True,
+    )
+
+    assert result.completed
+    assert len(converted) == 1
+    typed = converted[0]
+    assert isinstance(typed, GovernedExecutionCompletionV1)
+    assert isinstance(typed.acceptance_contract, AcceptanceContractV1)
+    assert all(isinstance(item, VerifierContractV1) for item in typed.verifier_contracts)
+    assert all(isinstance(item, VerifierEvidenceV1) for item in typed.verifier_evidence)
+    assert all(isinstance(item, FindingV1) for item in typed.findings)
+    assert all(isinstance(item, lifecycle.EvidenceSupersessionV1) for item in typed.supersession)
+    assert typed.attempt_id == completion.attempt_id
+    assert typed.execution_invocation_id == completion.execution_invocation_id
+    assert typed.envelope_digest == completion.envelope_digest
+    assert typed.result_id == completion.result_id
+    assert typed.receipt_id == completion.receipt_id
+    assert calls == ["lookup", "admissibility", "claim", "execute", "receipt", "terminal", "pl08"]
+    assert len(pl08_inputs) == 1
+    inputs = pl08_inputs[0]
+    assert inputs["attempt"] is attempt
+    assert inputs["contracts"] is typed.verifier_contracts
+    assert inputs["evidence"] is typed.verifier_evidence
+    assert inputs["findings"] is typed.findings
+    assert inputs["acceptance_contract"] is typed.acceptance_contract
+    assert inputs["supersession"] is typed.supersession
+    assert inputs["acceptance_contract_ref"] == attempt.acceptance_contract_ref
+    assert inputs["evaluation_scope_ref"] == typed.evaluation_scope_ref
+    assert inputs["evaluation_id"] == typed.evaluation_id
+    assert inputs["evaluation_run"] == typed.evaluation_run
+    assert inputs["candidate_quality"] == typed.candidate_quality
 
 
 def test_lifecycle_supplies_all_evaluation_carriers() -> None:
