@@ -4,12 +4,16 @@
 repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
-active_change: CHG-PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-001
-lifecycle_gate: AMENDMENT_INTEGRATED / FRESH_FORMAL_READINESS_PENDING
+active_change: CHG-PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-001
+lifecycle_gate: REOPENED_FOR_TARGETED_S6_CORRECTION
 implementation_authorized: NO
-blockers: NONE / FRESH_FORMAL_READINESS_REQUIRED
-next_permitted_action: FRESH_FORMAL_READINESS_CHANGE_2
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-IMPLEMENTATION-PLAN-AMENDMENT-v1.md
+blockers: OPEN_MATERIAL_FINDING / POST_PL08_DOWNSTREAM_HANDOFF_ABSENT
+first_broken_seam: PL08 Result/Evidence -> authoritative Next Gate
+gap_class: WIRING_GAP
+critical_journey: WIRED_FAIL
+change_2: BLOCKED / VALID / PAUSED
+next_permitted_action: READ_ONLY_DISCOVER_POST_PL08_SPINE_HANDOFF_SURFACE
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-CLOSURE-CORRECTION-v1.md
 state_as_of: 2026-09-25
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
@@ -31,6 +35,7 @@ owner_definition_decision: APPROVE / USER / EXPLICIT / predecessor + amendment
 owner_amendment_decision: BOTH APPROVED / USER / EXPLICIT / 2026-09-18
 selected_direction: PRODUCER_BOUND_OBSERVATION
 implementation_authorized: NO
+blockers: FORMAL_READINESS_BLOCKED / PL08_EVIDENCE_WORKFLOW_CALLER_ABSENT
 plan: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-IMPLEMENTATION-PLAN-v1.md
 plan_status: APPROVED_BY_OWNER / PREDECESSOR_PLAN
 plan_amendment: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-IMPLEMENTATION-PLAN-AMENDMENT-v1.md
@@ -946,3 +951,27 @@ This closeout ends the bounded PL-V39-05-A execution cycle and returns the centr
 - Roadmap: unchanged intentionally.
 - Release/tag/push: `NOT AUTHORIZED`.
 - Next: select the next bounded shaping slice inside `PL-V39-05`; do not jump directly to `PL-V39-06`.
+
+<!-- PL09_GOVERNED_OPERATION_LIFECYCLE_PLAN_APPROVAL_V1:BEGIN -->
+## Current PL09 Governed Operation Lifecycle
+
+```text
+CHANGE: CHG-PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-001
+PLAN: APPROVED_BY_OWNER
+CANONICAL_PLAN: docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-IMPLEMENTATION-PLAN-v1.md
+PLAN_SHA256: B38B977FD6858597380DD2DB7D7685E7272BC3881776A69370C4E615E671ABEC
+FORMAL_READINESS: READY
+FORMAL_READINESS_VERDICT: docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-FORMAL-READINESS-VERDICT-v1.md
+MATERIAL_BLOCKERS: NONE
+IMPLEMENTATION_AUTHORIZED: NO
+NEXT_PERMITTED_ACTION: OWNER_AUTHORIZATION_PL09_GOVERNED_OPERATION_LIFECYCLE_IMPLEMENTATION
+CHANGE_2: BLOCKED / VALID / PAUSED
+CHANGE_3: NOT_ABSORBED
+MAJOR_PL09_NEXT_SLICE_GATE: PRESERVED / UNCONSUMED
+```
+
+The independently reviewed Plan is canonical and owner-approved, and fresh
+Formal Readiness is READY with no material blockers. This projection does not
+authorize implementation; a separate owner decision remains required, and the
+major PL09 next-slice gate remains preserved and unconsumed.
+<!-- PL09_GOVERNED_OPERATION_LIFECYCLE_PLAN_APPROVAL_V1:END -->
