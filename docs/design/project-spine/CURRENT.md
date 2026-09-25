@@ -4,13 +4,13 @@
 repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
-active_change: NONE
-lifecycle_gate: DISCOVERY_READY
+active_change: CHG-PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-001
+lifecycle_gate: AMENDMENT_INTEGRATED / FRESH_FORMAL_READINESS_PENDING
 implementation_authorized: NO
-blockers: NONE
-next_permitted_action: OWNER_DECISION_START_PL09_COMPACT_SEMANTIC_OPERATION_TRACE_CORRECTIVE_CHANGE
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-06-OPERATION-DEPTH-OBSERVATION-BRIDGE-COMPLETION-REVIEW-v1.md
-state_as_of: 2026-09-18
+blockers: NONE / FRESH_FORMAL_READINESS_REQUIRED
+next_permitted_action: FRESH_FORMAL_READINESS_CHANGE_2
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-IMPLEMENTATION-PLAN-AMENDMENT-v1.md
+state_as_of: 2026-09-25
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
 <!-- PL_V39_06_OPERATION_DEPTH_OBSERVATION_BRIDGE_ACTIVATION_V1:BEGIN -->
@@ -342,6 +342,51 @@ materialization, and validation gates remain separate.
 `NO_FURTHER_BOOTSTRAP_MUTATION`: active unless a later owner-approved corrective
 Change is opened.
 <!-- PL_V39_09_09_B_SLICE_CLOSURE_V1:END -->
+
+<!-- PL_V39_09_COMPACT_SEMANTIC_OPERATION_TRACE_ACTIVATION_V1:BEGIN -->
+## Current PL-V39-09 compact semantic operation trace Change
+
+The owner explicitly approved and activated the bounded corrective Change:
+
+```text
+Change: CHG-PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-001
+Definition: docs/design/project-spine/checkpoints/PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-CHANGE-DEFINITION-v1.md
+Definition status: APPROVED_BY_OWNER / ACTIVATED
+Activation: docs/design/project-spine/checkpoints/PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-DEFINITION-ACTIVATION-v1.md
+active_change: CHG-PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-001
+lifecycle_gate: AMENDMENT_INTEGRATED / FRESH_FORMAL_READINESS_PENDING
+implementation_authorized: NO
+blockers: NONE / FRESH_FORMAL_READINESS_REQUIRED
+Implementation Plan: docs/design/project-spine/checkpoints/PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-IMPLEMENTATION-PLAN-v1.md
+Implementation Plan status: APPROVED_BY_OWNER / CANONICAL
+Plan Approval / Activation: docs/design/project-spine/checkpoints/PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-PLAN-APPROVAL-READINESS-ENTRY-v1.md
+Plan approval: EXPLICIT_HUMAN_OWNER
+Plan review: PASS / 0 MATERIAL FINDINGS
+Formal Readiness: HISTORICAL BLOCKED / FRESH REVIEW REQUIRED
+Formal Readiness verdict: docs/design/project-spine/checkpoints/PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-FORMAL-READINESS-VERDICT-v1.md
+Formal Readiness blocker count: 1
+Implementation: NOT AUTHORIZED
+Implementation performed: NO
+Change 3: NOT STARTED / NOT AUTHORIZED
+runtime prompt dedup: NOT AUTHORIZED
+Plan Amendment: docs/design/project-spine/checkpoints/PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-IMPLEMENTATION-PLAN-AMENDMENT-v1.md
+Plan Amendment status: MATERIALIZED / OWNER-AUTHORIZED
+Runtime prerequisite: CLOSED / COMPLETE
+Critical Journey: PL_SELF_HOSTED_GOVERNED_OPERATION / PASS / PASSING
+Change 2 state: VALID / PAUSED_PENDING_FRESH_FORMAL_READINESS
+next_permitted_action: FRESH_FORMAL_READINESS_CHANGE_2
+major_pl09_next_slice_gate: OWNER_ADJUDICATION_PL_V39_09_NEXT_SLICE_AFTER_09-B_CLOSURE
+major_pl09_next_slice_gate_status: PRESERVED / UNCONSUMED
+major_pl09_next_slice_selected: NO
+```
+
+The activated Definition and canonical predecessor Plan remain immutable scope
+and planning authority. The old Formal Readiness remains historical BLOCKED
+evidence; the bounded Plan Amendment now binds the real lifecycle integration
+path and requires a fresh read-only Formal Readiness review. Implementation,
+source/test/template/runtime mutation, Change 3, runtime prompt deduplication,
+and major PL09 slice selection remain unauthorized.
+<!-- PL_V39_09_COMPACT_SEMANTIC_OPERATION_TRACE_ACTIVATION_V1:END -->
 
 <!-- PL_V39_08_CORRECTIVE_IMPLEMENTATION_V1:BEGIN -->
 ## Current PL-V39-08 closed state
