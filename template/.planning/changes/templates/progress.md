@@ -42,3 +42,5 @@ Append meaningful implementation and verification events. Do not redefine task s
 - Recommendation outcome: `NO_RECOMMENDATION / RECOMMENDATION`
 - Recommendation authority: `NON_AUTHORITATIVE`
 - Evidence status: `PASS / FAIL / BLOCKED`
+<!-- PL_OPERATION_TRACE_ENTRIES_BEGIN -->
+<!-- PL_OPERATION_TRACE_ENTRIES_END -->

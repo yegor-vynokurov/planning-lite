@@ -24,6 +24,7 @@ from planning_lite.attempt_runtime import (
     AttemptLookupResultV1,
     LookupOutcome,
 )
+from planning_lite.context import OperationDepthObservationV1
 from planning_lite.execution_guidance import select_operation_guidance
 from planning_lite.governed_executor import (
     GovernedExecutionCompletionV1,
@@ -31,6 +32,7 @@ from planning_lite.governed_executor import (
     prepare_governed_operation,
 )
 from planning_lite.project_spine import capture_project_spine_snapshot
+from planning_lite.operation_trace import TRACE_COMPLETE, read_operation_trace_evidence
 
 
 def _attempt() -> AttemptRecordV1:
@@ -173,14 +175,46 @@ def _prepare_project_spine(root: Path, attempt: AttemptRecordV1) -> None:
     )
 
 
+def _depth_observation(attempt: AttemptRecordV1) -> OperationDepthObservationV1:
+    return OperationDepthObservationV1._create(
+        operation_ref=attempt.attempt_id,
+        start={
+            "context_trace_ref": None,
+            "source_revision": {"head": "a" * 64, "state": "AVAILABLE"},
+            "freshness": "CURRENT",
+            "selected_sources": [],
+            "selected_artifact_count": 0,
+            "selected_section_count": 0,
+            "selected_character_count": 0,
+            "explicit_expansion_count": 0,
+            "bounds": {
+                "default_artifacts": 3,
+                "explicit_expansions": 5,
+                "total_artifacts": 8,
+                "current_state_chars": 8192,
+                "active_context_chars": 16384,
+                "section_chars": 4096,
+            },
+        },
+    )
+
+
 def _wire(
     monkeypatch: pytest.MonkeyPatch,
     calls: list[str],
     attempt: AttemptRecordV1,
     completion: GovernedExecutionCompletionV1,
     root: Path,
+    *,
+    with_progress: bool = False,
 ):
     _prepare_project_spine(root, attempt)
+    if with_progress:
+        (root / ".planning" / "changes" / "active" / attempt.change_id / "progress.md").write_text(
+            "# Progress\n\n## Governed Attempt / Evaluation evidence\n\n"
+            "- Existing historical body must remain byte-stable.\n",
+            encoding="utf-8",
+        )
     snapshot = capture_project_spine_snapshot(root)
     guidance = _guidance()
     activatable = AttemptEnvelopeV1(attempt, "ACTIVATABLE")
@@ -190,7 +224,24 @@ def _wire(
     monkeypatch.setattr(lifecycle, "claim_attempt", lambda *_: (calls.append("claim") or inflight))
     real_invoke = lifecycle.invoke_governed_operation
     monkeypatch.setattr(lifecycle, "invoke_governed_operation", lambda *args, **kwargs: (calls.append("execute") or real_invoke(*args, **kwargs)))
-    monkeypatch.setattr(lifecycle, "collect_governed_receipt", lambda *args, **kwargs: (calls.append("receipt") or {"schema_version": 2, "receipt_id": "RECEIPT-1", "attempt_id": attempt.attempt_id, "execution_invocation_id": completion.execution_invocation_id}))
+    monkeypatch.setattr(
+        lifecycle,
+        "collect_governed_receipt",
+        lambda *args, **kwargs: (
+            calls.append("receipt")
+            or {
+                "schema_version": 2,
+                "receipt_id": "RECEIPT-1",
+                "attempt_id": attempt.attempt_id,
+                "execution_invocation_id": completion.execution_invocation_id,
+                "planning_lite_ref": "v1",
+                "model_id": "model-1",
+                "agent_role": "PARENT",
+                "invocation_index": 0,
+                "runtime_source": "test-runtime",
+            }
+        ),
+    )
     terminal = AttemptEnvelopeV1(attempt.__class__(**{**attempt.__dict__}) if hasattr(attempt, "__dict__") else attempt, "IN_FLIGHT")
     monkeypatch.setattr(lifecycle, "terminalize_attempt", lambda *_: (calls.append("terminal") or terminal))
     real_evaluate = lifecycle.evaluate_technical
@@ -326,6 +377,158 @@ def test_production_shaped_completion_crosses_typed_boundary(
     assert inputs["candidate_quality"] == typed.candidate_quality
 
 
+def test_lifecycle_writes_bounded_trace_before_execute_and_after_s6(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    attempt = _attempt()
+    completion = replace(_completion(attempt), receipt_id="RECEIPT-1")
+    calls: list[str] = []
+    guidance, snapshot = _wire(
+        monkeypatch, calls, attempt, completion, tmp_path, with_progress=True
+    )
+    progress = tmp_path / ".planning" / "changes" / "active" / attempt.change_id / "progress.md"
+
+    result = lifecycle.execute_governed_operation(
+        tmp_path,
+        attempt.attempt_id,
+        target_root=tmp_path,
+        pre_execution_project_spine_snapshot=snapshot,
+        guidance=guidance,
+        bounded_payload={"task": "T-01"},
+        completion=completion,
+        receipt={"schema_version": 2, "receipt_id": "RECEIPT-1"},
+        receipt_path=tmp_path / "receipts.jsonl",
+        registered_project_id="demo",
+        telemetry_enabled=True,
+        operation_depth_observation=_depth_observation(attempt),
+    )
+
+    assert result.completed
+    assert calls == ["lookup", "admissibility", "claim", "execute", "receipt", "terminal", "pl08", "spine"]
+    body = progress.read_text(encoding="utf-8")
+    assert body.count("PL_OPERATION_TRACE_ENTRIES_BEGIN") == 1
+    assert body.count("PL_OPERATION_TRACE_ENTRY_BEGIN") == 1
+    _, _, entries = lifecycle._trace_read(progress, initialize_legacy=False)
+    assert len(entries) == 1
+    persisted = result.receipt
+    assert persisted is not None
+    view = read_operation_trace_evidence(
+        entries[0][2], lambda ref: dict(persisted) if ref.endswith("#receipt_id=RECEIPT-1") else None
+    )
+    assert view.trace_state == TRACE_COMPLETE
+    assert view.f01 is not None and view.f01["operation_guidance_ref"] == attempt.operation_guidance_ref
+    assert view.f03 is not None and view.f03["next_gate_ref"] == snapshot.next_permitted_action
+
+
+def test_lifecycle_trace_failure_does_not_create_missing_progress_or_change_result(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    attempt = _attempt()
+    completion = replace(_completion(attempt), receipt_id="RECEIPT-1")
+    calls: list[str] = []
+    guidance, snapshot = _wire(monkeypatch, calls, attempt, completion, tmp_path)
+    result = lifecycle.execute_governed_operation(
+        tmp_path,
+        attempt.attempt_id,
+        target_root=tmp_path,
+        pre_execution_project_spine_snapshot=snapshot,
+        guidance=guidance,
+        bounded_payload={"task": "T-01"},
+        completion=completion,
+        receipt={"schema_version": 2, "receipt_id": "RECEIPT-1"},
+        receipt_path=tmp_path / "receipts.jsonl",
+        registered_project_id="demo",
+        telemetry_enabled=True,
+    )
+    progress = tmp_path / ".planning" / "changes" / "active" / attempt.change_id / "progress.md"
+    assert result.completed
+    assert not progress.exists()
+
+
+def test_post_trace_refuses_stale_progress_without_overwrite(tmp_path: Path) -> None:
+    attempt = _attempt()
+    _prepare_project_spine(tmp_path, attempt)
+    progress = tmp_path / ".planning" / "changes" / "active" / attempt.change_id / "progress.md"
+    progress.write_text(
+        "# Progress\n\n## Governed Attempt / Evaluation evidence\n\n"
+        "<!-- PL_OPERATION_TRACE_ENTRIES_BEGIN -->\n"
+        "<!-- PL_OPERATION_TRACE_ENTRIES_END -->\n",
+        encoding="utf-8",
+    )
+    guidance = _guidance()
+    handle = lifecycle._trace_persist_pre(
+        tmp_path, attempt.attempt_id, guidance, attempt.operation_guidance_ref, None
+    )
+    before = progress.read_bytes()
+    progress.write_bytes(before + b"\nconcurrent owner update\n")
+    with pytest.raises(lifecycle._TracePersistenceError, match="STALE_PROGRESS"):
+        lifecycle._trace_persist_post(
+            handle,
+            {
+                "attempt_id": attempt.attempt_id,
+                "receipt_id": "receipt-1",
+                "planning_lite_ref": "v1",
+                "model_id": "model-1",
+                "agent_role": "PARENT",
+                "invocation_index": 0,
+                "runtime_source": "test-runtime",
+            },
+            capture_project_spine_snapshot(tmp_path),
+        )
+    assert progress.read_bytes() == before + b"\nconcurrent owner update\n"
+
+
+@pytest.mark.parametrize(
+    "owner_body",
+    [
+        (
+            "## Governed Attempt / Evaluation evidence\n"
+            "\n## Governed Attempt / Evaluation evidence\n"
+        ),
+        (
+            "## Governed Attempt / Evaluation evidence\n"
+            "<!-- PL_OPERATION_TRACE_ENTRIES_BEGIN -->\n"
+            "<!-- PL_OPERATION_TRACE_ENTRIES_END -->\n"
+            "<!-- PL_OPERATION_TRACE_ENTRIES_BEGIN -->\n"
+        ),
+        (
+            "## Governed Attempt / Evaluation evidence\n"
+            "<!-- PL_OPERATION_TRACE_ENTRIES_BEGIN -->\n"
+        ),
+    ],
+)
+def test_trace_marker_structure_fails_closed(tmp_path: Path, owner_body: str) -> None:
+    attempt = _attempt()
+    _prepare_project_spine(tmp_path, attempt)
+    progress = tmp_path / ".planning" / "changes" / "active" / attempt.change_id / "progress.md"
+    progress.write_text("# Progress\n\n" + owner_body, encoding="utf-8")
+    with pytest.raises(lifecycle._TracePersistenceError):
+        lifecycle._trace_persist_pre(
+            tmp_path, attempt.attempt_id, _guidance(), attempt.operation_guidance_ref, None
+        )
+
+
+def test_trace_duplicate_attempt_and_crlf_are_bounded(tmp_path: Path) -> None:
+    attempt = _attempt()
+    _prepare_project_spine(tmp_path, attempt)
+    progress = tmp_path / ".planning" / "changes" / "active" / attempt.change_id / "progress.md"
+    progress.write_bytes(
+        (
+            "# Progress\n\n## Governed Attempt / Evaluation evidence\n\n"
+            "<!-- PL_OPERATION_TRACE_ENTRIES_BEGIN -->\n"
+            "<!-- PL_OPERATION_TRACE_ENTRIES_END -->\n"
+        ).replace("\n", "\r\n").encode("utf-8")
+    )
+    lifecycle._trace_persist_pre(
+        tmp_path, attempt.attempt_id, _guidance(), attempt.operation_guidance_ref, None
+    )
+    assert b"\r\n" in progress.read_bytes()
+    with pytest.raises(lifecycle._TracePersistenceError, match="DUPLICATE_TRACE_ATTEMPT"):
+        lifecycle._trace_persist_pre(
+            tmp_path, attempt.attempt_id, _guidance(), attempt.operation_guidance_ref, None
+        )
+
+
 def test_lifecycle_supplies_all_evaluation_carriers() -> None:
     attempt = _attempt()
     completion = _completion(attempt)
@@ -352,7 +555,7 @@ def test_lifecycle_negative_receipt_matrix() -> None:
 def test_lifecycle_terminalization_is_runtime_owned() -> None:
     source = Path(lifecycle.__file__).read_text(encoding="utf-8")
     assert "terminalize_attempt(" in source
-    assert "replace(" not in source
+    assert "def _trace_atomic_replace(" in source
 
 
 def test_lifecycle_false_done_and_next_gate_boundaries() -> None:

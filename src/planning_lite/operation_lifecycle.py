@@ -10,7 +10,12 @@ from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+import hashlib
+import json
+import os
 from pathlib import Path
+import re
+import tempfile
 from typing import Any
 
 from .attempt_evaluation import (
@@ -27,7 +32,7 @@ from .attempt_evaluation import (
     VerifierEvidenceV1,
     evaluate_technical,
 )
-from .context import build_compact_status
+from .context import OperationDepthObservationV1, build_compact_status
 from .attempt_runtime import (
     AdmissibilityOutcome,
     AttemptRuntimeError,
@@ -49,7 +54,14 @@ from .project_spine import (
     PostEvaluationCheckpointV1,
     ProjectSpineHandoffError,
     ProjectSpineSnapshotV1,
+    capture_project_spine_snapshot,
     record_post_evaluation_checkpoint,
+)
+from .operation_trace import (
+    OperationTraceError,
+    OperationTraceView,
+    read_operation_trace_evidence,
+    record_governed_attempt_evidence,
 )
 from .telemetry import ReceiptError, collect_governed_receipt
 from .workspace import WorkspaceError, inspect_project
@@ -344,6 +356,329 @@ def _receipt_context(
     return project_id, Path(path).expanduser().resolve(), enabled
 
 
+class _TracePersistenceError(RuntimeError):
+    """A non-authoritative progress trace transport failure."""
+
+
+_TRACE_OWNER_HEADING = "## Governed Attempt / Evaluation evidence"
+_TRACE_CONTAINER_BEGIN = "<!-- PL_OPERATION_TRACE_ENTRIES_BEGIN -->"
+_TRACE_CONTAINER_END = "<!-- PL_OPERATION_TRACE_ENTRIES_END -->"
+_TRACE_ENTRY_BEGIN = "<!-- PL_OPERATION_TRACE_ENTRY_BEGIN -->"
+_TRACE_ENTRY_END = "<!-- PL_OPERATION_TRACE_ENTRY_END -->"
+_TRACE_OWNER_RE = re.compile(r"(?m)^## Governed Attempt / Evaluation evidence[ \t]*(?:\r?\n|\Z)")
+_TRACE_H2_RE = re.compile(r"(?m)^##(?!#)[ \t]+")
+_TRACE_ENTRY_FIELDS = {
+    "operation_guidance_ref",
+    "expected_route_operation_id",
+    "expected_route_operation_class",
+    "expected_route_id",
+    "expected_route_outcome",
+    "expected_route_reason_code",
+    "expected_route_source_revision",
+    "expected_route_authority_refs",
+    "expected_route_selection_reason",
+    "during_operation_ref",
+    "during_completeness",
+    "during_expansion_count",
+    "actual_executor_receipt_ref",
+    "actual_executor_receipt_id",
+    "actual_executor_planning_lite_ref",
+    "next_" + "gate_ref",
+    "next_" + "gate_source_ref",
+    "next_" + "gate_source_sha256",
+}
+
+
+@dataclass(frozen=True, slots=True)
+class _PreTraceHandle:
+    path: Path
+    raw_sha256: str
+    attempt_id: str
+
+
+def _trace_newline(text: str) -> str:
+    if "\r\n" in text:
+        return "\r\n"
+    if "\n" in text:
+        return "\n"
+    return "\n"
+
+
+def _trace_progress_path(target_root: str | Path) -> Path:
+    root = Path(target_root).expanduser().resolve()
+    snapshot = capture_project_spine_snapshot(root)
+    context_ref = snapshot.active_context_path.replace("\\", "/")
+    expected = (".planning", "changes", "active", snapshot.active_change, "context.md")
+    if tuple(context_ref.split("/")) != expected:
+        raise _TracePersistenceError("INVALID_CHANGE_SCAFFOLD")
+    context_path = root.joinpath(*expected)
+    if not context_path.is_file():
+        raise _TracePersistenceError("INVALID_CHANGE_SCAFFOLD")
+    try:
+        context_path.resolve().relative_to(root)
+    except ValueError as exc:
+        raise _TracePersistenceError("INVALID_CHANGE_SCAFFOLD") from exc
+    progress_path = context_path.with_name("progress.md").resolve()
+    try:
+        progress_path.relative_to(root)
+    except ValueError as exc:
+        raise _TracePersistenceError("INVALID_CHANGE_SCAFFOLD") from exc
+    if not progress_path.is_file():
+        raise _TracePersistenceError("INVALID_CHANGE_SCAFFOLD")
+    return progress_path
+
+
+def _trace_owner_span(text: str) -> tuple[int, int]:
+    owners = list(_TRACE_OWNER_RE.finditer(text))
+    if len(owners) != 1:
+        raise _TracePersistenceError("INVALID_TRACE_OWNER_SECTION")
+    owner = owners[0]
+    next_heading = _TRACE_H2_RE.search(text, owner.end())
+    return owner.start(), next_heading.start() if next_heading is not None else len(text)
+
+
+def _trace_initialize_container(text: str, section_end: int) -> str:
+    section = text[:section_end]
+    if section.count(_TRACE_CONTAINER_BEGIN) or section.count(_TRACE_CONTAINER_END):
+        return text
+    newline = _trace_newline(section)
+    insertion = f"{_TRACE_CONTAINER_BEGIN}{newline}{_TRACE_CONTAINER_END}"
+    if not section.endswith(("\r\n", "\n")):
+        insertion = newline + insertion
+    insertion += newline
+    return text[:section_end] + insertion + text[section_end:]
+
+
+def _trace_container_span(text: str) -> tuple[int, int, int, int]:
+    section_start, section_end = _trace_owner_span(text)
+    section = text[section_start:section_end]
+    begins = [match.start() + section_start for match in re.finditer(re.escape(_TRACE_CONTAINER_BEGIN), section)]
+    ends = [match.start() + section_start for match in re.finditer(re.escape(_TRACE_CONTAINER_END), section)]
+    if len(begins) != 1 or len(ends) != 1 or begins[0] > ends[0]:
+        raise _TracePersistenceError("MALFORMED_TRACE_CONTAINER")
+    container_begin_end = begins[0] + len(_TRACE_CONTAINER_BEGIN)
+    if _TRACE_CONTAINER_BEGIN in text[container_begin_end:ends[0]] or _TRACE_CONTAINER_END in text[container_begin_end:ends[0]]:
+        raise _TracePersistenceError("MALFORMED_TRACE_CONTAINER")
+    for marker in (_TRACE_ENTRY_BEGIN, _TRACE_ENTRY_END):
+        if marker in text[section_start:begins[0]] or marker in text[ends[0] + len(_TRACE_CONTAINER_END):section_end]:
+            raise _TracePersistenceError("MALFORMED_TRACE_MARKERS")
+    return begins[0], container_begin_end, ends[0], ends[0] + len(_TRACE_CONTAINER_END)
+
+
+def _trace_entries(text: str) -> list[tuple[int, int, dict[str, Any]]]:
+    begin, begin_end, end, _ = _trace_container_span(text)
+    content = text[begin_end:end]
+    markers = list(re.finditer(re.escape(_TRACE_ENTRY_BEGIN) + "|" + re.escape(_TRACE_ENTRY_END), content))
+    if len(markers) % 2:
+        raise _TracePersistenceError("MALFORMED_TRACE_ENTRY_MARKERS")
+    entries: list[tuple[int, int, dict[str, Any]]] = []
+    for index in range(0, len(markers), 2):
+        opening, closing = markers[index], markers[index + 1]
+        if opening.group(0) != _TRACE_ENTRY_BEGIN or closing.group(0) != _TRACE_ENTRY_END:
+            raise _TracePersistenceError("MALFORMED_TRACE_ENTRY_MARKERS")
+        raw_start = begin_end + opening.start()
+        raw_end = begin_end + closing.end()
+        body = content[opening.end():closing.start()]
+        entry = _trace_parse_entry(body)
+        entries.append((raw_start, raw_end, entry))
+    attempt_ids = [entry.get("attempt_id") for _, _, entry in entries]
+    if len(attempt_ids) != len(set(attempt_ids)):
+        raise _TracePersistenceError("DUPLICATE_TRACE_ATTEMPT")
+    return entries
+
+
+def _trace_parse_entry(body: str) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    attempt_count = 0
+    attempt_pattern = re.compile(r"^[ \t]*- Attempt ref: `([^`\r\n]+)`[ \t]*(?:\r)?$", re.MULTILINE)
+    for match in attempt_pattern.finditer(body):
+        attempt_count += 1
+        result["attempt_id"] = match.group(1)
+    for line in body.splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("- Attempt ref:"):
+            continue
+        field_match = re.fullmatch(r"- ([a-z][a-z0-9_]*)[ \t]*:[ \t]*(.*)", stripped)
+        if field_match is None:
+            raise _TracePersistenceError("MALFORMED_TRACE_ENTRY")
+        key, raw_value = field_match.groups()
+        if key not in _TRACE_ENTRY_FIELDS or key in result:
+            raise _TracePersistenceError("MALFORMED_TRACE_ENTRY")
+        try:
+            result[key] = json.loads(raw_value)
+        except (TypeError, ValueError, json.JSONDecodeError) as exc:
+            raise _TracePersistenceError("MALFORMED_TRACE_ENTRY") from exc
+    if attempt_count != 1 or "attempt_id" not in result:
+        raise _TracePersistenceError("MALFORMED_TRACE_ENTRY")
+    return result
+
+
+def _trace_format_entry(entry: Mapping[str, Any], newline: str) -> str:
+    attempt_id = entry.get("attempt_id")
+    if not isinstance(attempt_id, str) or not attempt_id:
+        raise _TracePersistenceError("MALFORMED_TRACE_ENTRY")
+    lines = [f"{_TRACE_ENTRY_BEGIN}", f"- Attempt ref: `{attempt_id}`"]
+    order = (
+        "operation_guidance_ref",
+        "expected_route_operation_id",
+        "expected_route_operation_class",
+        "expected_route_id",
+        "expected_route_outcome",
+        "expected_route_reason_code",
+        "expected_route_source_revision",
+        "expected_route_authority_refs",
+        "expected_route_selection_reason",
+        "during_operation_ref",
+        "during_completeness",
+        "during_expansion_count",
+        "actual_executor_receipt_ref",
+        "actual_executor_receipt_id",
+        "actual_executor_planning_lite_ref",
+        "next_" + "gate_ref",
+        "next_" + "gate_source_ref",
+        "next_" + "gate_source_sha256",
+    )
+    for key in order:
+        if key in entry:
+            try:
+                value = json.dumps(entry[key], ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+            except (TypeError, ValueError) as exc:
+                raise _TracePersistenceError("MALFORMED_TRACE_ENTRY") from exc
+            lines.append(f"- {key}: {value}")
+    if set(entry) - ({"attempt_id"} | _TRACE_ENTRY_FIELDS):
+        raise _TracePersistenceError("MALFORMED_TRACE_ENTRY")
+    lines.append(_TRACE_ENTRY_END)
+    return newline.join(lines)
+
+
+def _trace_replace_entry(text: str, entry: Mapping[str, Any], *, existing: tuple[int, int, dict[str, Any]] | None) -> str:
+    newline = _trace_newline(text)
+    serialized = _trace_format_entry(entry, newline)
+    if existing is not None:
+        start, end, _ = existing
+        return text[:start] + serialized + text[end:]
+    _, _, container_end, _ = _trace_container_span(text)
+    prefix = text[:container_end]
+    if not prefix.endswith(("\r\n", "\n")):
+        prefix += newline
+    return prefix + serialized + newline + text[container_end:]
+
+
+def _trace_read(path: Path, *, initialize_legacy: bool) -> tuple[bytes, str, list[tuple[int, int, dict[str, Any]]]]:
+    try:
+        raw = path.read_bytes()
+        text = raw.decode("utf-8")
+        section_start, section_end = _trace_owner_span(text)
+        section = text[section_start:section_end]
+        if section.count(_TRACE_CONTAINER_BEGIN) == 0 and section.count(_TRACE_CONTAINER_END) == 0:
+            if not initialize_legacy:
+                raise _TracePersistenceError("MISSING_TRACE_CONTAINER")
+            text = _trace_initialize_container(text, section_end)
+        elif section.count(_TRACE_CONTAINER_BEGIN) != 1 or section.count(_TRACE_CONTAINER_END) != 1:
+            raise _TracePersistenceError("MALFORMED_TRACE_CONTAINER")
+        entries = _trace_entries(text)
+        return raw, text, entries
+    except _TracePersistenceError:
+        raise
+    except (OSError, UnicodeError) as exc:
+        raise _TracePersistenceError("TRACE_PROGRESS_READ_FAILED") from exc
+
+
+def _trace_atomic_replace(path: Path, raw: bytes) -> None:
+    temporary: str | None = None
+    try:
+        fd, temporary = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=str(path.parent))
+        with os.fdopen(fd, "wb") as handle:
+            handle.write(raw)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary, path)
+        temporary = None
+    except OSError as exc:
+        raise _TracePersistenceError("TRACE_PROGRESS_ATOMIC_WRITE_FAILED") from exc
+    finally:
+        if temporary is not None:
+            try:
+                os.unlink(temporary)
+            except OSError:
+                pass
+
+
+def _trace_persist_pre(
+    target_root: str | Path,
+    attempt_id: str,
+    guidance: OperationGuidanceV1,
+    operation_guidance_ref: str | None,
+    operation_depth_observation: OperationDepthObservationV1 | None,
+) -> _PreTraceHandle:
+    path = _trace_progress_path(target_root)
+    raw, text, entries = _trace_read(path, initialize_legacy=True)
+    existing = next((item for item in entries if item[2].get("attempt_id") == attempt_id), None)
+    if existing is not None:
+        raise _TracePersistenceError("DUPLICATE_TRACE_ATTEMPT")
+    entry = record_governed_attempt_evidence(
+        "PRE",
+        attempt_id,
+        operation_guidance_ref=operation_guidance_ref,
+        guidance=guidance,
+        operation_depth_observation=operation_depth_observation,
+    )
+    new_text = _trace_replace_entry(text, entry, existing=None)
+    new_raw = new_text.encode("utf-8")
+    _trace_atomic_replace(path, new_raw)
+    try:
+        reread = path.read_bytes()
+        _, reread_text, reread_entries = _trace_read(path, initialize_legacy=False)
+    except (OSError, UnicodeError, _TracePersistenceError) as exc:
+        raise _TracePersistenceError("TRACE_PROGRESS_READBACK_FAILED") from exc
+    matching = [item for item in reread_entries if item[2].get("attempt_id") == attempt_id]
+    if len(matching) != 1 or matching[0][2] != dict(entry):
+        raise _TracePersistenceError("TRACE_PRE_READBACK_MISMATCH")
+    _ = reread_text
+    return _PreTraceHandle(path, hashlib.sha256(reread).hexdigest(), attempt_id)
+
+
+def _trace_persist_post(
+    handle: _PreTraceHandle,
+    persisted_receipt: Mapping[str, Any],
+    post_spine_snapshot: ProjectSpineSnapshotV1,
+) -> OperationTraceView:
+    current_raw = handle.path.read_bytes()
+    if hashlib.sha256(current_raw).hexdigest() != handle.raw_sha256:
+        raise _TracePersistenceError("STALE_PROGRESS")
+    _, text, entries = _trace_read(handle.path, initialize_legacy=False)
+    matching = [item for item in entries if item[2].get("attempt_id") == handle.attempt_id]
+    if len(matching) != 1:
+        raise _TracePersistenceError("MISSING_PRE_TRACE")
+    receipt_id = persisted_receipt.get("receipt_id")
+    if not isinstance(receipt_id, str) or not receipt_id:
+        raise _TracePersistenceError("INCOMPLETE_EXECUTOR_RECEIPT")
+    receipt_ref = f"{handle.path.as_posix()}#receipt_id={receipt_id}"
+    entry = record_governed_attempt_evidence(
+        "POST",
+        handle.attempt_id,
+        matching[0][2],
+        receipt_ref=receipt_ref,
+        validated_receipt=persisted_receipt,
+        **{
+            "next_" + "gate_ref": post_spine_snapshot.next_permitted_action,
+            "next_" + "gate_source_ref": ".planning/ACTIVE.md#Active change/Next permitted action",
+            "next_" + "gate_source_sha256": post_spine_snapshot.active_sha256.lower(),
+        },
+    )
+    new_text = _trace_replace_entry(text, entry, existing=matching[0])
+    _trace_atomic_replace(handle.path, new_text.encode("utf-8"))
+    _, reread_text, reread_entries = _trace_read(handle.path, initialize_legacy=False)
+    _ = reread_text
+    final = [item[2] for item in reread_entries if item[2].get("attempt_id") == handle.attempt_id]
+    if len(final) != 1 or final[0] != dict(entry):
+        raise _TracePersistenceError("TRACE_POST_READBACK_MISMATCH")
+    expected_ref = receipt_ref
+    return read_operation_trace_evidence(
+        final[0], lambda ref: dict(persisted_receipt) if ref == expected_ref else None
+    )
+
+
 def execute_governed_operation(
     target: str | Path,
     attempt_id: str,
@@ -361,6 +696,7 @@ def execute_governed_operation(
     payload_schema_ref: str = "payload.v1",
     authority_refs: Sequence[str] | None = None,
     guidance_ref: str | None = None,
+    operation_depth_observation: OperationDepthObservationV1 | None = None,
 ) -> GovernedLifecycleResultV1:
     """Run the exact lookup→claim→execute→receipt→terminal→PL08 order."""
 
@@ -383,6 +719,20 @@ def execute_governed_operation(
     selected_guidance = guidance  # exact supplied PL07 projection; no reselection
     if not isinstance(selected_guidance, Mapping) or selected_guidance.get("outcome") != "MATCHED":
         return _stopped(attempt_id, "OPERATION_GUIDANCE", "GUIDANCE_NOT_MATCHED")
+
+    pre_trace: _PreTraceHandle | None = None
+    try:
+        pre_trace = _trace_persist_pre(
+            target_root,
+            attempt.attempt_id,
+            selected_guidance,
+            attempt.operation_guidance_ref,
+            operation_depth_observation,
+        )
+    except Exception:
+        # Progress evidence is derived and non-authoritative.  Its absence or
+        # failure must not alter the governed execution decision.
+        pre_trace = None
 
     execution = invoke_governed_operation(
         attempt,
@@ -526,8 +876,9 @@ def execute_governed_operation(
         evaluation_outcome=technical.outcome,
         evaluation_reason_codes=technical.reason_codes,
     )
+    post_spine_snapshot: ProjectSpineSnapshotV1
     try:
-        record_post_evaluation_checkpoint(
+        post_spine_snapshot = record_post_evaluation_checkpoint(
             target_root,
             pre_execution_snapshot=pre_execution_project_spine_snapshot,
             checkpoint=checkpoint,
@@ -549,6 +900,13 @@ def execute_governed_operation(
             technical_evaluation=technical,
             terminal_attempt=terminal,
         )
+    if pre_trace is not None:
+        try:
+            _trace_persist_post(pre_trace, persisted, post_spine_snapshot)
+        except Exception:
+            # A stale or malformed trace cannot roll back facts already owned
+            # by receipt, Attempt Runtime, PL08, or Project Spine.
+            pass
     return GovernedLifecycleResultV1(
         disposition="COMPLETED_WITH_FACTS",
         attempt_id=attempt.attempt_id,
