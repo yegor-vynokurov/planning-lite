@@ -375,12 +375,12 @@ Implementation: NOT AUTHORIZED
 Implementation performed: NO
 Change 3: NOT STARTED / NOT AUTHORIZED
 runtime prompt dedup: NOT AUTHORIZED
-Plan Amendment: docs/design/project-spine/checkpoints/PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-IMPLEMENTATION-PLAN-AMENDMENT-v2.md
-Plan Amendment status: MATERIALIZED / OWNER-AUTHORIZED / V2
+Plan Amendment: docs/design/project-spine/checkpoints/PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-IMPLEMENTATION-PLAN-AMENDMENT-v3.md
+Plan Amendment status: MATERIALIZED / OWNER-AUTHORIZED / V3
 Runtime prerequisite: CLOSED / COMPLETE
 Critical Journey: PL_SELF_HOSTED_GOVERNED_OPERATION / PASS / PASSING
 Change 2 state: VALID / PAUSED_PENDING_FRESH_FORMAL_READINESS
-next_permitted_action: FRESH_FORMAL_READINESS_CHANGE_2_AFTER_AMENDMENT_V2
+next_permitted_action: FRESH_FORMAL_READINESS_CHANGE_2_AFTER_AMENDMENT_V3
 major_pl09_next_slice_gate: OWNER_ADJUDICATION_PL_V39_09_NEXT_SLICE_AFTER_09-B_CLOSURE
 major_pl09_next_slice_gate_status: PRESERVED / UNCONSUMED
 major_pl09_next_slice_selected: NO
