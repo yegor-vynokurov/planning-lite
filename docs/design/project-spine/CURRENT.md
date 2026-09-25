@@ -383,17 +383,22 @@ Plan Amendment status: MATERIALIZED / OWNER-AUTHORIZED / V3
 Runtime prerequisite: CLOSED / COMPLETE
 Critical Journey: PL_SELF_HOSTED_GOVERNED_OPERATION / PASS / PASSING
 Change 2 state: CLOSED / COMPLETE
-next_permitted_action: OWNER_ADJUDICATION_PL09_NEXT_SLICE_AFTER_CHANGE2_CLOSURE
-major_pl09_next_slice_gate: OWNER_ADJUDICATION_PL_V39_09_NEXT_SLICE_AFTER_09-B_CLOSURE
-major_pl09_next_slice_gate_status: PRESERVED / UNCONSUMED
-major_pl09_next_slice_selected: NO
+CURRENT_PL09_WORK: WHOLE_ORGANISM_VALIDATION + ROADMAP_RECONCILIATION
+CURRENT_GATE: GATE_A / WHOLE_ORGANISM_FIELD_PROOF
+PRODUCT_IMPLEMENTATION_AUTHORIZED: NO
+ROADMAP_MUTATION_AUTHORIZED: NO
+next_permitted_action: RUN_READ_ONLY_WHOLE_ORGANISM_CAPABILITY_BASELINE_AND_FIELD_PROOF
+major_pl09_next_slice_gate: CONSUMED_BY_OWNER_SELECTION_OF_WHOLE_ORGANISM_VALIDATION
+major_pl09_next_slice_gate_status: CONSUMED_BY_OWNER_SELECTION
+major_pl09_next_slice_selected: WHOLE_ORGANISM_VALIDATION
 ```
 
 The activated Definition, canonical predecessor Plan, Amendments, and Formal
 Readiness remain immutable historical authority. The bounded implementation is
-complete and closed by the owner after post-commit verification. Change 3,
-runtime prompt deduplication, and major PL09 slice selection remain separate
-and unconsumed.
+complete and closed by the owner after post-commit verification. The selected
+work is read-only whole-organism validation and roadmap reconciliation; product
+implementation and roadmap mutation remain unauthorized. Change 3 remains
+separate and unabsorbed.
 <!-- PL_V39_09_COMPACT_SEMANTIC_OPERATION_TRACE_ACTIVATION_V1:END -->
 
 <!-- PL_V39_08_CORRECTIVE_IMPLEMENTATION_V1:BEGIN -->
