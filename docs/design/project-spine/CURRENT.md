@@ -352,7 +352,8 @@ Change is opened.
 <!-- PL_V39_09_COMPACT_SEMANTIC_OPERATION_TRACE_ACTIVATION_V1:BEGIN -->
 ## Current PL-V39-09 compact semantic operation trace Change
 
-The owner explicitly approved and activated the bounded corrective Change:
+The owner-approved bounded corrective Change is complete after verified
+implementation and owner closure:
 
 ```text
 Change: CHG-PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-001
@@ -360,38 +361,39 @@ Definition: docs/design/project-spine/checkpoints/PL-V39-09-COMPACT-SEMANTIC-OPE
 Definition status: APPROVED_BY_OWNER / ACTIVATED
 Activation: docs/design/project-spine/checkpoints/PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-DEFINITION-ACTIVATION-v1.md
 active_change: CHG-PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-001
-lifecycle_gate: AMENDMENT_INTEGRATED / FRESH_FORMAL_READINESS_PENDING
-implementation_authorized: NO
-blockers: NONE / FRESH_FORMAL_READINESS_REQUIRED
+lifecycle_gate: CLOSED / COMPLETE
+implementation_authorized: NO / CHANGE COMPLETE
+blockers: NONE
 Implementation Plan: docs/design/project-spine/checkpoints/PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-IMPLEMENTATION-PLAN-v1.md
 Implementation Plan status: APPROVED_BY_OWNER / CANONICAL
 Plan Approval / Activation: docs/design/project-spine/checkpoints/PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-PLAN-APPROVAL-READINESS-ENTRY-v1.md
 Plan approval: EXPLICIT_HUMAN_OWNER
 Plan review: PASS / 0 MATERIAL FINDINGS
-Formal Readiness: READY
+Formal Readiness: SATISFIED / HISTORICAL READY
 Formal Readiness verdict: docs/design/project-spine/checkpoints/PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-FORMAL-READINESS-VERDICT-v3.md
 Formal Readiness blocker count: 0
-Implementation: NOT AUTHORIZED
-Implementation performed: NO
+Implementation: COMPLETE
+Implementation commit: 2f1f25ea998d351a9f8fec665461a519d198f773
+Closure: docs/design/project-spine/checkpoints/PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-CLOSURE-v1.md
+Closure status: OWNER-ACCEPTED / COMPLETE
 Change 3: NOT_ABSORBED
 runtime prompt dedup: NOT AUTHORIZED
 Plan Amendment: docs/design/project-spine/checkpoints/PL-V39-09-COMPACT-SEMANTIC-OPERATION-TRACE-IMPLEMENTATION-PLAN-AMENDMENT-v3.md
 Plan Amendment status: MATERIALIZED / OWNER-AUTHORIZED / V3
 Runtime prerequisite: CLOSED / COMPLETE
 Critical Journey: PL_SELF_HOSTED_GOVERNED_OPERATION / PASS / PASSING
-Change 2 state: VALID / READY_FOR_SEPARATE_IMPLEMENTATION_AUTHORIZATION
-next_permitted_action: OWNER_AUTHORIZATION_CHANGE_2_IMPLEMENTATION_FOR_EXACT_R4
+Change 2 state: CLOSED / COMPLETE
+next_permitted_action: OWNER_ADJUDICATION_PL09_NEXT_SLICE_AFTER_CHANGE2_CLOSURE
 major_pl09_next_slice_gate: OWNER_ADJUDICATION_PL_V39_09_NEXT_SLICE_AFTER_09-B_CLOSURE
 major_pl09_next_slice_gate_status: PRESERVED / UNCONSUMED
 major_pl09_next_slice_selected: NO
 ```
 
-The activated Definition and canonical predecessor Plan remain immutable scope
-and planning authority. The old Formal Readiness remains historical BLOCKED
-evidence; the bounded Plan Amendment now binds the real lifecycle integration
-path and requires a fresh read-only Formal Readiness review. Implementation,
-source/test/template/runtime mutation, Change 3, runtime prompt deduplication,
-and major PL09 slice selection remain unauthorized.
+The activated Definition, canonical predecessor Plan, Amendments, and Formal
+Readiness remain immutable historical authority. The bounded implementation is
+complete and closed by the owner after post-commit verification. Change 3,
+runtime prompt deduplication, and major PL09 slice selection remain separate
+and unconsumed.
 <!-- PL_V39_09_COMPACT_SEMANTIC_OPERATION_TRACE_ACTIVATION_V1:END -->
 
 <!-- PL_V39_08_CORRECTIVE_IMPLEMENTATION_V1:BEGIN -->
