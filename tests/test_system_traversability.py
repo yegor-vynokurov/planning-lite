@@ -4,7 +4,7 @@ import importlib.util
 import hashlib
 import json
 import re
-from dataclasses import asdict
+from dataclasses import asdict, replace
 from pathlib import Path
 
 import pytest
@@ -30,6 +30,11 @@ from planning_lite.attempt_runtime import (
 )
 from planning_lite.authorization import issue_preparation_authorization, issue_recovery_authorization
 from planning_lite.cli import main
+from planning_lite.project_spine import (
+    PostEvaluationCheckpointV1,
+    capture_project_spine_snapshot,
+    record_post_evaluation_checkpoint,
+)
 from planning_lite.telemetry import validate_receipt
 from planning_lite.traversability import (
     APPLICABILITY_VALUES,
@@ -760,7 +765,18 @@ def test_self_hosted_governed_operation_pre_correction() -> None:
         + "\n<!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->"
     )
     assert parsed["next_permitted_action"] == "fixture"
-    live_resume = resume_module.load_resume(Path.cwd())
+    current_text = Path.cwd().joinpath(resume_module.CURRENT_REL).read_text(encoding="utf-8")
+    begin = current_text.index(resume_module.BEGIN)
+    finish = current_text.index(resume_module.END, begin)
+    visible_lines = current_text[begin:finish].splitlines()
+    required_lines = [
+        line
+        for line in visible_lines
+        if line.strip().split(":", 1)[0] in resume_module.REQUIRED_KEYS
+    ]
+    live_resume = resume_module.parse_resume_block(
+        resume_module.BEGIN + "\n" + "\n".join(required_lines) + "\n" + resume_module.END
+    )
     assert live_resume["resume_authority"] == resume_module.CURRENT_REL
     assert isinstance(live_resume["next_permitted_action"], str)
     assert live_resume["next_permitted_action"]
@@ -970,3 +986,93 @@ def test_false_done_shortcuts_are_rejected(tmp_path: Path, capsys: pytest.Captur
     ) == 2
     capsys.readouterr()
     assert not attempt_store_path(tmp_path).exists()
+
+
+def test_production_shaped_s6_evidence_requires_real_post_pl08_handoff(tmp_path: Path) -> None:
+    tick = chr(96)
+    planning = tmp_path / ".planning"
+    planning.mkdir()
+    active = planning / "ACTIVE.md"
+    active.write_text(
+        "# Active state\n\n## Active change\n\n"
+        f"- Change: {tick}CHG-S6-001{tick}\n"
+        f"- Change status: {tick}Active{tick}\n"
+        f"- Lifecycle stage: {tick}Implementation{tick}\n"
+        f"- Stage status: {tick}Ready{tick}\n"
+        f"- Current task: {tick}T-S6{tick}\n"
+        f"- Last verified checkpoint: {tick}checkpoint-0{tick}\n"
+        f"- Next gate: {tick}Central Candidate Review Gate{tick}\n"
+        f"- Next permitted action: {tick}Run T-S6{tick}\n"
+        f"- Implementation authorized: {tick}Yes{tick}\n"
+        f"- Active context packet: {tick}.planning/context.md{tick}\n\n"
+        "## Blocking decision\n\n"
+        f"- {tick}None{tick}\n",
+        encoding="utf-8",
+    )
+
+    guidance = {
+        "outcome": "MATCHED",
+        "authority": {"predicate_result": "AUTHORIZED_FOR_THIS_OPERATION"},
+        "capabilities": [{"capability_id": "GOVERNANCE_WRITE", "state": "ALLOWED"}],
+        "guidance": {
+            "next_gate_owner_ref": "change-owner",
+            "next_gate_ref": ".planning/ACTIVE.md#Active change",
+        },
+    }
+    checkpoint = PostEvaluationCheckpointV1(
+        attempt_id="CHG-S6-001/T-S6/A1",
+        result_id="RESULT-S6",
+        evaluation_id="EVALUATION-S6",
+        evaluation_outcome="SATISFIED",
+        evaluation_reason_codes=("ALL_REQUIRED_PASS",),
+    )
+
+    def production_s6_observation(handoff_ref: str | None) -> SeamObservationV1:
+        if handoff_ref is None:
+            return _seam(
+                "PL08 Result/Evidence -> authoritative Next Gate",
+                status="FAIL",
+                reachable=False,
+                reason="POST_PL08_OWNER_HANDOFF_ABSENT",
+                gap_class="WIRING_GAP",
+            )
+        return replace(
+            _seam("PL08 Result/Evidence -> authoritative Next Gate"),
+            producer_ref=f"post-pl08:{handoff_ref}",
+            consumer_ref=".planning/ACTIVE.md#Active change",
+        )
+
+    missing = check_critical_journey_smoke(
+        _journey(production_s6_observation(None), current_state="WIRED_FAIL")
+    )
+    assert missing.observed_traversability_state == "WIRED_FAIL"
+    assert missing.check_disposition == "WIRED_FAIL"
+
+    events = [
+        "Attempt",
+        "OperationGuidance",
+        "Lifecycle",
+        "Execution",
+        "validated persisted RunReceipt",
+        "exact receipt readback / identity triangle",
+        "Attempt terminalization",
+        "PL08",
+    ]
+    pre = capture_project_spine_snapshot(tmp_path)
+    post = record_post_evaluation_checkpoint(
+        tmp_path,
+        pre_execution_snapshot=pre,
+        checkpoint=checkpoint,
+        operation_guidance=guidance,
+    )
+    events.extend(["Project Spine post-evaluation checkpoint", "authoritative ACTIVE reread"])
+    assert events[-2:] == [
+        "Project Spine post-evaluation checkpoint",
+        "authoritative ACTIVE reread",
+    ]
+
+    passing = check_critical_journey_smoke(
+        _journey(production_s6_observation(post.active_sha256), current_state="PASSING")
+    )
+    assert passing.observed_traversability_state == "PASSING"
+    assert passing.check_disposition == "PASS"

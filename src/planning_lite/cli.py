@@ -36,6 +36,7 @@ from .governed_executor import (
     GovernedExecutionResultV1,
 )
 from .operation_lifecycle import execute_governed_operation
+from .project_spine import ProjectSpineHandoffError, capture_project_spine_snapshot
 from .local_update import (
     LocalUpdateError,
     apply_local_update_plan,
@@ -816,14 +817,25 @@ def _execute_guidance(target: Path, data: dict[str, object]) -> dict[str, object
     return selected
 
 
+def _capture_execution_snapshot(target: Path):
+    try:
+        return capture_project_spine_snapshot(target)
+    except ProjectSpineHandoffError as exc:
+        raise PlanningLiteError(str(exc)) from exc
+
+
 def command_execute(args: argparse.Namespace) -> int:
     data = _read_json_input(args.input)
+    target = Path(args.target).resolve()
     attempt_id = args.attempt_id or data.get("attempt_id")
     if not isinstance(attempt_id, str) or not attempt_id.strip():
         raise PlanningLiteError("execute requires an exact attempt_id")
+    snapshot = _capture_execution_snapshot(target)
     result = execute_governed_operation(
-        Path(args.target).resolve(),
+        target,
         attempt_id,
+        target_root=target,
+        pre_execution_project_spine_snapshot=snapshot,
         guidance=_execute_guidance(Path(args.target).resolve(), data),
         bounded_payload=data.get("bounded_payload", data.get("payload", {})),
         completion=data.get("completion"),
@@ -842,14 +854,18 @@ def command_execute(args: argparse.Namespace) -> int:
 
 def command_finish(args: argparse.Namespace) -> int:
     data = _read_json_input(args.input) if args.input else {}
+    target = Path(args.target).resolve()
     if data.get("action") != "FINISH_CURRENT_CYCLE":
         raise PlanningLiteError("finish requires typed action FINISH_CURRENT_CYCLE")
     attempt_id = args.attempt_id or data.get("attempt_id")
     if not isinstance(attempt_id, str) or not attempt_id.strip():
         raise PlanningLiteError("finish requires an exact attempt_id")
+    snapshot = _capture_execution_snapshot(target)
     result = execute_governed_operation(
-        Path(args.target).resolve(),
+        target,
         attempt_id,
+        target_root=target,
+        pre_execution_project_spine_snapshot=snapshot,
         guidance=_execute_guidance(Path(args.target).resolve(), data),
         bounded_payload=data.get("bounded_payload", {}),
         completion=data.get("completion"),

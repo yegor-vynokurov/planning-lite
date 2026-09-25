@@ -27,6 +27,7 @@ from .attempt_evaluation import (
     VerifierEvidenceV1,
     evaluate_technical,
 )
+from .context import build_compact_status
 from .attempt_runtime import (
     AdmissibilityOutcome,
     AttemptRuntimeError,
@@ -43,6 +44,12 @@ from .governed_executor import (
     GovernedExecutorError,
     invoke_governed_operation,
     prepare_governed_operation,
+)
+from .project_spine import (
+    PostEvaluationCheckpointV1,
+    ProjectSpineHandoffError,
+    ProjectSpineSnapshotV1,
+    record_post_evaluation_checkpoint,
 )
 from .telemetry import ReceiptError, collect_governed_receipt
 from .workspace import WorkspaceError, inspect_project
@@ -119,6 +126,10 @@ def _stopped(
     envelope: GovernedExecutionEnvelopeV1 | None = None,
     execution: GovernedExecutionResultV1 | None = None,
     receipt: dict[str, Any] | None = None,
+    observed_result: ObservedResultV1 | None = None,
+    technical_evaluation: Any = None,
+    terminal_attempt: Any = None,
+    downstream: dict[str, Any] | None = None,
 ) -> GovernedLifecycleResultV1:
     return GovernedLifecycleResultV1(
         disposition="STOPPED_FAIL_CLOSED",
@@ -129,6 +140,10 @@ def _stopped(
         envelope=envelope,
         execution=execution,
         receipt=receipt,
+        observed_result=observed_result,
+        technical_evaluation=technical_evaluation,
+        terminal_attempt=terminal_attempt,
+        downstream=downstream,
     )
 
 
@@ -333,6 +348,8 @@ def execute_governed_operation(
     target: str | Path,
     attempt_id: str,
     *,
+    target_root: str | Path,
+    pre_execution_project_spine_snapshot: ProjectSpineSnapshotV1,
     guidance: OperationGuidanceV1 | Mapping[str, Any] | None = None,
     bounded_payload: object = None,
     completion: GovernedExecutionCompletionV1 | Mapping[str, Any] | None = None,
@@ -502,6 +519,36 @@ def execute_governed_operation(
         evaluation_run=typed.evaluation_run,
         candidate_quality=typed.candidate_quality,
     )
+    checkpoint = PostEvaluationCheckpointV1(
+        attempt_id=attempt.attempt_id,
+        result_id=observed.result_id,
+        evaluation_id=technical.evaluation_id,
+        evaluation_outcome=technical.outcome,
+        evaluation_reason_codes=technical.reason_codes,
+    )
+    try:
+        record_post_evaluation_checkpoint(
+            target_root,
+            pre_execution_snapshot=pre_execution_project_spine_snapshot,
+            checkpoint=checkpoint,
+            operation_guidance=selected_guidance,
+        )
+        downstream = build_compact_status(target_root, attempt_id=attempt.attempt_id)
+        if downstream.get("what_next") != pre_execution_project_spine_snapshot.next_permitted_action:
+            raise ProjectSpineHandoffError("post-PL08 compact status is not authoritative")
+    except (ProjectSpineHandoffError, OSError, ValueError, KeyError, TypeError) as exc:
+        return _stopped(
+            attempt_id,
+            "PL08 Result/Evidence -> authoritative Next Gate",
+            "PROJECT_SPINE_HANDOFF",
+            guidance=selected_guidance,
+            envelope=envelope,
+            execution=execution,
+            receipt=persisted,
+            observed_result=observed,
+            technical_evaluation=technical,
+            terminal_attempt=terminal,
+        )
     return GovernedLifecycleResultV1(
         disposition="COMPLETED_WITH_FACTS",
         attempt_id=attempt.attempt_id,
@@ -512,7 +559,7 @@ def execute_governed_operation(
         observed_result=observed,
         technical_evaluation=technical,
         terminal_attempt=terminal,
-        downstream={"status_projection": "AVAILABLE"},
+        downstream=downstream,
     )
 
 

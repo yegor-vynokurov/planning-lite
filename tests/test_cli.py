@@ -303,6 +303,7 @@ def test_execute_prepare_complete_route(tmp_path: Path, capsys: pytest.CaptureFi
 
     monkeypatch = pytest.MonkeyPatch()
     try:
+        monkeypatch.setattr(cli, "_capture_execution_snapshot", lambda *_: object())
         monkeypatch.setattr(cli, "execute_governed_operation", fake_execute)
         input_path = tmp_path / "execute.json"
         input_path.write_text('{"attempt_id":"CHG/T/A1","payload":{}}', encoding="utf-8")
@@ -334,6 +335,7 @@ def test_execute_renders_typed_result_when_receipt_is_incomplete(
         execution=execution,
     )
     monkeypatch.setattr(cli, "execute_governed_operation", lambda *args, **kwargs: stopped)
+    monkeypatch.setattr(cli, "_capture_execution_snapshot", lambda *_: object())
     input_path = tmp_path / "execute.json"
     input_path.write_text(
         '{"attempt_id":"CHG/T/A1","guidance":{"outcome":"MATCHED"}}',
@@ -367,6 +369,47 @@ def test_execute_renders_typed_result_when_receipt_is_incomplete(
     assert payload["technical_evaluation"] is None
     assert payload["terminal_attempt"] is None
     assert payload["downstream"] is None
+
+
+def test_execute_and_finish_capture_one_snapshot_each(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    snapshot = object()
+    captured: list[object] = []
+    calls: list[dict[str, object]] = []
+
+    def fake_capture(target: Path) -> object:
+        captured.append(target)
+        return snapshot
+
+    def fake_execute(*args, **kwargs):
+        calls.append(kwargs)
+        assert kwargs["target_root"] == tmp_path.resolve()
+        assert kwargs["pre_execution_project_spine_snapshot"] is snapshot
+        return GovernedLifecycleResultV1("COMPLETED_WITH_FACTS", args[1])
+
+    monkeypatch.setattr(cli, "_capture_execution_snapshot", fake_capture)
+    monkeypatch.setattr(cli, "execute_governed_operation", fake_execute)
+
+    execute_input = tmp_path / "execute.json"
+    execute_input.write_text(
+        '{"attempt_id":"CHG/T/A1","guidance":{"outcome":"MATCHED"}}',
+        encoding="utf-8",
+    )
+    assert main(["execute", str(tmp_path), "--input", str(execute_input), "--json"]) == 0
+    capsys.readouterr()
+
+    finish_input = tmp_path / "finish.json"
+    finish_input.write_text(
+        '{"action":"FINISH_CURRENT_CYCLE","attempt_id":"CHG/T/A2",'
+        '"guidance":{"outcome":"MATCHED"}}',
+        encoding="utf-8",
+    )
+    assert main(["finish", str(tmp_path), "--input", str(finish_input), "--json"]) == 0
+    capsys.readouterr()
+
+    assert len(captured) == 2
+    assert len(calls) == 2
 
 
 def test_finish_requires_typed_current_cycle(tmp_path: Path) -> None:
