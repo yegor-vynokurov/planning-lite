@@ -1,0 +1,315 @@
+# PL-V39-09 Governed Operation Lifecycle — Definition Amendment Activation v2
+
+- Document ID: `PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-AMENDMENT-ACTIVATION-002`
+- Status: `CANONICAL / DEFINITION AMENDMENT ACTIVATION`
+- Activation date: `2026-09-23`
+- Baseline HEAD: `e5cf0eb42509a4193550f77a0a6634cca556e91c`
+- Change: `CHG-PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-001`
+- Amendment: `PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-AMENDMENT-002`
+- Decision: `APPROVE`
+- Classification: `MINOR DEPENDENT DEFINITION AMENDMENT`
+
+## 1. Owner approval
+
+```text
+OWNER_APPROVAL_GATE: OWNER_APPROVAL_PL09_RUNRECEIPT_V2_DEPENDENT_EXECUTOR_LIFECYCLE_DEFINITION_AMENDMENTS
+OWNER_DECISION: APPROVE_AND_ACTIVATE_PL09_RUNRECEIPT_V2_DEPENDENT_EXECUTOR_LIFECYCLE_DEFINITION_AMENDMENTS
+APPROVAL_AUTHORITY: USER / EXPLICIT / CURRENT CONVERSATION
+LIFECYCLE_AMENDMENT_OWNER_DECISION: APPROVE
+```
+
+This Activation records the owner's approval of the exact proposed Lifecycle
+Amendment v2. It activates the amendment as effective Definition authority; it
+does not authorize implementation, implementation planning, Formal Readiness,
+source/test writes, staging, commit, or push.
+
+## 2. Exact review and authority lineage
+
+| Authority | Path | SHA-256 | Disposition |
+| --- | --- | --- | --- |
+| Lifecycle predecessor Definition | `docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-CHANGE-DEFINITION-v1.md` | `56DFD7C6B7610262A1DD61BCE7771B320F645DAB901EC90DB6B3B3685815611B` | effective predecessor |
+| Lifecycle predecessor Activation | `docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-ACTIVATION-v1.md` | `F21B8DC151507EB0B937EEFE36CFD35012305808174C3067A4ABC9D0C7C1A53B` | active |
+| Lifecycle approved Amendment v1 | `docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-AMENDMENT-v1.md` | `2C5FFB3D1902424ACBCCA41505CF5113E6C7365AD632831B80C859795B249DA6` | effective predecessor amendment |
+| Lifecycle Amendment v1 Activation | `docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-AMENDMENT-ACTIVATION-v1.md` | `DA55C416AFCC4933D05F2459773C56CAA10C639242AA71D1040A7CE9C671E84B` | active |
+| Lifecycle Amendment v2 | `docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-AMENDMENT-v2.md` | `E1D979F2E5219A2042611033455E95F0E2024B53741D048D08EBFD938FB5EABA` | approved here |
+| RunReceipt prerequisite Definition | `docs/design/project-spine/checkpoints/PL-V39-09-RUNRECEIPT-ATTEMPT-INVOCATION-BINDING-CHANGE-DEFINITION-v1.md` | `9B55A79681B9C3151BD698B6ED60BC7BDA87A5C263E562C7918CD7A5D81CB71D` | approved / active |
+| RunReceipt prerequisite Activation | `docs/design/project-spine/checkpoints/PL-V39-09-RUNRECEIPT-ATTEMPT-INVOCATION-BINDING-DEFINITION-ACTIVATION-v1.md` | `210A5D7F6C61353B559C6D207796EB4AABF44AE760A18ABF07343813A93E8969` | active |
+| Correct shaping identity | `.local/work/experiments/PL09_RUNRECEIPT_V2_DEPENDENT_EXECUTOR_LIFECYCLE_DEFINITION_AMENDMENT_SHAPING.md` | `F3A429FFF2773DA9A4A5E711C0A20932163A8BAEAB47CA9485BDE73ECD8E225D` | self-excluding declared SHA |
+| Reconciliation | `.local/work/experiments/PL09_RUNRECEIPT_V2_DEPENDENT_AMENDMENTS_REVIEW_FAILURE_RECONCILIATION.md` | `759E5ACEF25114035178FCF347D33EE235D8B67498B0958077EC998EF6D0EB48` | hash-binding correction |
+| Rebound independent review | `.local/work/experiments/PL09_RUNRECEIPT_V2_DEPENDENT_EXECUTOR_LIFECYCLE_DEFINITION_AMENDMENTS_REBOUND_REVIEW.md` | `016885702D8CC2ACC0BDA749D19B78986B3E7EFB4BAC8CBC1B17E07B0403E54E` | PASS / zero material findings |
+
+```text
+AMENDMENT_REVIEW_BINDING: PASS
+CORRECT_SHAPING_SHA_MATCH: YES
+RECONCILIATION_VERDICT: PASS_HASH_BINDING_ONLY_REVIEW_RERUN_REQUIRED
+REBOUND_REVIEW_VERDICT: PASS_INDEPENDENT_DEPENDENT_AMENDMENTS_REBOUND_REVIEW
+MATERIAL_FINDING_COUNT: 0
+```
+
+The historical failed review remains preserved and is not approval evidence:
+
+```text
+HISTORICAL_FAILED_REVIEW: .local/work/experiments/PL09_RUNRECEIPT_V2_DEPENDENT_EXECUTOR_LIFECYCLE_DEFINITION_AMENDMENTS_FRESH_REVIEW.md
+HISTORICAL_FAILED_REVIEW_SHA256: 28793967AFD34B27E81F70A76BDD0636EE7108C20676281911C21A486C958ED0
+HISTORICAL_FAILED_REVIEW_VERDICT: FAIL_PREREQUISITE_FIDELITY
+HISTORICAL_FAILED_REVIEW_DISPOSITION: INVALIDATED_BY_RECONCILIATION_FOR_APPROVAL_DECISION
+```
+
+## 3. Effective Lifecycle Definition
+
+After this Activation, the effective Lifecycle Definition is:
+
+```text
+PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-CHANGE-DEFINITION-v1
++ PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-AMENDMENT-v1
++ PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-AMENDMENT-v2
+```
+
+All unchanged predecessor and Amendment v1 clauses remain in force. The
+amendment remains a minor dependent Definition reconciliation.
+
+```text
+LIFECYCLE_AMENDMENT_REMAINS_MINOR: YES
+LIFECYCLE_STATE: DEFINITION_AMENDED_V2 / EFFECTIVE / BLOCKED_ON_RUNRECEIPT_PREREQUISITE_AND_LATER_PLAN_CORRECTION / IMPLEMENTATION_NOT_AUTHORIZED
+```
+
+## 4. Activated Lifecycle receipt gate
+
+Governed completion requires the exact chain below before Attempt
+terminalization:
+
+```text
+authoritative Attempt
++ exact canonical GovernedExecutionEnvelopeV1
++ verified execution_invocation_id
++ GovernedExecutionResultV1(attempt_id, execution_invocation_id)
++ identity-bound RunReceipt v2
+```
+
+The canonical semantic order is:
+
+```text
+Executor completion validation
+-> GovernedExecutionResultV1
+-> RunReceipt v2 governed collection
+-> exact receipt validation/readback
+-> Attempt terminalization
+-> PL08 evaluation
+```
+
+The Lifecycle remains sequencing and identity-coordination authority. It
+obtains/revalidates the authoritative Attempt, verifies the canonical-envelope
+invocation identity and Executor result identity, supplies separate authority
+context, and requires telemetry-owned identity injection, v2 validation,
+existing append, exact readback, and both identity comparisons before
+terminalization.
+
+```text
+RUNRECEIPT_REQUIRED_BEFORE_EXECUTOR_BINDING_RESULT: NO
+RUNRECEIPT_REQUIRED_BEFORE_ATTEMPT_TERMINALIZATION: YES
+RUNRECEIPT_REQUIRED_BEFORE_PL08_EVALUATION: YES
+```
+
+## 5. Identity, authority, and fail-closed contract
+
+```text
+EXECUTOR_RESULT_IDENTITY_FIELDS: attempt_id; execution_invocation_id
+GOVERNED_OPERATION_ACCEPTS_LEGACY_UNBOUND_RECEIPT: NO
+GOVERNED_IDENTITY_EXTERNAL_INPUT_TRUSTED: NO
+EXTERNAL_IDENTITY_SPOOFING_REJECTED: YES
+CROSS_ATTEMPT_SUBSTITUTION: FAIL_CLOSED
+CROSS_INVOCATION_SUBSTITUTION: FAIL_CLOSED
+LATEST_MATCHING: NO
+TIMESTAMP_MATCHING: NO
+TEXT_MATCHING: NO
+TASK_ONLY_MATCHING: NO
+FUZZY_RECEIPT_ASSOCIATION: ABSENT
+```
+
+The identity triangle is preserved:
+
+```text
+GovernedExecutionResultV1.attempt_id
+== RunReceiptV2.attempt_id
+== AttemptRecordV1.attempt_id
+
+GovernedExecutionResultV1.execution_invocation_id
+== RunReceiptV2.execution_invocation_id
+== recomputed execution_invocation_id
+```
+
+## 6. Preserved authority matrix
+
+| Concern | Authority | Effective responsibility |
+| --- | --- | --- |
+| Attempt occurrence/state | Attempt Runtime | exact Attempt identity, state, claim, and terminalization |
+| canonical envelope/invocation identity/result | Executor | canonical envelope, invocation identity, typed result |
+| sequencing/identity coordination | Governed Operation Lifecycle | receipt context, readback checks, terminalization order |
+| RunReceipt v1/v2 contract | `src/planning_lite/telemetry.py` | validation, governed injection, storage, exact readback |
+| evaluation | PL08 | evaluation only; not runtime pump |
+| current position/next gate | Project Spine / owner | authoritative next-gate decision |
+| execution operator/call sequence | Sidebar agent | execution operation only; no authority transfer |
+
+```text
+TELEMETRY_OWNER: src/planning_lite/telemetry.py
+TELEMETRY_AUTHORITY_TRANSFER: NO
+ATTEMPT_AUTHORITY_TRANSFER: NO
+PL08_IS_EVALUATOR_NOT_PUMP: YES
+PL08_AUTHORITY_TRANSFER: NO
+AUTHORITY_TRANSFER: NONE
+NEW_PERSISTENCE: NO
+```
+
+No receipt association sidecar, mapping registry, Executor store, Lifecycle
+store, direct Lifecycle telemetry write, or other persistence authority is
+introduced.
+
+## 7. Preserved Pattern B, owner UX, and change boundaries
+
+```text
+PATTERN_A: REJECTED
+PATTERN_B: SELECTED
+GOVERNED_OPERATION_LIFECYCLE_RUNTIME_MODEL: AGENT_DRIVEN_REENTRANT_BOUNDED_LIFECYCLE
+SIDEBAR_CALLBACK_REQUIRED: NO
+NORMAL_OWNER_UX_REQUIRES_HOOKS: NO
+OWNER_UX_CHANGED: NO
+CHANGE_MERGE_REQUIRED: NO
+DEPENDENCY_GOVERNANCE_ORDER: B
+```
+
+Existing status and completion-intent semantics remain unchanged, including
+`FINISH_CURRENT_GOVERNED_CYCLE`. This gate does not repair the failed Lifecycle
+Plan or absorb any downstream plan finding.
+
+```text
+CHANGE_2: BLOCKED / VALID / PAUSED
+CHANGE2_BOUNDARY: PASS
+CHANGE_3: NOT_ABSORBED
+CHANGE_3_ABSORBED: NO
+CHANGE3_BOUNDARY: PASS
+DEPTH_METRIC_PLAN_FIX: DISPLAY_UNAVAILABLE
+LIFECYCLE_PLAN_CORRECTION_ABSORBED: NO
+LIFECYCLE_PLAN_MUTATED: NO
+```
+
+Preserved downstream findings are F-02 (52-row AC traceability rebuild), F-03
+(typed contract correction), F-04 (executable verification/write sets), F-05
+(bounded intent/routing detail), and F-06 (depth metric unavailable until exact
+aggregation exists). They remain downstream.
+
+## 8. Prerequisite and authorization boundary
+
+```text
+RUNRECEIPT_IDENTITY_PREREQUISITE_DEFINITION: APPROVED / ACTIVE
+RUNRECEIPT_IDENTITY_PREREQUISITE_IMPLEMENTATION: NOT_AUTHORIZED
+RUNRECEIPT_IMPLEMENTATION_PLANNING_AUTHORIZED: NO
+RUNRECEIPT_IMPLEMENTATION_AUTHORIZED: NO
+EXECUTOR_IMPLEMENTATION_AUTHORIZED: NO
+LIFECYCLE_IMPLEMENTATION_AUTHORIZED: NO
+RUNRECEIPT_FORMAL_READINESS: NOT_RUN
+LIFECYCLE_FORMAL_READINESS: NOT_RUN
+```
+
+The Definition-level prerequisite reconciliation is complete after this gate.
+The next legal owner gate may authorize only preparation of the RunReceipt
+identity prerequisite Implementation Plan. This Activation does not establish
+Lifecycle readiness.
+
+## 9. Mutation and Git boundary
+
+The only canonical mutation authorized by this Activation is this Activation
+record and its paired Executor Amendment v2 Activation record. Existing
+amendments, Definitions, Activations, shaping, reconciliation, review,
+`CURRENT.md`, Roadmap, and Lifecycle Plan remain unchanged.
+
+```text
+SOURCE_MUTATIONS: 0
+TEST_MUTATIONS: 0
+TEMPLATE_MUTATIONS: 0
+SCRIPT_MUTATIONS: 0
+CURRENT_MUTATION: NO
+ROADMAP_MUTATION: NO
+EXECUTOR_AMENDMENT_CONTENT_MUTATED: NO
+LIFECYCLE_AMENDMENT_CONTENT_MUTATED: NO
+LIFECYCLE_PLAN_MUTATED: NO
+CANONICAL_MUTATION_PATH_COUNT: 2
+STAGED_PATHS: 0
+COMMIT: NO
+PUSH: NO
+PRE_EXISTING_DIRT_PRESERVED: YES
+```
+
+## 10. Byte and hash record
+
+This Activation record and its paired record are UTF-8, LF-only, have exactly
+one terminal LF, and contain no trailing spaces or tabs. The ordinary full-file
+SHA-256 values are computed after final write and reported in the terminal
+receipt; no self-referential digest is embedded.
+
+```text
+GIT_DIFF_CHECK: PASS
+LIFECYCLE_AMENDMENT_V2_ACTIVATION_SHA256: COMPUTED_AFTER_FINAL_WRITE_AND_REPORTED_IN_TERMINAL_RECEIPT
+```
+
+## 11. Terminal receipt
+
+```text
+PL09_RUNRECEIPT_V2_DEPENDENT_EXECUTOR_LIFECYCLE_DEFINITION_AMENDMENT_ACTIVATION
+
+OVERALL: PASS_RUNRECEIPT_V2_DEPENDENT_AMENDMENTS_APPROVED_AND_ACTIVATED
+REASONER: GPT-5.6_LUNA_EXTRA_HIGH
+DOCUMENT_ID: PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-AMENDMENT-ACTIVATION-002
+OWNER_DECISION: APPROVE
+CLASSIFICATION: MINOR DEPENDENT DEFINITION AMENDMENT
+EXECUTOR_AMENDMENT_SHA256: 444BC880E112F070FB5A3E6B29B3ED1FDD35DDF5E637905A8AB4094D0A9AC510
+LIFECYCLE_AMENDMENT_SHA256: E1D979F2E5219A2042611033455E95F0E2024B53741D048D08EBFD938FB5EABA
+CORRECT_SHAPING_SHA256: F3A429FFF2773DA9A4A5E711C0A20932163A8BAEAB47CA9485BDE73ECD8E225D
+RECONCILIATION_SHA256: 759E5ACEF25114035178FCF347D33EE235D8B67498B0958077EC998EF6D0EB48
+REBOUND_REVIEW_SHA256: 016885702D8CC2ACC0BDA749D19B78986B3E7EFB4BAC8CBC1B17E07B0403E54E
+AMENDMENT_REVIEW_BINDING: PASS
+EXECUTOR_AMENDMENT_V2_ACTIVATION_PATH: docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-EXECUTOR-CALLABLE-BINDING-DEFINITION-AMENDMENT-ACTIVATION-v2.md
+EXECUTOR_AMENDMENT_V2_ACTIVATION_SHA256: COMPUTED_AFTER_FINAL_WRITE_AND_REPORTED_IN_TERMINAL_RECEIPT
+LIFECYCLE_AMENDMENT_V2_ACTIVATION_PATH: docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-AMENDMENT-ACTIVATION-v2.md
+LIFECYCLE_AMENDMENT_V2_ACTIVATION_SHA256: COMPUTED_AFTER_FINAL_WRITE_AND_REPORTED_IN_TERMINAL_RECEIPT
+EXECUTOR_EFFECTIVE_DEFINITION: DEFINITION + AMENDMENT_V1 + AMENDMENT_V2
+LIFECYCLE_EFFECTIVE_DEFINITION: DEFINITION + AMENDMENT_V1 + AMENDMENT_V2
+EXECUTOR_AMENDMENT_REMAINS_MINOR: YES
+LIFECYCLE_AMENDMENT_REMAINS_MINOR: YES
+EXECUTOR_RESULT_IDENTITY_FIELDS: attempt_id; execution_invocation_id
+RUNRECEIPT_REQUIRED_BEFORE_EXECUTOR_BINDING_RESULT: NO
+RUNRECEIPT_REQUIRED_BEFORE_ATTEMPT_TERMINALIZATION: YES
+RUNRECEIPT_REQUIRED_BEFORE_PL08_EVALUATION: YES
+EXECUTOR_OWNS_RUNRECEIPT_COLLECTION: NO
+EXECUTOR_OWNS_RUNRECEIPT_STORAGE: NO
+GOVERNED_OPERATION_ACCEPTS_LEGACY_UNBOUND_RECEIPT: NO
+GOVERNED_IDENTITY_EXTERNAL_INPUT_TRUSTED: NO
+TELEMETRY_AUTHORITY_TRANSFER: NO
+ATTEMPT_AUTHORITY_TRANSFER: NO
+AUTHORITY_TRANSFER: NONE
+NEW_PERSISTENCE: NO
+PATTERN_B_PRESERVED: YES
+OWNER_UX_CHANGED: NO
+DEPENDENCY_GOVERNANCE_ORDER: B
+RUNRECEIPT_IDENTITY_PREREQUISITE_DEFINITION: APPROVED / ACTIVE
+RUNRECEIPT_IDENTITY_PREREQUISITE_IMPLEMENTATION: NOT_AUTHORIZED
+RUNRECEIPT_IMPLEMENTATION_PLANNING_AUTHORIZED: NO
+RUNRECEIPT_IMPLEMENTATION_AUTHORIZED: NO
+EXECUTOR_IMPLEMENTATION_AUTHORIZED: NO
+LIFECYCLE_IMPLEMENTATION_AUTHORIZED: NO
+RUNRECEIPT_FORMAL_READINESS: NOT_RUN
+CHANGE_2: BLOCKED / VALID / PAUSED
+CHANGE_3: NOT_ABSORBED
+MAJOR_PL09_NEXT_SLICE_GATE: PRESERVED / UNCONSUMED
+EXECUTOR_AMENDMENT_CONTENT_MUTATED: NO
+LIFECYCLE_AMENDMENT_CONTENT_MUTATED: NO
+CURRENT_MUTATION: NO
+ROADMAP_MUTATION: NO
+CANONICAL_MUTATION_PATH_COUNT: 2
+GIT_DIFF_CHECK: PASS
+STAGED_PATHS: 0
+COMMIT: NO
+PUSH: NO
+NEXT_SINGLE_GATE: OWNER_AUTHORIZATION_PL09_RUNRECEIPT_ATTEMPT_INVOCATION_BINDING_IMPLEMENTATION_PLANNING
+
+RESULT_DIGEST: The exact Lifecycle Amendment v2 passed review binding and was approved by the owner. Its effective authority is the predecessor Definition plus Amendment v1 plus Amendment v2. Governed completion now requires the authoritative Attempt, canonical envelope, verified invocation identity, typed Executor result, and identity-bound RunReceipt v2 before terminalization. The corrected order requires exact receipt validation and readback before Attempt terminalization and PL08 evaluation. The identity triangle, legacy-v1 rejection, external-identity rejection, and fail-closed substitution boundaries remain frozen. Telemetry remains the validation, identity injection, storage, and exact readback owner. Attempt Runtime remains occurrence/state authority, and PL08 remains evaluator rather than pump. Pattern B and the bounded reentrant lifecycle model remain selected. Owner UX, status/completion semantics, Change 2, Change 3, and F-02 through F-06 remain unchanged and downstream. No new persistence, sidecar, mapping registry, or authority transfer is introduced. No source, test, template, script, CURRENT, Roadmap, or existing authority artifact was modified. Exactly two canonical Activation paths are authorized, with no staging, commit, or push. The next single gate is owner authorization for RunReceipt identity prerequisite Implementation Planning.
+```

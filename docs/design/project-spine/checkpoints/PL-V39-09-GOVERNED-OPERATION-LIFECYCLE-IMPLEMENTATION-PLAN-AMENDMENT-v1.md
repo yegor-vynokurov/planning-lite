@@ -12,6 +12,8 @@ SOURCE_REPAIR_V6_PASS_REVIEW_ORDINARY_SHA256: 894491F4F32DE693B17BF4156E7DAB085B
 SOURCE_REPAIR_V6_PASS_REVIEW_VERDICT: PASS_INDEPENDENT_CUMULATIVE_EXECUTABLE_CAPTURE_AND_SEAL_HANDOFF_REPAIR_V6
 FORMAL_READINESS_V2: NOT_RUN
 IMPLEMENTATION_AUTHORIZED: NO
+REPOSITORY_BINDING_REPAIR_V6_1: APPROVED_BY_OWNER
+SUPERSEDED_PLANNING_AUTHORITY_COMMIT: e0a7d5c12aa1056cd8ab4f955cf44295b94793be
 ```
 
 This Amendment is a cumulative bounded delta over the immutable predecessor Plan v1.
@@ -26,8 +28,12 @@ SOURCE_REPAIR_V6_CANDIDATE_PATH: .local/work/experiments/PL09_GOVERNED_OPERATION
 SOURCE_REPAIR_V6_CANDIDATE_ORDINARY_SHA256: 08893DAE1303EA83602DECBED1BC5159C22B461FF5F3FDCFFAC8493E58A4FD13
 SOURCE_REPAIR_V6_PASS_REVIEW_PATH: .local/work/experiments/PL09_GOVERNED_OPERATION_LIFECYCLE_IMPLEMENTATION_ENTRY_BINDING_CUMULATIVE_EXECUTABLE_CAPTURE_AND_SEAL_HANDOFF_REPAIR_V6_FRESH_INDEPENDENT_REVIEW.md
 SOURCE_REPAIR_V6_PASS_REVIEW_ORDINARY_SHA256: 894491F4F32DE693B17BF4156E7DAB085B54C1696614887614506EFC96377C80
-CUMULATIVE_AMENDMENT_SHA256: 71065EFFD61C1A2EE4461111B455CEF21A0C58FD33D90928582BDE1EE690ED97
-ENTRY_CHECKER_SHA256: 6853E43032343654EBAC5C127431C83E5867580C651D42AB7FAED0C53080AED7
+REPOSITORY_BINDING_REPAIR_V6_1: APPROVED_BY_OWNER
+SUPERSEDED_PLANNING_AUTHORITY_COMMIT: e0a7d5c12aa1056cd8ab4f955cf44295b94793be
+SUPERSEDED_PLANNING_AUTHORITY_PARENT: 407f4daef02227145a0c807ca182925c76888b60
+AUTHORITY_IMPORT_PATH_COUNT: 13
+CUMULATIVE_AMENDMENT_SHA256: 3FA47ED0208AF6F6F16F0613C2EDF79352258824BE2C46B9F0319FDEA8843485
+ENTRY_CHECKER_SHA256: 77318AFF94BC675411D3838B5E3A24ABE49A95C0CA90C2F8B0E61BF1A6F45B61
 PLAN_AMENDMENT_BINDINGS_END
 
 CANONICAL_CUMULATIVE_AMENDMENT_BEGIN
@@ -40,15 +46,38 @@ and architecture rule remains unchanged except the exact replacements below.
 
 ## Entry authority generation
 
-Planning Authority commit `A` is a one-parent commit changing exactly:
+The first v6 Planning Authority commit `e0a7d5c12aa1056cd8ab4f955cf44295b94793be` is preserved as historical
+lineage but is superseded because the real repository revealed that the
+predecessor Plan and twelve older authority checkpoint files existed on disk
+but were not yet tracked in Git. No product or runtime semantics change.
+
+Superseding Planning Authority commit `A2` is a one-parent commit whose parent
+is exactly `e0a7d5c12aa1056cd8ab4f955cf44295b94793be` and which changes exactly these fifteen governance paths:
 
 ```text
+docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-IMPLEMENTATION-PLAN-v1.md
+docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-CHANGE-DEFINITION-v1.md
+docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-ACTIVATION-v1.md
+docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-AMENDMENT-v1.md
+docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-AMENDMENT-ACTIVATION-v1.md
+docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-AMENDMENT-v2.md
+docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-AMENDMENT-ACTIVATION-v2.md
+docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-EXECUTOR-CALLABLE-BINDING-CHANGE-DEFINITION-v1.md
+docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-EXECUTOR-CALLABLE-BINDING-DEFINITION-ACTIVATION-v1.md
+docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-EXECUTOR-CALLABLE-BINDING-DEFINITION-AMENDMENT-v1.md
+docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-EXECUTOR-CALLABLE-BINDING-DEFINITION-AMENDMENT-ACTIVATION-v1.md
+docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-EXECUTOR-CALLABLE-BINDING-DEFINITION-AMENDMENT-v2.md
+docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-EXECUTOR-CALLABLE-BINDING-DEFINITION-AMENDMENT-ACTIVATION-v2.md
 docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-IMPLEMENTATION-PLAN-AMENDMENT-v1.md
 docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-ENTRY-AUTHORITY-CHECK-v1.py
 ```
 
-Renewed Formal Readiness v2 runs at `HEAD=A`. Readiness commit `R` is a
-one-parent commit whose parent is exactly `A` and whose only changed path is:
+The first thirteen paths are an authority import: their existing worktree bytes
+must match the already-approved SHA identities before staging. The final two
+paths are this repaired Amendment and its tracked checker.
+
+Renewed Formal Readiness v2 runs at `HEAD=A2`. Readiness commit `R` is a
+one-parent commit whose parent is exactly `A2` and whose only changed path is:
 
 ```text
 docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-FORMAL-READINESS-VERDICT-v2.md

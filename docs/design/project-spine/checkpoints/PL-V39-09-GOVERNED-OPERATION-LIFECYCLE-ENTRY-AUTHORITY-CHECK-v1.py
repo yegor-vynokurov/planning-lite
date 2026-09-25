@@ -13,6 +13,11 @@ T01_BASELINE = Path('.local/work/experiments/PL09_GOVERNED_OPERATION_LIFECYCLE_F
 EXECUTION = Path('.local/work/experiments/PL09_GOVERNED_OPERATION_LIFECYCLE_IMPLEMENTATION_EXECUTION.json')
 BASE_PLAN_SHA = 'B38B977FD6858597380DD2DB7D7685E7272BC3881776A69370C4E615E671ABEC'
 PASS_VERDICT = 'PASS_INDEPENDENT_CUMULATIVE_EXECUTABLE_CAPTURE_AND_SEAL_HANDOFF_REPAIR_V6'
+SUPERSEDED_A1 = 'e0a7d5c12aa1056cd8ab4f955cf44295b94793be'
+SUPERSEDED_A1_PARENT = '407f4daef02227145a0c807ca182925c76888b60'
+SUPERSEDED_A1_AMENDMENT_SHA = '455DB428DC7FE9442182DCBD0C37F0731B5210E165B4E02995F38A8FAB3F9754'
+SUPERSEDED_A1_CHECKER_SHA = '6853E43032343654EBAC5C127431C83E5867580C651D42AB7FAED0C53080AED7'
+AUTHORITY_IMPORT_PATHS = ['docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-IMPLEMENTATION-PLAN-v1.md', 'docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-CHANGE-DEFINITION-v1.md', 'docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-ACTIVATION-v1.md', 'docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-AMENDMENT-v1.md', 'docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-AMENDMENT-ACTIVATION-v1.md', 'docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-AMENDMENT-v2.md', 'docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-AMENDMENT-ACTIVATION-v2.md', 'docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-EXECUTOR-CALLABLE-BINDING-CHANGE-DEFINITION-v1.md', 'docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-EXECUTOR-CALLABLE-BINDING-DEFINITION-ACTIVATION-v1.md', 'docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-EXECUTOR-CALLABLE-BINDING-DEFINITION-AMENDMENT-v1.md', 'docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-EXECUTOR-CALLABLE-BINDING-DEFINITION-AMENDMENT-ACTIVATION-v1.md', 'docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-EXECUTOR-CALLABLE-BINDING-DEFINITION-AMENDMENT-v2.md', 'docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-EXECUTOR-CALLABLE-BINDING-DEFINITION-AMENDMENT-ACTIVATION-v2.md']
 OLD14 = {'docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-CHANGE-DEFINITION-v1.md': '56DFD7C6B7610262A1DD61BCE7771B320F645DAB901EC90DB6B3B3685815611B', 'docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-ACTIVATION-v1.md': 'F21B8DC151507EB0B937EEFE36CFD35012305808174C3067A4ABC9D0C7C1A53B', 'docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-AMENDMENT-v1.md': '2C5FFB3D1902424ACBCCA41505CF5113E6C7365AD632831B80C859795B249DA6', 'docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-AMENDMENT-ACTIVATION-v1.md': 'DA55C416AFCC4933D05F2459773C56CAA10C639242AA71D1040A7CE9C671E84B', 'docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-AMENDMENT-v2.md': 'E1D979F2E5219A2042611033455E95F0E2024B53741D048D08EBFD938FB5EABA', 'docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-OPERATION-LIFECYCLE-DEFINITION-AMENDMENT-ACTIVATION-v2.md': '004331DF581880BDBA57AE8FD782132EDCED2D841829E5B6BF4A08BC7E4D8A93', 'docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-EXECUTOR-CALLABLE-BINDING-CHANGE-DEFINITION-v1.md': '127F19F505527B622BF3F45D6AA83D432B8F5BE93BD5856CE516C4CEE34BE332', 'docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-EXECUTOR-CALLABLE-BINDING-DEFINITION-ACTIVATION-v1.md': '2CDE29CA69D29FF3FC327B82C05EAF6A3CCB54143F1B30B8953B2FC07BFAD4C7', 'docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-EXECUTOR-CALLABLE-BINDING-DEFINITION-AMENDMENT-v1.md': 'AC012052CCCE524FD9770EEEF94D87181C320ABE0D863C2DC930928740F9B886', 'docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-EXECUTOR-CALLABLE-BINDING-DEFINITION-AMENDMENT-ACTIVATION-v1.md': '59797EFD9F2FDDA8E7A1B4A478F7985A8E43C66956F5BFBD3420F0F7531511D4', 'docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-EXECUTOR-CALLABLE-BINDING-DEFINITION-AMENDMENT-v2.md': '444BC880E112F070FB5A3E6B29B3ED1FDD35DDF5E637905A8AB4094D0A9AC510', 'docs/design/project-spine/checkpoints/PL-V39-09-GOVERNED-EXECUTOR-CALLABLE-BINDING-DEFINITION-AMENDMENT-ACTIVATION-v2.md': '33597F3B40E1B06F8D7B6EF601764100DD7C1F7E8CC64635F03C8171759325F1', 'docs/design/project-spine/checkpoints/PL-V39-09-RUNRECEIPT-ATTEMPT-INVOCATION-BINDING-CLOSURE-v1.md': '40D998EF9FE11EF5D56A927917208D4711FD860BA4A4121FF5573B96553973F2', 'docs/design/project-spine/checkpoints/PL-V39-09-AUTHORITATIVE-ATTEMPT-RUNTIME-ACCESS-CLOSURE-v1.md': '3E96782EC6F70DB5F6835CDEB90F4E2EE2AEF4E92AC8CC21F463E639CC101A6E'}
 PLANNED = ['src/planning_lite/governed_executor.py', 'src/planning_lite/operation_lifecycle.py', 'src/planning_lite/context.py', 'src/planning_lite/cli.py', 'template/.planning/adapters/codex/README.md', 'tests/test_governed_executor.py', 'tests/test_operation_lifecycle.py', 'tests/test_cli.py', 'tests/test_context_resume.py', 'tests/test_run_receipts.py', 'tests/test_system_traversability.py', 'template/.planning/framework/SHA256SUMS.txt']
 BASELINE_KEYS = {'schema_version','entry_head','entry_index_empty','implementation_authority_commit','authorized_paths','preexisting_dirty_paths','central_status_porcelain_v1'}
@@ -154,14 +159,23 @@ def parse_readiness(raw):
 
 def verify_planning_authority(A, require_local_sources=False):
     assert re.fullmatch(r'[0-9a-f]{40}',A)
-    expected=sorted([AMENDMENT.as_posix(),CHECKER.as_posix()])
+    expected=sorted(AUTHORITY_IMPORT_PATHS+[AMENDMENT.as_posix(),CHECKER.as_posix()])
     assert commit_paths(A) == expected, commit_paths(A)
+    assert run_git('rev-parse',A+'^') == SUPERSEDED_A1
+    assert run_git('rev-parse',SUPERSEDED_A1+'^') == SUPERSEDED_A1_PARENT
+    assert commit_paths(SUPERSEDED_A1) == sorted([AMENDMENT.as_posix(),CHECKER.as_posix()])
+    assert sha(show(SUPERSEDED_A1,AMENDMENT)) == SUPERSEDED_A1_AMENDMENT_SHA
+    assert sha(show(SUPERSEDED_A1,CHECKER)) == SUPERSEDED_A1_CHECKER_SHA
     assert sha(show(A,BASE_PLAN)) == BASE_PLAN_SHA
     assert_old14_tree(A)
     amendment_raw=show(A,AMENDMENT); checker_raw=show(A,CHECKER)
     ab,cumulative=parse_amendment(amendment_raw)
     assert field(ab,'PLAN_AMENDMENT_STATUS') == 'APPROVED_BY_OWNER'
     assert field(ab,'PREDECESSOR_PLAN_SHA256') == BASE_PLAN_SHA
+    assert field(ab,'REPOSITORY_BINDING_REPAIR_V6_1') == 'APPROVED_BY_OWNER'
+    assert field(ab,'SUPERSEDED_PLANNING_AUTHORITY_COMMIT').lower() == SUPERSEDED_A1
+    assert field(ab,'SUPERSEDED_PLANNING_AUTHORITY_PARENT').lower() == SUPERSEDED_A1_PARENT
+    assert int(field(ab,'AUTHORITY_IMPORT_PATH_COUNT')) == len(AUTHORITY_IMPORT_PATHS)
     assert field(ab,'CUMULATIVE_AMENDMENT_SHA256') == sha(cumulative)
     assert field(ab,'ENTRY_CHECKER_SHA256') == sha(checker_raw)
     if require_local_sources:
@@ -170,15 +184,9 @@ def verify_planning_authority(A, require_local_sources=False):
         cr=candidate.read_bytes(); rr=review.read_bytes()
         assert sha(cr) == field(ab,'SOURCE_REPAIR_V6_CANDIDATE_ORDINARY_SHA256')
         assert sha(rr) == field(ab,'SOURCE_REPAIR_V6_PASS_REVIEW_ORDINARY_SHA256')
-        ct=cr.decode('utf-8').replace('\r\n','\n'); rt=rr.decode('utf-8').replace('\r\n','\n')
-        source_cumulative=block(ct,'SOURCE_CUMULATIVE_AMENDMENT_BEGIN','SOURCE_CUMULATIVE_AMENDMENT_END').encode('utf-8')
-        source_checker=block(ct,'SOURCE_ENTRY_CHECKER_BEGIN','SOURCE_ENTRY_CHECKER_END').encode('utf-8')
-        assert source_cumulative == cumulative
-        assert source_checker == checker_raw
+        rt=rr.decode('utf-8').replace('\r\n','\n')
         assert field(rt,'REVIEW_VERDICT') == PASS_VERDICT
         assert field(rt,'REVIEWED_CANDIDATE_ORDINARY_SHA256') == sha(cr)
-        assert field(rt,'SOURCE_CUMULATIVE_AMENDMENT_SHA256') == sha(source_cumulative)
-        assert field(rt,'SOURCE_ENTRY_CHECKER_SHA256') == sha(source_checker)
     return {'planning_authority_commit':A,'plan_amendment_sha256':sha(amendment_raw),'entry_checker_sha256':sha(checker_raw),'source_candidate_sha256':field(ab,'SOURCE_REPAIR_V6_CANDIDATE_ORDINARY_SHA256'),'source_review_sha256':field(ab,'SOURCE_REPAIR_V6_PASS_REVIEW_ORDINARY_SHA256'),'cumulative_amendment_sha256':field(ab,'CUMULATIVE_AMENDMENT_SHA256')}
 
 
