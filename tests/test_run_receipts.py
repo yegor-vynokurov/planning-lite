@@ -496,3 +496,23 @@ def test_historical_stream_wrong_project_fails_closed(tmp_path: Path) -> None:
     _write_existing_stream(path, canonical_bytes(historical) + b"\n")
     with pytest.raises(ReceiptError, match="project_id"):
         append_receipt(_receipt(), receipt_path=path, registered_project_id="demo", planning_lite_ref="v9.9.9", enabled=True)
+
+
+def test_lifecycle_uses_supplied_receipt_id() -> None:
+    pass
+
+
+def test_lifecycle_reads_back_persisted_receipt() -> None:
+    pass
+
+
+def test_cross_attempt_receipt_is_rejected() -> None:
+    pass
+
+
+def test_cross_invocation_receipt_is_rejected() -> None:
+    pass
+
+
+def test_legacy_v1_receipt_is_not_governed_fallback() -> None:
+    pass

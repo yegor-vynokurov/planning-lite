@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import hashlib
 import json
 import re
 from dataclasses import asdict
@@ -912,6 +913,32 @@ def test_decoy_authority_sources_cannot_authorize_attempts(tmp_path: Path, capsy
     assert main(["attempt-prepare", str(tmp_path), "--input", str(payload)]) == 2
     capsys.readouterr()
     assert not attempt_store_path(tmp_path).exists()
+
+
+def test_real_self_hosted_execute_entrypoint_reaches_lifecycle() -> None:
+    parser = main.__globals__["build_parser"]()
+    actions = next(action for action in parser._actions if getattr(action, "dest", None) == "command")
+    assert "execute" in actions.choices
+    assert "status" in actions.choices
+
+
+def test_system_traversability_preserves_closed_boundaries() -> None:
+    executor = Path(__file__).parents[1] / "src" / "planning_lite" / "governed_executor.py"
+    lifecycle = Path(__file__).parents[1] / "src" / "planning_lite" / "operation_lifecycle.py"
+    executor_text = executor.read_text(encoding="utf-8")
+    lifecycle_text = lifecycle.read_text(encoding="utf-8")
+    assert "collect_governed_receipt" not in executor_text
+    assert "terminalize_attempt" not in executor_text
+    assert "select_operation_guidance" not in lifecycle_text
+    assert "next_gate" not in lifecycle_text
+
+
+def test_template_checksum_matches_authorized_surface() -> None:
+    root = Path(__file__).parents[1]
+    adapter = root / "template" / ".planning" / "adapters" / "codex" / "README.md"
+    checksum = root / "template" / ".planning" / "framework" / "SHA256SUMS.txt"
+    expected = next(line.split()[0] for line in checksum.read_text(encoding="utf-8").splitlines() if line.endswith(".planning/adapters/codex/README.md"))
+    assert hashlib.sha256(adapter.read_bytes().replace(b"\r\n", b"\n")).hexdigest() == expected
 
 
 def test_downstream_executor_remains_next_break() -> None:

@@ -9,6 +9,7 @@ import pytest
 
 from planning_lite import cli
 from planning_lite.cli import BRIDGE_START, _ensure_agents_bridge, build_parser, main
+from planning_lite.operation_lifecycle import GovernedLifecycleResultV1
 from planning_lite.attempt_runtime import attempt_store_path, claim_attempt, lookup_attempt
 from planning_lite.authorization import (
     authorization_store_path,
@@ -292,3 +293,40 @@ def test_plain_resume_remains_without_guidance_wrapper(
     assert main(["resume", ".", "--json"]) == 0
     payload = json.loads(capsys.readouterr().out)
     assert payload == snapshot
+
+
+def test_execute_prepare_complete_route(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    def fake_execute(*args, **kwargs):
+        assert args[1] == "CHG/T/A1"
+        return GovernedLifecycleResultV1("COMPLETED_WITH_FACTS", "CHG/T/A1")
+
+    monkeypatch = pytest.MonkeyPatch()
+    try:
+        monkeypatch.setattr(cli, "execute_governed_operation", fake_execute)
+        input_path = tmp_path / "execute.json"
+        input_path.write_text('{"attempt_id":"CHG/T/A1","payload":{}}', encoding="utf-8")
+        assert main(["execute", str(tmp_path), "--input", str(input_path), "--json"]) == 0
+        assert json.loads(capsys.readouterr().out)["disposition"] == "COMPLETED_WITH_FACTS"
+    finally:
+        monkeypatch.undo()
+
+
+def test_finish_requires_typed_current_cycle(tmp_path: Path) -> None:
+    input_path = tmp_path / "finish.json"
+    input_path.write_text('{"action":"FINISH"}', encoding="utf-8")
+    assert main(["finish", str(tmp_path), "--input", str(input_path)]) == 2
+
+
+def test_status_route_is_read_only(tmp_path: Path) -> None:
+    before = (tmp_path / "marker").write_text("keep", encoding="utf-8")
+    original = (tmp_path / "marker").read_bytes()
+    monkeypatch = pytest.MonkeyPatch()
+    try:
+        monkeypatch.setattr(cli, "build_compact_status", lambda *args, **kwargs: {
+            "where_we_are": {}, "what_is_done": {}, "what_is_current": {},
+            "what_next": "EXECUTE_AUTHORIZED_TASK", "resources": {}, "state": {},
+        })
+        assert main(["status", str(tmp_path), "--json"]) == 0
+    finally:
+        monkeypatch.undo()
+    assert (tmp_path / "marker").read_bytes() == original

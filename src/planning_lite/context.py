@@ -24,6 +24,116 @@ from .workspace import (
 )
 
 
+def _compact_unavailable(reason: str) -> dict[str, str]:
+    return {"status": "DISPLAY_UNAVAILABLE", "reason": reason}
+
+
+def build_compact_status(
+    target: str | Path,
+    *,
+    attempt_id: str | None = None,
+    include: Iterable[str] = (),
+) -> dict[str, Any]:
+    """Project exactly six read-only owner-language status fields.
+
+    This is a projection over existing resume and Attempt Runtime producers.
+    It does not choose an action, create a receipt, or persist status.
+    """
+
+    root = Path(target).expanduser().resolve()
+    try:
+        resume = build_resume_context(root, include=include)
+        project = resume["project_identity"]
+        bootstrap = resume["bootstrap"]
+        where_we_are = {
+            "status": resume["status"],
+            "project_id": project["project_id"],
+            "active_change": bootstrap["active_change"],
+            "lifecycle_stage": bootstrap["lifecycle_stage"],
+            "stage_status": bootstrap["stage_status"],
+        }
+        where_we_are_ok = all(value is not None for value in where_we_are.values())
+    except (ContextError, KeyError, TypeError):
+        resume = None
+        bootstrap = None
+        where_we_are = _compact_unavailable("RESUME_SOURCE_UNAVAILABLE")
+        where_we_are_ok = False
+
+    what_is_done: object = _compact_unavailable("ATTEMPT_RUNTIME_UNAVAILABLE")
+    what_is_current: object = _compact_unavailable("ATTEMPT_RUNTIME_UNAVAILABLE")
+    state: object = _compact_unavailable("STATUS_SOURCE_UNAVAILABLE")
+    try:
+        from .attempt_runtime import load_attempt_store, lookup_attempt, check_activation_admissibility
+
+        store = load_attempt_store(root)
+        terminal_rows = [row for row in store.attempts if row.runtime_state == "TERMINAL"]
+        if len(terminal_rows) == 1 and terminal_rows[0].observed_result is not None:
+            row = terminal_rows[0]
+            observed = row.observed_result
+            what_is_done = {
+                "runtime_state": row.runtime_state,
+                "attempt_id": row.attempt.attempt_id,
+                "result_id": observed.result_id,
+                "execution_status": observed.execution_status,
+                "fact_refs": list(observed.fact_refs),
+                "artifact_refs": list(observed.artifact_refs),
+                "verifier_contract_refs": [list(ref) for ref in row.attempt.verifier_contract_refs],
+            }
+        if attempt_id is not None:
+            current_lookup = lookup_attempt(root, attempt_id)
+            current_admissibility = check_activation_admissibility(root, attempt_id)
+            if current_lookup.attempt is not None and bootstrap is not None:
+                current = current_lookup.attempt
+                what_is_current = {
+                    "status": resume["status"],
+                    "active_change": bootstrap["active_change"],
+                    "lifecycle_stage": bootstrap["lifecycle_stage"],
+                    "stage_status": bootstrap["stage_status"],
+                    "active_context_path": bootstrap["active_context_path"],
+                    "runtime_state": current_admissibility.envelope.runtime_state
+                    if current_admissibility.envelope is not None
+                    else "DISPLAY_UNAVAILABLE",
+                    "task_or_operation_id": current.task_or_operation_id,
+                    "operation_guidance_ref": current.operation_guidance_ref,
+                    "execution_invocation_id": "DISPLAY_UNAVAILABLE",
+                }
+        if bootstrap is not None:
+            state = {
+                "status": resume["status"],
+                "implementation_authorized": bootstrap["implementation_authorized"],
+                "runtime_state": (
+                    current_admissibility.envelope.runtime_state
+                    if attempt_id is not None and current_admissibility.envelope is not None
+                    else "DISPLAY_UNAVAILABLE"
+                ),
+            }
+    except Exception:
+        # A compact status must mark an unavailable owner source, never invent
+        # a terminal or invocation fact from partial data.
+        pass
+
+    resources: object = _compact_unavailable("OBSERVED_CONTEXT_UNAVAILABLE")
+    try:
+        observed_context = build_observed_resume_context(root, include=include)
+        observation = OperationDepthObservationV1.from_produced_context(observed_context)
+        resources = observation.to_dict()
+    except Exception:
+        pass
+
+    return {
+        "where_we_are": where_we_are if where_we_are_ok else _compact_unavailable("RESUME_SOURCE_UNAVAILABLE"),
+        "what_is_done": what_is_done,
+        "what_is_current": what_is_current,
+        "what_next": (
+            bootstrap["next_permitted_action"]
+            if isinstance(bootstrap, Mapping) and isinstance(bootstrap.get("next_permitted_action"), str)
+            else "DISPLAY_UNAVAILABLE"
+        ),
+        "resources": resources,
+        "state": state,
+    }
+
+
 class ContextError(ValueError):
     """A malformed or unsafe bounded context request."""
 
@@ -1297,6 +1407,7 @@ __all__ = [
     "ContextError",
     "OperationDepthObservationV1",
     "ProducedResumeContextV1",
+    "build_compact_status",
     "build_observed_resume_context",
     "build_resume_context",
     "classify_storage",

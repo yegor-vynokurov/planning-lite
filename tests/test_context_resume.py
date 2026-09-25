@@ -12,6 +12,7 @@ from planning_lite.context import (
     ContextError,
     OperationDepthObservationV1,
     ProducedResumeContextV1,
+    build_compact_status,
     build_observed_resume_context,
     build_resume_context,
     classify_storage,
@@ -562,3 +563,26 @@ def test_partial_expansion_preserves_unavailable_precedence(tmp_path: Path) -> N
     assert observation.to_dict()["expansions"][0]["completeness"] == "PARTIAL"
     unavailable = observation.record_unavailable("NO_APPROVED_SEAM")
     assert unavailable.to_dict()["overall_completeness"] == "UNAVAILABLE"
+
+
+def test_compact_status_has_exact_six_fields(tmp_path: Path) -> None:
+    status = build_compact_status(_project(tmp_path))
+    assert set(status) == {"where_we_are", "what_is_done", "what_is_current", "what_next", "resources", "state"}
+    assert "receipt" not in status
+
+
+def test_status_uses_next_permitted_action_as_quote(tmp_path: Path) -> None:
+    root = _project(tmp_path)
+    status = build_compact_status(root)
+    assert status["what_next"] == build_resume_context(root)["bootstrap"]["next_permitted_action"]
+
+
+def test_status_token_and_depth_contract(tmp_path: Path) -> None:
+    status = build_compact_status(_project(tmp_path))
+    assert status["resources"] != "AVERAGE_OBSERVED_CONTEXT_DEPTH"
+
+
+def test_unavailable_status_source_is_explicit(tmp_path: Path) -> None:
+    status = build_compact_status(_project(tmp_path))
+    assert status["what_is_done"]["status"] == "DISPLAY_UNAVAILABLE"
+    assert status["what_is_current"]["status"] == "DISPLAY_UNAVAILABLE"

@@ -47,6 +47,22 @@ forbidden by default.
 
 Model self-report is never binding evidence.
 
+## Governed operation entry
+
+The Codex adapter's governed execution entry is the explicit synchronous
+`planning-lite execute` route. It receives one already-selected
+`OperationGuidanceV1`, one authoritative Attempt identity, a bounded payload,
+typed completion facts, and a schema-v2 RunReceipt. The route passes those
+facts to the Planning Lite lifecycle; it does not infer work from chat text,
+select a different operation, retry, queue, schedule, or claim completion from
+natural-language intent.
+
+The lifecycle keeps the same Attempt identity through the canonical envelope,
+typed result, telemetry-owned receipt collection and exact readback, Runtime
+terminalization, and PL08 evaluation. `resume` and `status` remain read-only;
+the adapter does not own Attempt state, receipt storage, evaluation, or the
+next gate.
+
 ## Result Contract
 
 Any delegated or bounded dispatch records a closed Result Contract with these

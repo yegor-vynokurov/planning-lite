@@ -28,8 +28,9 @@ from .attempt_runtime import (
     prepare_attempt,
     resolve_interrupted_attempt,
 )
-from .context import ContextError, build_resume_context
+from .context import ContextError, build_compact_status, build_resume_context
 from .execution_guidance import select_operation_guidance
+from .operation_lifecycle import execute_governed_operation
 from .local_update import (
     LocalUpdateError,
     apply_local_update_plan,
@@ -726,6 +727,89 @@ def command_resume(args: argparse.Namespace) -> int:
     return 0 if guidance["outcome"] == "MATCHED" else 3
 
 
+def _read_json_input(path: str) -> dict[str, object]:
+    try:
+        value = json.loads(Path(path).expanduser().read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise PlanningLiteError(f"Cannot read execution input {path}: {exc}") from exc
+    if not isinstance(value, dict):
+        raise PlanningLiteError("execution input must be a JSON object")
+    return value
+
+
+def _render_json_or_yaml(value: object, *, as_json: bool) -> None:
+    if as_json:
+        print(json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":")))
+    else:
+        print(yaml.safe_dump(value, sort_keys=False, allow_unicode=True), end="")
+
+
+def _execute_guidance(target: Path, data: dict[str, object]) -> dict[str, object]:
+    supplied = data.get("guidance")
+    if isinstance(supplied, dict):
+        return supplied
+    try:
+        selected = select_operation_guidance(build_resume_context(target))
+    except ContextError as exc:
+        raise PlanningLiteError(str(exc)) from exc
+    return selected
+
+
+def command_execute(args: argparse.Namespace) -> int:
+    data = _read_json_input(args.input)
+    attempt_id = args.attempt_id or data.get("attempt_id")
+    if not isinstance(attempt_id, str) or not attempt_id.strip():
+        raise PlanningLiteError("execute requires an exact attempt_id")
+    result = execute_governed_operation(
+        Path(args.target).resolve(),
+        attempt_id,
+        guidance=_execute_guidance(Path(args.target).resolve(), data),
+        bounded_payload=data.get("bounded_payload", data.get("payload", {})),
+        completion=data.get("completion"),
+        receipt=data.get("receipt") if isinstance(data.get("receipt"), dict) else None,
+        receipt_path=args.receipt_path,
+        registered_project_id=args.project_id,
+        home=args.home,
+        telemetry_enabled=True if args.telemetry_enabled else None,
+        payload_schema_ref=args.payload_schema_ref,
+        authority_refs=args.authority_ref or None,
+        guidance_ref=args.guidance_ref,
+    )
+    _render_json_or_yaml(result.to_mapping(), as_json=args.json)
+    return 0 if result.completed else 2
+
+
+def command_finish(args: argparse.Namespace) -> int:
+    data = _read_json_input(args.input) if args.input else {}
+    if data.get("action") != "FINISH_CURRENT_CYCLE":
+        raise PlanningLiteError("finish requires typed action FINISH_CURRENT_CYCLE")
+    attempt_id = args.attempt_id or data.get("attempt_id")
+    if not isinstance(attempt_id, str) or not attempt_id.strip():
+        raise PlanningLiteError("finish requires an exact attempt_id")
+    result = execute_governed_operation(
+        Path(args.target).resolve(),
+        attempt_id,
+        guidance=_execute_guidance(Path(args.target).resolve(), data),
+        bounded_payload=data.get("bounded_payload", {}),
+        completion=data.get("completion"),
+        receipt=data.get("receipt") if isinstance(data.get("receipt"), dict) else None,
+        receipt_path=args.receipt_path,
+        registered_project_id=args.project_id,
+        home=args.home,
+    )
+    _render_json_or_yaml(result.to_mapping(), as_json=args.json)
+    return 0 if result.completed else 2
+
+
+def command_status(args: argparse.Namespace) -> int:
+    try:
+        result = build_compact_status(Path(args.target).resolve(), attempt_id=args.attempt_id)
+    except ContextError as exc:
+        raise PlanningLiteError(str(exc)) from exc
+    _render_json_or_yaml(result, as_json=args.json)
+    return 0
+
+
 def command_control_init(args: argparse.Namespace) -> int:
     try:
         proposal = plan_control_init(
@@ -1255,6 +1339,42 @@ def build_parser() -> argparse.ArgumentParser:
         help="Project one deterministic, read-only Operation Guidance result from this resume snapshot.",
     )
     resume.set_defaults(func=command_resume)
+
+    execute = subparsers.add_parser(
+        "execute", help="Execute one explicit governed operation through the bounded lifecycle."
+    )
+    execute.add_argument("target", nargs="?", default=".")
+    execute.add_argument("attempt_id", nargs="?")
+    execute.add_argument("--input", required=True, help="Typed completion, payload, and receipt JSON.")
+    execute.add_argument("--receipt-path")
+    execute.add_argument("--project-id")
+    execute.add_argument("--home")
+    execute.add_argument("--guidance-ref")
+    execute.add_argument("--authority-ref", action="append")
+    execute.add_argument("--payload-schema-ref", default="payload.v1")
+    execute.add_argument("--telemetry-enabled", action="store_true")
+    execute.add_argument("--json", action="store_true")
+    execute.set_defaults(func=command_execute)
+
+    finish = subparsers.add_parser(
+        "finish", help="Submit the typed FINISH_CURRENT_CYCLE intent through the governed lifecycle."
+    )
+    finish.add_argument("target", nargs="?", default=".")
+    finish.add_argument("attempt_id", nargs="?")
+    finish.add_argument("--input", required=True, help="Typed FINISH_CURRENT_CYCLE JSON.")
+    finish.add_argument("--receipt-path")
+    finish.add_argument("--project-id")
+    finish.add_argument("--home")
+    finish.add_argument("--json", action="store_true")
+    finish.set_defaults(func=command_finish)
+
+    status = subparsers.add_parser(
+        "status", help="Show the six-field read-only compact project status projection."
+    )
+    status.add_argument("target", nargs="?", default=".")
+    status.add_argument("--attempt-id")
+    status.add_argument("--json", action="store_true")
+    status.set_defaults(func=command_status)
 
     doctor = subparsers.add_parser("doctor", help="Validate a Planning Lite installation.")
     doctor.add_argument("target", nargs="?", default=".")
