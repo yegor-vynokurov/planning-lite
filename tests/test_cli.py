@@ -12,6 +12,7 @@ from planning_lite.cli import BRIDGE_START, _ensure_agents_bridge, build_parser,
 from planning_lite.governed_executor import GovernedExecutionResultV1
 from planning_lite.operation_lifecycle import GovernedLifecycleResultV1
 from planning_lite.attempt_runtime import attempt_store_path, claim_attempt, lookup_attempt
+from planning_lite.plan_compilation import CRITERIA
 from planning_lite.authorization import (
     authorization_store_path,
     issue_preparation_authorization,
@@ -431,3 +432,188 @@ def test_status_route_is_read_only(tmp_path: Path) -> None:
     finally:
         monkeypatch.undo()
     assert (tmp_path / "marker").read_bytes() == original
+
+
+def _plan_compile_fixture(tmp_path: Path, *, controlled: bool = False) -> tuple[Path, Path, Path, Path]:
+    target = tmp_path / "target"
+    target.mkdir(parents=True)
+    plan = target / "plan.md"
+    tasks = target / "tasks.md"
+    proposal = tmp_path / "proposal.json"
+    plan.write_text("# Explicit plan\n", encoding="utf-8")
+    tasks.write_text(
+        "| ID | Outcome | Slice type | Blocking edge | Verification seam / command | Blast radius | Status |\n"
+        "|---|---|---|---|---|---|---|\n"
+        "| `T-01` | inspect | unit | `None` | verify | low | `Pending` |\n",
+        encoding="utf-8",
+    )
+    proposal_value: dict[str, object] = {
+        "schema_version": 1,
+        "source_binding": {
+            "plan_ref": str(plan.resolve()),
+            "plan_sha256": hashlib.sha256(plan.read_bytes()).hexdigest(),
+            "tasks_ref": str(tasks.resolve()),
+            "tasks_sha256": hashlib.sha256(tasks.read_bytes()).hexdigest(),
+        },
+        "units": [
+            {
+                "original_unit_id": "T-01",
+                "work_capabilities": ["REPOSITORY_UNDERSTANDING"],
+                "cross_cutting_tags": [],
+                "target_executor_profile": "BOUNDED_WORKER",
+                "already_decided": [],
+                "allowed_executor_decisions": ["inspect"],
+                "forbidden_executor_decisions": ["mutate"],
+                "disposition": "KEEP_UNIT",
+                "derived_units": [],
+                "new_internal_edges": [],
+                "internal_handoffs": [],
+                "criterion_assertions": [
+                    {
+                        "criterion": criterion,
+                        "verdict": "PASS",
+                        "reason": "bounded",
+                        "evidence_refs": ["E-1"],
+                    }
+                    for criterion in CRITERIA
+                ],
+                "material_findings": [],
+            }
+        ],
+        "existing_dependency_handoffs": [],
+        "controlled_discoveries": (
+            [
+                {
+                    "unit_ref": "T-01",
+                    "question": "Which input is missing?",
+                    "scope_bound": "Named source only",
+                    "stop_condition": "One verified answer",
+                    "output_contract": "Evidence reference",
+                    "verification_before_dependent_work": "Verify against source",
+                }
+            ]
+            if controlled
+            else []
+        ),
+        "semantic_assessment_source": "planner",
+        "semantic_evidence_refs": ["E-1"],
+    }
+    proposal.write_text(json.dumps(proposal_value, ensure_ascii=False), encoding="utf-8")
+    return target, plan, tasks, proposal
+
+
+def test_plan_compile_command_parser() -> None:
+    args = build_parser().parse_args(
+        ["plan-compile", "target", "--plan", "plan.md", "--tasks", "tasks.md", "--proposal", "proposal.json"]
+    )
+    assert args.command == "plan-compile"
+    assert args.plan == "plan.md"
+    assert args.tasks == "tasks.md"
+    assert args.proposal == "proposal.json"
+
+
+def test_plan_compile_ready_and_controlled_discovery_exit_codes(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    target, plan, tasks, proposal = _plan_compile_fixture(tmp_path)
+    before = sorted(path.relative_to(target).as_posix() for path in target.rglob("*"))
+    assert main(["plan-compile", str(target), "--plan", str(plan), "--tasks", str(tasks), "--proposal", str(proposal)]) == 0
+    ready = json.loads(capsys.readouterr().out)
+    assert ready["readiness"] == "EXECUTOR_READY"
+    assert not (target / "compilation.json").exists()
+    assert sorted(path.relative_to(target).as_posix() for path in target.rglob("*")) == before
+
+    controlled_target, controlled_plan, controlled_tasks, controlled_proposal = _plan_compile_fixture(tmp_path / "controlled", controlled=True)
+    assert main(
+        [
+            "plan-compile",
+            str(controlled_target),
+            "--plan",
+            str(controlled_plan),
+            "--tasks",
+            str(controlled_tasks),
+            "--proposal",
+            str(controlled_proposal),
+        ]
+    ) == 3
+    controlled = json.loads(capsys.readouterr().out)
+    assert controlled["readiness"] == "EXECUTOR_READY_WITH_CONTROLLED_DISCOVERY"
+
+
+def test_plan_compile_invalid_json_duplicate_key_and_source_hash_exit_two(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    target, plan, tasks, proposal = _plan_compile_fixture(tmp_path)
+    proposal.write_text('{"schema_version":1,"schema_version":1}', encoding="utf-8")
+    assert main(["plan-compile", str(target), "--plan", str(plan), "--tasks", str(tasks), "--proposal", str(proposal)]) == 2
+    assert capsys.readouterr().out == ""
+
+
+def test_p16_schema_error_has_bounded_cli_protocol(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    target, plan, tasks, proposal = _plan_compile_fixture(tmp_path)
+    proposal.write_text('{"schema_version":1,"schema_version":1}', encoding="utf-8")
+    assert main(["plan-compile", str(target), "--plan", str(plan), "--tasks", str(tasks), "--proposal", str(proposal)]) == 2
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert "Cannot read plan compilation proposal" in captured.err
+    assert "Traceback" not in captured.err
+
+    target, plan, tasks, proposal = _plan_compile_fixture(tmp_path / "hash", controlled=False)
+    value = json.loads(proposal.read_text(encoding="utf-8"))
+    value["source_binding"]["tasks_sha256"] = "0" * 64
+    proposal.write_text(json.dumps(value), encoding="utf-8")
+    assert main(["plan-compile", str(target), "--plan", str(plan), "--tasks", str(tasks), "--proposal", str(proposal)]) == 2
+    assert capsys.readouterr().out == ""
+
+
+def _assert_plan_compile_schema_error(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    field: str,
+    value: object,
+) -> None:
+    target, plan, tasks, proposal = _plan_compile_fixture(tmp_path)
+    proposal_value = json.loads(proposal.read_text(encoding="utf-8"))
+    proposal_value["units"][0][field] = value
+    proposal.write_text(json.dumps(proposal_value), encoding="utf-8")
+    assert main(["plan-compile", str(target), "--plan", str(plan), "--tasks", str(tasks), "--proposal", str(proposal)]) == 2
+    assert capsys.readouterr().out == ""
+
+
+def test_c12_unknown_capability_uses_cli_exit_two(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    _assert_plan_compile_schema_error(tmp_path, capsys, "work_capabilities", ["UNKNOWN_CAPABILITY"])
+
+
+def test_c13_unknown_tag_uses_cli_exit_two(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    _assert_plan_compile_schema_error(tmp_path, capsys, "cross_cutting_tags", ["UNKNOWN_TAG"])
+
+
+def test_c14_unknown_executor_profile_uses_cli_exit_two(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    _assert_plan_compile_schema_error(tmp_path, capsys, "target_executor_profile", "UNKNOWN_PROFILE")
+
+
+def test_c15_unknown_disposition_uses_cli_exit_two(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    _assert_plan_compile_schema_error(tmp_path, capsys, "disposition", "UNKNOWN_DISPOSITION")
+
+
+def test_plan_compile_external_proposal_and_target_containment(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    target, plan, tasks, proposal = _plan_compile_fixture(tmp_path)
+    outside = tmp_path / "outside.md"
+    outside.write_text("# outside", encoding="utf-8")
+    assert main(["plan-compile", str(target), "--plan", str(outside), "--tasks", str(tasks), "--proposal", str(proposal)]) == 2
+    capsys.readouterr()
+    assert main(["plan-compile", str(target), "--plan", str(plan), "--tasks", str(outside), "--proposal", str(proposal)]) == 2
+    capsys.readouterr()
+
+
+def test_plan_compile_canonical_output_is_deterministic(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    target, plan, tasks, proposal = _plan_compile_fixture(tmp_path)
+    argv = ["plan-compile", str(target), "--plan", str(plan), "--tasks", str(tasks), "--proposal", str(proposal)]
+    assert main(argv) == 0
+    first = capsys.readouterr().out
+    assert main(argv) == 0
+    second = capsys.readouterr().out
+    assert first == second
+    assert first.endswith("\n")

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -37,6 +38,12 @@ from .governed_executor import (
 )
 from .operation_lifecycle import execute_governed_operation
 from .project_spine import ProjectSpineHandoffError, capture_project_spine_snapshot
+from .plan_compilation import (
+    PlanCompilationInputError,
+    PlanCompilationInvariantError,
+    compile_plan,
+    serialize_result,
+)
 from .local_update import (
     LocalUpdateError,
     apply_local_update_plan,
@@ -741,6 +748,89 @@ def _read_json_input(path: str) -> dict[str, object]:
     if not isinstance(value, dict):
         raise PlanningLiteError("execution input must be a JSON object")
     return value
+
+
+class _DuplicateJSONKey(ValueError):
+    pass
+
+
+def _duplicate_safe_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
+    result: dict[str, object] = {}
+    for key, value in pairs:
+        if key in result:
+            raise _DuplicateJSONKey(f"duplicate JSON key: {key}")
+        result[key] = value
+    return result
+
+
+def _read_plan_compile_proposal(path: Path) -> tuple[dict[str, object], bytes]:
+    try:
+        raw = path.read_bytes()
+        text = raw.decode("utf-8")
+        value = json.loads(
+            text,
+            object_pairs_hook=_duplicate_safe_object,
+            parse_constant=lambda value: (_ for _ in ()).throw(ValueError(f"invalid JSON constant: {value}")),
+        )
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+        raise PlanningLiteError(f"Cannot read plan compilation proposal {path}: {exc}") from exc
+    if not isinstance(value, dict):
+        raise PlanningLiteError("plan compilation proposal must be a JSON object")
+    return value, raw
+
+
+def _resolve_plan_compile_target_file(target: Path, raw_path: str, label: str) -> Path:
+    candidate = Path(raw_path).expanduser().resolve()
+    try:
+        candidate.relative_to(target)
+    except ValueError as exc:
+        raise PlanningLiteError(f"--{label} must resolve under TARGET") from exc
+    if not candidate.is_file():
+        raise PlanningLiteError(f"--{label} is not a readable file: {candidate}")
+    return candidate
+
+
+def _resolve_plan_compile_proposal_file(raw_path: str) -> Path:
+    candidate = Path(raw_path).expanduser().resolve()
+    if not candidate.is_file():
+        raise PlanningLiteError(f"--proposal is not a readable file: {candidate}")
+    return candidate
+
+
+def command_plan_compile(args: argparse.Namespace) -> int:
+    target = Path(args.target).expanduser().resolve()
+    if not target.is_dir():
+        raise PlanningLiteError(f"TARGET is not a directory: {target}")
+    plan_path = _resolve_plan_compile_target_file(target, args.plan, "plan")
+    tasks_path = _resolve_plan_compile_target_file(target, args.tasks, "tasks")
+    proposal_path = _resolve_plan_compile_proposal_file(args.proposal)
+    try:
+        plan_bytes = plan_path.read_bytes()
+        tasks_bytes = tasks_path.read_bytes()
+        plan_bytes.decode("utf-8")
+        tasks_text = tasks_bytes.decode("utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        raise PlanningLiteError(f"Cannot read plan compilation source: {exc}") from exc
+    proposal, proposal_bytes = _read_plan_compile_proposal(proposal_path)
+    actual_binding = {
+        "plan_ref": str(plan_path),
+        "plan_sha256": hashlib.sha256(plan_bytes).hexdigest(),
+        "tasks_ref": str(tasks_path),
+        "tasks_sha256": hashlib.sha256(tasks_bytes).hexdigest(),
+    }
+    try:
+        result = compile_plan(
+            tasks_text,
+            proposal,
+            source_binding=actual_binding,
+            proposal_sha256=hashlib.sha256(proposal_bytes).hexdigest(),
+        )
+    except PlanCompilationInputError as exc:
+        raise PlanningLiteError(f"{exc.code}: {exc}") from exc
+    if any(finding.get("finding_code") == "SOURCE_IDENTITY_MISMATCH" for finding in result["findings"]):
+        raise PlanningLiteError("SOURCE_IDENTITY_MISMATCH: proposal source binding does not match exact source inputs")
+    print(serialize_result(result), end="")
+    return 0 if result["readiness"] == "EXECUTOR_READY" else 3
 
 
 def _cli_json_projection(value: object) -> object:
@@ -1453,6 +1543,16 @@ def build_parser() -> argparse.ArgumentParser:
     status.add_argument("--json", action="store_true")
     status.set_defaults(func=command_status)
 
+    plan_compile = subparsers.add_parser(
+        "plan-compile", help="Compile an explicit read-only 09-E plan proposal."
+    )
+    plan_compile.add_argument("target", nargs="?", default=".")
+    plan_compile.add_argument("--plan", required=True, help="Exact Plan path under TARGET.")
+    plan_compile.add_argument("--tasks", required=True, help="Exact tasks path under TARGET.")
+    plan_compile.add_argument("--proposal", required=True, help="Exact explicit proposal JSON path.")
+    plan_compile.add_argument("--json", action="store_true", help=argparse.SUPPRESS)
+    plan_compile.set_defaults(func=command_plan_compile)
+
     doctor = subparsers.add_parser("doctor", help="Validate a Planning Lite installation.")
     doctor.add_argument("target", nargs="?", default=".")
     doctor.set_defaults(func=command_doctor)
@@ -1485,6 +1585,9 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         return int(args.func(args))
+    except PlanCompilationInvariantError as exc:
+        print(f"planning-lite: internal compiler contract failure: {exc}", file=sys.stderr)
+        return 1
     except PlanningLiteError as exc:
         print(f"planning-lite: {exc}", file=sys.stderr)
         return 2
