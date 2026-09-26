@@ -2393,6 +2393,218 @@ If the compiler experiment does not demonstrate material benefit, release may
 retain the validated bounded-context path. Broader compiler promotion remains a
 future recommendation with its own evidence gate.
 
+## 11.6 Gate A accepted PL09 reconciliation
+
+Gate A is accepted as a retrospective integrated baseline. It records the
+whole-organism capability spine without creating a new future phase or
+authorizing product implementation.
+
+### 09-CORE — Integrated Governed Operation Spine
+
+```text
+STATUS:
+CLOSED / WHOLE-ORGANISM PROVEN
+
+PROVEN CAPABILITIES:
+authoritative CURRENT / consumer ACTIVE
+PL06 ResumeContext / Handoff / ContextTrace
+explicit context expansion / depth observation
+PL07 deterministic Operation Guidance and safe authorization
+Attempt lifecycle and corrective lineage
+Governed Operation Lifecycle
+RunReceipt persistence and exact readback
+ObservedResult
+PL08 TechnicalEvaluation / Finding / corrective lineage
+Compact Semantic Operation Trace
+Project Spine post-evaluation checkpoint/readback
+fresh-session continuation
+```
+
+Evidence:
+
+```text
+docs/design/project-spine/checkpoints/PL-V39-09-WHOLE-ORGANISM-GATE-A-REVIEW-v1.md
+```
+
+09-CORE is a retrospective integrated baseline, not a new future phase.
+
+### Canonical remaining PL09 internal structure
+
+The remaining PL09 structure is reconciled as follows:
+
+```text
+09-B
+Ideal / Architecture Knowledge
++ Observed Reality
++ Ideal↔Reality Reconciliation
+
+09-E
+Capability-Aware Plan Compilation
++ Executor Readiness
++ Progressive Estimation / Uncertainty
+
+09-F
+Context Compiler / AgentWorkPacket
+OPTIONAL COMPARATOR
+
+09-G
+Safe Multi-Operation Orchestration
++ Execution Economics / Calibration
+
+09-H
+Release / Promotion Decision
+```
+
+Historical 09-A, 09-C, and 09-D proposals remain preserved and are not
+deleted or rewritten:
+
+```text
+09-A Goal / Work-Shape / ROM:
+ABSORBED INTO PL05 + bounded entry/work-shape classification
+NOT A SEPARATE PL09 PHASE
+
+09-C Observed Reality / Reconciliation:
+MERGED INTO 09-B
+
+09-D Progressive Estimation / Uncertainty:
+MERGED INTO 09-E
+```
+
+### 09-B status
+
+```text
+09-B STATUS:
+OPEN / PARTIALLY DESIGNED
+
+FROZEN:
+Ideal Scaffold Knowledge architectural skeleton
+Architecture Knowledge topology
+Engineering Basis / Rationale Lineage semantic contract
+
+OPEN:
+final pack content
+question inventories where applicable
+Observed Reality / reconciliation field proof
+required Architecture Knowledge / Engineering Basis field validation
+```
+
+The existing accepted/frozen evidence remains bound to 09-B. No 09-B
+materialization or field-validation authorization is granted by this
+reconciliation.
+
+### 09-E status
+
+```text
+09-E STATUS:
+OPEN
+
+OWNS:
+capability-aware work decomposition
+dependency completeness
+executor-readiness contracts
+executor decision budget
+typed handoffs between capability units
+plan verification coverage
+failure / STOP behavior
+progressive estimation
+uncertainty / spike decisions
+plan-vs-actual refinement where applicable
+```
+
+Candidate detailed design may consume existing proposed material, but that
+proposal is not authority.
+
+### 09-F status
+
+```text
+09-F STATUS:
+OPTIONAL EXPERIMENT / NOT RELEASE PREREQUISITE
+
+CURRENT NON-COMPILER PATH:
+WHOLE-ORGANISM PROVEN
+
+CONTEXT_COMPILER_PROMOTION:
+REQUIRES NON-INFERIOR CORRECTNESS
++ MATERIAL OPERATIONAL BENEFIT
++ SEPARATE OWNER ACCEPTANCE
+```
+
+A losing compiler experiment remains a valid outcome.
+
+### 09-G status
+
+```text
+09-G STATUS:
+OPEN
+
+SINGLE GOVERNED OPERATION SUBSTRATE:
+WHOLE-ORGANISM PROVEN
+
+REMAINING PROBLEM:
+safe sequencing/delegation of multiple dependent governed operations
+while preserving owner gates and exact authority
+
+MEASURE:
+accepted capability rate
+retry / escalation
+owner attention
+agent wall-clock
+token / compute where reliable
+review cost
+rework cost
+cost per accepted capability output/bundle
+```
+
+No orchestration implementation is authorized.
+
+### 09-H status
+
+```text
+09-H:
+FUTURE / RELEASE-PROMOTION DECISION
+```
+
+Release requires evidence from the accepted remaining PL09 path.
+
+### Cross-cutting PL09 regression invariant
+
+```text
+WHOLE_ORGANISM_REGRESSION_REQUIRED:
+
+Any future material Change affecting context, memory, handoff, guidance,
+Attempt, execution, receipt, evaluation, semantic trace, Project Spine,
+or orchestration must run the smallest applicable whole-organism regression
+fixture before closure.
+```
+
+This is not a new lifecycle stage.
+
+Change 3 remains separate:
+
+```text
+CHANGE_3:
+NOT_ABSORBED
+
+DISPOSITION:
+VALID CANDIDATE / NOT AUTOMATIC NEXT CHANGE
+```
+
+The next implementation Change is intentionally not selected here. Candidates
+are recorded only:
+
+```text
+NEXT_CHANGE_CANDIDATES:
+09-B field/content/validation continuation
+09-E capability-aware plan compilation
+Change 3 measurement/telemetry correction
+```
+
+The next owner gate is:
+
+```text
+OWNER_ADJUDICATION_NEXT_IMPLEMENTATION_CHANGE_AFTER_ROADMAP_RECONCILIATION
+```
+
 ---
 
 # 12. Continuous practices, not stages
