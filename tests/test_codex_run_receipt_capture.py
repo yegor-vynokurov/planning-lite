@@ -26,6 +26,8 @@ from typing import Any, Callable, Iterable
 
 import pytest
 
+from planning_lite.codex_work_window import finalize_work_window, open_work_window
+
 
 PROJECT_ID = "planning-lite-central"
 CHANGE_ID = "CHG-PL-V39-09-EXECUTION-EFFICIENCY-BOOTSTRAP-001"
@@ -1069,3 +1071,49 @@ def test_br_a_02_new_head_operation_appends_preserving_historical_receipts(tmp_p
         "bootstrap-slice-a-h2-append",
         "bootstrap-slice-a-h2-append",
     ]
+
+
+def test_capture_a02_skips_validated_typed_siblings_and_returns_receipts_only(tmp_path: Path) -> None:
+    fixture = _make_fixture(tmp_path)
+    (fixture.root / ".copier-answers.planning-lite.yml").write_text(
+        "_commit: v1.0.0\n", encoding="utf-8"
+    )
+    source = tmp_path / "dedicated-window.jsonl"
+    source.write_bytes(b"")
+    open_work_window(
+        window_id="capture-window",
+        project_id=PROJECT_ID,
+        project_root=fixture.root,
+        configuration_ref="comparison:v1",
+        source_ref=source,
+        model=None,
+        receipt_path=fixture.receipt_path,
+    )
+    source.write_text(
+        json.dumps(
+            {
+                "timestamp": _iso(10),
+                "type": "token_usage_record",
+                "payload": {
+                    "thread_id": "window-thread",
+                    "response_id": "window-response",
+                    "usage": {"input_tokens": 4, "output_tokens": 1, "total_tokens": 5},
+                },
+            },
+            separators=(",", ":"),
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    finalize_work_window(
+        "capture-window", receipt_path=fixture.receipt_path, registered_project_id=PROJECT_ID
+    )
+    result = _capture_command(fixture)
+    assert result.returncode == 0, result.stderr
+    summary = json.loads(result.stdout)
+    assert summary["verified_receipt_count"] == 2
+    rows = [json.loads(line) for line in fixture.receipt_path.read_text(encoding="utf-8").splitlines()]
+    assert [row.get("record_type") for row in rows] == [
+        "work_window_registration", "resource_observation", None, None
+    ]
+    assert len(summary["records"]) == 2

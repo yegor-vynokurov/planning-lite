@@ -18,6 +18,7 @@ from planning_lite.authorization import (
     issue_preparation_authorization,
     issue_recovery_authorization,
 )
+from planning_lite.workspace import inspect_project, register_project
 
 
 _ATTEMPT_CHANGE = "CHG-PL-V39-09-AUTHORITATIVE-ATTEMPT-RUNTIME-ACCESS-001"
@@ -34,6 +35,22 @@ def _attempt_payload(reference: str, *, task_id: str = _ATTEMPT_TASK) -> dict[st
         "candidate_identity": {"kind": "GIT_COMMIT", "head": _ATTEMPT_HEAD, "dirty_manifest": []},
         "baseline_refs": [{"ref": "HEAD", "identity": _ATTEMPT_HEAD}],
     }
+
+
+def _work_window_project(tmp_path: Path, *, telemetry: bool) -> tuple[Path, Path, Path]:
+    root = tmp_path / "consumer"
+    planning = root / ".planning"
+    (planning / "framework").mkdir(parents=True)
+    (planning / "recommendations").mkdir()
+    (planning / "framework" / "defaults.yml").write_text("schema_version: 1\n", encoding="utf-8")
+    (planning / "CONFIG.yml").write_text("{}\n", encoding="utf-8")
+    (planning / "ACTIVE.md").write_text("# active\n", encoding="utf-8")
+    (planning / "recommendations" / "INDEX.md").write_text("# index\n", encoding="utf-8")
+    (root / ".copier-answers.planning-lite.yml").write_text("_commit: v1.0.0\n", encoding="utf-8")
+    home = tmp_path / "codex-home"
+    register_project(root, project_id="consumer-test", mode="local-only", status="active", telemetry=telemetry, home=home)
+    info = inspect_project(root, home=home)
+    return root, home, Path(info["telemetry"]["receipt_path"]) if info["telemetry"]["receipt_path"] else home / "missing-receipts.jsonl"
 
 
 def test_bridge_is_appended_once(tmp_path: Path) -> None:
@@ -617,3 +634,74 @@ def test_plan_compile_canonical_output_is_deterministic(tmp_path: Path, capsys: 
     second = capsys.readouterr().out
     assert first == second
     assert first.endswith("\n")
+
+
+def test_a20_work_window_commands_check_registration_before_source_access(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    unregistered = tmp_path / "unregistered"
+    unregistered.mkdir()
+    source = tmp_path / "must-not-be-inspected.jsonl"
+
+    def forbidden(*_args: object, **_kwargs: object) -> object:
+        pytest.fail("the Work Window adapter was called before project/policy validation")
+
+    monkeypatch.setattr(cli, "open_work_window", forbidden)
+    monkeypatch.setattr(cli, "validate_configuration_ref", forbidden)
+    result = main([
+        "work-window", "open", str(unregistered), "--window-id", "nope",
+        "--configuration-ref", "prompt:v1", "--source-ref", str(source), "--home", str(tmp_path / "home"),
+    ])
+    assert result == 2
+    assert "not registered" in capsys.readouterr().err.lower()
+    assert not source.exists()
+
+    disabled, home, receipt_path = _work_window_project(tmp_path / "disabled", telemetry=False)
+    open_result = main([
+        "work-window", "open", str(disabled), "--window-id", "disabled",
+        "--configuration-ref", "prompt:v1", "--source-ref", str(source), "--home", str(home),
+    ])
+    assert open_result == 2
+    assert "disabled" in capsys.readouterr().err.lower()
+    finalize_result = main([
+        "work-window", "finalize", str(disabled), "--window-id", "disabled", "--home", str(home),
+    ])
+    assert finalize_result == 2
+    assert "disabled" in capsys.readouterr().err.lower()
+    assert not source.exists()
+    assert not receipt_path.exists()
+
+
+def test_work_window_cli_opens_and_finalizes_explicit_registration(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    root, home, receipt_path = _work_window_project(tmp_path, telemetry=True)
+    source = tmp_path / "explicit-source.jsonl"
+    source.write_bytes(b"")
+    parser = build_parser()
+    parsed = parser.parse_args([
+        "work-window", "open", str(root), "--window-id", "cli-window",
+        "--configuration-ref", "prompt:v1", "--source-ref", str(source), "--home", str(home),
+    ])
+    assert parsed.func.__name__ == "command_work_window_open"
+
+    assert main([
+        "work-window", "open", str(root), "--window-id", "cli-window",
+        "--configuration-ref", "prompt:v1", "--source-ref", str(source), "--home", str(home),
+    ]) == 0
+    opened = json.loads(capsys.readouterr().out)
+    assert opened["window_id"] == "cli-window"
+
+    source.write_text(
+        '{"timestamp":"2026-09-30T01:02:03Z","type":"token_usage_record",'
+        '"payload":{"thread_id":"thread-cli","response_id":"response-cli",'
+        '"usage":{"input_tokens":3,"output_tokens":2,"total_tokens":5}}}\n',
+        encoding="utf-8",
+    )
+    assert main([
+        "work-window", "finalize", str(root), "--window-id", "cli-window", "--home", str(home),
+    ]) == 0
+    finalized = json.loads(capsys.readouterr().out)
+    assert finalized["scope"]["id"] == "cli-window"
+    assert finalized["quantities"]["total_tokens"]["value"] == 5
+    assert receipt_path.exists()

@@ -30,6 +30,7 @@ from .attempt_runtime import (
     prepare_attempt,
     resolve_interrupted_attempt,
 )
+from .codex_work_window import finalize_work_window, open_work_window
 from .context import ContextError, build_compact_status, build_resume_context
 from .execution_guidance import select_operation_guidance
 from .governed_executor import (
@@ -67,7 +68,7 @@ from .workspace import (
     local_route,
     resolve_home,
 )
-from .telemetry import ReceiptError, collect_receipt
+from .telemetry import ReceiptError, collect_receipt, validate_configuration_ref
 
 ANSWERS_FILE = ".copier-answers.planning-lite.yml"
 CONFIG_ENV = "PLANNING_LITE_TEMPLATE"
@@ -1036,6 +1037,60 @@ def command_receipt(args: argparse.Namespace) -> int:
     return 0
 
 
+def _work_window_project(target: Path, home: str | None) -> tuple[dict[str, object], str]:
+    """Resolve registration and telemetry policy before any source inspection."""
+
+    info = inspect_project(target, home=home)
+    policy = load_effective_policy(target)["project_policy"]
+    configured = policy.get("telemetry") or {}
+    policy_enabled = bool(configured.get("enabled")) if isinstance(configured, Mapping) else False
+    telemetry = info.get("telemetry")
+    if not isinstance(telemetry, Mapping):
+        raise ReceiptError("Registered project has no telemetry route")
+    receipt_path = telemetry.get("receipt_path")
+    if not policy_enabled or not bool(telemetry.get("enabled")) or not isinstance(receipt_path, str) or not receipt_path:
+        raise ReceiptError("Telemetry is disabled or has no registered receipt path")
+    return info, receipt_path
+
+
+def command_work_window_open(args: argparse.Namespace) -> int:
+    target = Path(args.target).expanduser().resolve()
+    try:
+        info, receipt_path = _work_window_project(target, getattr(args, "home", None))
+        validate_configuration_ref(args.configuration_ref)
+        model = args.model.strip() if args.model is not None else None
+        if model == "":
+            raise ReceiptError("model must be a non-empty string when supplied")
+        record = open_work_window(
+            window_id=args.window_id,
+            project_id=str(info["project_id"]),
+            project_root=str(info["project_root"]),
+            configuration_ref=args.configuration_ref,
+            source_ref=args.source_ref,
+            model=model,
+            receipt_path=receipt_path,
+        )
+    except (WorkspaceError, ReceiptError) as exc:
+        raise PlanningLiteError(str(exc)) from exc
+    print(json.dumps(record, sort_keys=True, ensure_ascii=False, separators=(",", ":")))
+    return 0
+
+
+def command_work_window_finalize(args: argparse.Namespace) -> int:
+    target = Path(args.target).expanduser().resolve()
+    try:
+        info, receipt_path = _work_window_project(target, getattr(args, "home", None))
+        record = finalize_work_window(
+            args.window_id,
+            receipt_path=receipt_path,
+            registered_project_id=str(info["project_id"]),
+        )
+    except (WorkspaceError, ReceiptError) as exc:
+        raise PlanningLiteError(str(exc)) from exc
+    print(json.dumps(record, sort_keys=True, ensure_ascii=False, separators=(",", ":")))
+    return 0
+
+
 def _version_from_tag(tag: str) -> Version:
     raw = tag.strip()
     if raw.startswith("v"):
@@ -1486,6 +1541,29 @@ def build_parser() -> argparse.ArgumentParser:
     receipt.add_argument("--input", required=True)
     receipt.add_argument("--home")
     receipt.set_defaults(func=command_receipt)
+
+    work_window = subparsers.add_parser(
+        "work-window", help="Open or explicitly finalize one Codex Work Window."
+    )
+    work_window_subparsers = work_window.add_subparsers(dest="work_window_action", required=True)
+    work_window_open = work_window_subparsers.add_parser(
+        "open", help="Register one explicit Codex source segment before measured work."
+    )
+    work_window_open.add_argument("target")
+    work_window_open.add_argument("--window-id", required=True)
+    work_window_open.add_argument("--configuration-ref", required=True)
+    work_window_open.add_argument("--source-ref", required=True)
+    work_window_open.add_argument("--model")
+    work_window_open.add_argument("--home")
+    work_window_open.set_defaults(func=command_work_window_open)
+
+    work_window_finalize = work_window_subparsers.add_parser(
+        "finalize", help="Close the exact registered Codex source segment and read back its observation."
+    )
+    work_window_finalize.add_argument("target")
+    work_window_finalize.add_argument("--window-id", required=True)
+    work_window_finalize.add_argument("--home")
+    work_window_finalize.set_defaults(func=command_work_window_finalize)
 
     resume = subparsers.add_parser(
         "resume", help="Render a bounded, read-only resume context for a project."

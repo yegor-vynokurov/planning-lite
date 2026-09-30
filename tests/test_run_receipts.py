@@ -16,8 +16,10 @@ from planning_lite.telemetry import (
     canonical_bytes,
     collect_governed_receipt,
     collect_receipt,
+    scan_telemetry_records,
     validate_receipt,
 )
+from planning_lite.codex_work_window import finalize_work_window, open_work_window
 from planning_lite.workspace import inspect_project, register_project
 
 
@@ -142,6 +144,59 @@ def test_process_safe_duplicate_append_and_conflict(tmp_path: Path) -> None:
     assert "Conflicting" in conflict_result[2]
 
 
+def test_a01_receipt_only_apis_keep_shape_with_typed_siblings(tmp_path: Path) -> None:
+    root, _home, path = _fixture(tmp_path)
+    source = tmp_path / "explicit-rollout.jsonl"
+    source.write_bytes(b"")
+    registration = open_work_window(
+        window_id="window-a01",
+        project_id="demo",
+        project_root=root,
+        configuration_ref="prompt:v1",
+        source_ref=source,
+        model=None,
+        receipt_path=path,
+    )
+    assert registration["record_type"] == "work_window_registration"
+    source.write_text(
+        json.dumps(
+            {
+                "timestamp": "2026-09-30T00:00:00Z",
+                "type": "token_usage_record",
+                "payload": {
+                    "thread_id": "thread-a01",
+                    "response_id": "response-a01",
+                    "usage": {"input_tokens": 3, "output_tokens": 2, "total_tokens": 5},
+                },
+            },
+            separators=(",", ":"),
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    observation = finalize_work_window("window-a01", receipt_path=path, registered_project_id="demo")
+    assert observation["record_type"] == "resource_observation"
+    receipt = _receipt()
+    assert append_receipt(
+        receipt,
+        receipt_path=path,
+        registered_project_id="demo",
+        planning_lite_ref="v9.9.9",
+        enabled=True,
+    ) is True
+    assert append_receipt(
+        receipt,
+        receipt_path=path,
+        registered_project_id="demo",
+        planning_lite_ref="v9.9.9",
+        enabled=True,
+    ) is False
+    scanned = scan_telemetry_records(path, registered_project_id="demo")
+    assert list(scanned["run_receipts"]) == [receipt["receipt_id"]]
+    assert list(scanned["work_window_registrations"]) == ["window-a01"]
+    assert list(scanned["resource_observations"]) == [observation["observation_id"]]
+
+
 def test_token_categories_are_opaque_external_values(tmp_path: Path) -> None:
     _, _, path = _fixture(tmp_path)
     receipt = _receipt()
@@ -178,6 +233,25 @@ def test_collector_owns_planning_ref_and_disabled_writes_nothing(tmp_path: Path)
     assert not disabled_path.exists()
 
 
+def test_legacy_run_receipt_collector_keeps_unknown_ref_behavior(tmp_path: Path) -> None:
+    root, _home, path = _fixture(tmp_path)
+    (root / ".copier-answers.planning-lite.yml").write_text(
+        "_commit: UnKnOwN\n", encoding="utf-8"
+    )
+    input_path = tmp_path / "legacy-unknown.json"
+    input_path.write_text(json.dumps(_receipt()), encoding="utf-8")
+
+    assert collect_receipt(
+        input_path,
+        project_root=root,
+        receipt_path=path,
+        registered_project_id="demo",
+        enabled=True,
+    )
+    stored = json.loads(path.read_text(encoding="utf-8").splitlines()[0])
+    assert stored["planning_lite_ref"] == "UnKnOwN"
+
+
 def test_partial_line_and_invalid_shape_fail_closed(tmp_path: Path) -> None:
     _, _, path = _fixture(tmp_path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -206,6 +280,28 @@ def test_v2_exact_schema_and_version_dispatch(tmp_path: Path) -> None:
         validate_receipt(extra, registered_project_id="demo", planning_lite_ref="v9.9.9")
     with pytest.raises(ReceiptError, match="governed"):
         append_receipt(v2, receipt_path=path, registered_project_id="demo", planning_lite_ref="v9.9.9", enabled=True)
+
+
+def test_r5_01_a08_run_receipt_v1_v2_planning_ref_semantics_are_unchanged(tmp_path: Path) -> None:
+    _root, _home, path = _fixture(tmp_path)
+    v1 = validate_receipt(
+        _receipt(), registered_project_id="demo", planning_lite_ref="v9.9.9"
+    )
+    v2 = validate_receipt(
+        _v2_receipt(), registered_project_id="demo", planning_lite_ref="v9.9.9"
+    )
+
+    assert set(v1) == TOP_LEVEL_KEYS
+    assert set(v2) == TOP_LEVEL_KEYS_V2
+    assert v1["planning_lite_ref"] == v2["planning_lite_ref"] == "v9.9.9"
+    assert "configuration_ref" not in v1 and "configuration_ref" not in v2
+    assert append_receipt(
+        v1,
+        receipt_path=path,
+        registered_project_id="demo",
+        planning_lite_ref="v9.9.9",
+        enabled=True,
+    ) is True
 
 
 @pytest.mark.parametrize(

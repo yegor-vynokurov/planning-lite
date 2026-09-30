@@ -23,6 +23,7 @@ from planning_lite.telemetry import (
     ReceiptError,
     append_receipt,
     canonical_bytes,
+    scan_telemetry_records,
     validate_receipt,
 )
 
@@ -786,36 +787,28 @@ def parse_args(argv: Iterable[str] | None = None) -> Binding:
 
 
 def _read_existing(path: Path, binding: Binding) -> dict[str, ExistingRecord]:
-    if not path.exists():
-        return {}
     try:
-        raw = path.read_bytes()
+        families = scan_telemetry_records(path, registered_project_id=binding.project_id)
     except OSError as exc:
         raise _failure("RECEIPT_STREAM_READ_FAILED", path=path) from exc
-    if raw and not raw.endswith(b"\n"):
-        raise _failure("RECEIPT_STREAM_INVALID", path=path, detail="stream ends with a partial line")
+    except ReceiptError as exc:
+        raise _failure("RECEIPT_STREAM_INVALID", path=path, detail="invalid telemetry record") from exc
     records: dict[str, ExistingRecord] = {}
-    for ordinal, line in enumerate(raw.splitlines(), start=1):
-        if not line.strip():
-            raise _failure("RECEIPT_STREAM_INVALID", path=path, ordinal=ordinal, detail="empty line")
+    for validated in families["run_receipts"].values():
         try:
-            value = json.loads(line)
-        except json.JSONDecodeError as exc:
-            raise _failure("RECEIPT_STREAM_INVALID", path=path, ordinal=ordinal, detail="invalid JSON") from exc
-        try:
-            stored_ref = value.get("planning_lite_ref") if isinstance(value, dict) else None
+            stored_ref = validated.get("planning_lite_ref")
             if not isinstance(stored_ref, str) or not stored_ref.strip():
                 raise ReceiptError("planning_lite_ref must be a non-empty stored string")
             validated = validate_receipt(
-                value,
+                validated,
                 registered_project_id=binding.project_id,
                 planning_lite_ref=stored_ref,
             )
         except ReceiptError as exc:
-            raise _failure("RECEIPT_STREAM_INVALID", path=path, ordinal=ordinal, detail="invalid RunReceipt") from exc
+            raise _failure("RECEIPT_STREAM_INVALID", path=path, detail="invalid RunReceipt") from exc
         receipt_id = validated["receipt_id"]
         if receipt_id in records:
-            raise _failure("RECEIPT_STREAM_INVALID", path=path, ordinal=ordinal, detail="duplicate receipt_id")
+            raise _failure("RECEIPT_STREAM_INVALID", path=path, detail="duplicate receipt_id")
         records[receipt_id] = ExistingRecord(validated, canonical_bytes(validated))
     return records
 
