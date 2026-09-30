@@ -1,0 +1,39 @@
+# PL-V39-08 Candidate Review CURRENT Projection Correction
+
+schema_version: 1
+correction_kind: GOVERNANCE_CONSISTENCY_ONLY
+change_id: CHG-PL-V39-08-RUNRECEIPT-MEASUREMENT-CORRECTION-001
+
+candidate_review_path: docs/design/project-spine/checkpoints/PL-V39-08-RUNRECEIPT-MEASUREMENT-CORRECTION-IMPLEMENTATION-CANDIDATE-REVIEW-v1.md
+candidate_review_sha256: 67a92b8f72377fd8f948a731380bf2dd7f40816a03e3541825840b7a61071aa8
+candidate_review_status: REVIEW_FAIL / 4 MATERIAL FINDINGS / VALID
+
+entry_head: 19217522f3dac695602a8534d7ddb8f9bbee5858
+entry_authority_state_id: e21e2ecd679d1e454b0f24b46d78f843c01970c617753c8fc8c6e2e49ba9f26f
+entry_candidate_state_id: ff82d2e4ddb3811980b047bcf9ab97742b3b9d7a76070f2160732cf61daccf51
+entry_unrelated_dirt_state_id: 2503939f0939840c39e22005260ae02d34621fe682c5c5ed810f2f9271ce348a
+entry_sync_state_id: 0fb40f6751ff8aadf6fa9a5a38fc630a546e48abcc4ae0b7c6928f67a9a87263
+
+strict_resume_contract_status: ALREADY CORRECT
+strict_resume_contract_semantics: UNCHANGED
+active_detailed_change_3_projection_defect: stale lifecycle_gate value remained from pre-review projection
+old_active_detailed_lifecycle_gate: IMPLEMENTATION_AUTHORIZED / EXECUTION_PENDING
+corrected_active_detailed_lifecycle_gate: IMPLEMENTATION_CANDIDATE_REVIEWED / MATERIAL_FINDINGS_OPEN
+
+candidate_state_id: ff82d2e4ddb3811980b047bcf9ab97742b3b9d7a76070f2160732cf61daccf51
+candidate_state_changed: NO
+candidate_review_changed: NO
+material_findings_open:
+  - F-01 AUTHORITATIVE_MEASUREMENT_SOURCE_BINDING_BYPASS
+  - F-02 M01_ADJACENT_TURN_CONTRACT_NOT_PROVEN
+  - F-03 M13_REAL_GOVERNED_END_TO_END_PROOF_INCOMPLETE
+  - F-04 AMBIGUOUS_BOUNDARY_ALIASES_NOT_FAIL_CLOSED
+corrective_implementation: NOT AUTHORIZED
+architecture_expansion: NOT AUTHORIZED
+source_and_test_candidate: UNCHANGED
+09-G: NOT STARTED
+next_single_gate: OWNER_DECISION_CHANGE_3_CORRECTIVE_IMPLEMENTATION_AUTHORIZATION
+
+This receipt records a consistency correction only. It is not a new candidate
+review and does not authorize corrective implementation.
+

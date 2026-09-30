@@ -2496,7 +2496,7 @@ reconciliation.
 
 ```text
 09-E STATUS:
-OPEN
+CLOSED / V1 PRODUCTIZED / COMPLETE
 
 OWNS:
 capability-aware work decomposition
@@ -2518,7 +2518,7 @@ proposal is not authority.
 
 ```text
 09-F STATUS:
-OPTIONAL EXPERIMENT / NOT RELEASE PREREQUISITE
+OPTIONAL COMPARATOR / NOT RELEASE PREREQUISITE
 
 CURRENT NON-COMPILER PATH:
 WHOLE-ORGANISM PROVEN
@@ -2535,7 +2535,9 @@ A losing compiler experiment remains a valid outcome.
 
 ```text
 09-G STATUS:
-OPEN
+NOT STARTED
+IMPLEMENTATION AUTHORIZATION:
+NONE
 
 SINGLE GOVERNED OPERATION SUBSTRATE:
 WHOLE-ORGANISM PROVEN
@@ -2579,24 +2581,76 @@ fixture before closure.
 
 This is not a new lifecycle stage.
 
-Change 3 remains separate:
+### Change 3 Route B closeout
 
 ```text
 CHANGE_3:
-NOT_ABSORBED
+CLOSED / PRODUCT COMMITTED / REAL FIELD PROOF COMPLETE
+
+ROUTE:
+ROUTE_B_PROVIDER_NEUTRAL_COARSE_EFFICIENCY_MEASUREMENT
+
+T01..T05:
+FINAL INDEPENDENT REVIEW PASS / 0 MATERIAL FINDINGS
+
+T06 V1:
+PRESERVED HISTORICAL FAIL-CLOSED REAL-SOURCE EVIDENCE
+
+T06-RS-01:
+CLOSED
+
+T06 V2:
+PASS / FRESH PROSPECTIVE REAL CODEX WORK WINDOW
+
+REAL FIELD PROOF:
+COMPLETE
+
+MEASUREMENT BOUNDARY:
+RESOURCE OBSERVATION != EFFICIENCY JUDGMENT
+
+NOT IMPLEMENTED BY CHANGE 3:
+EXACT ATTEMPT ATTRIBUTION
+EFFICIENCY SCORING OR WINNER SELECTION
+CROSS-PROVIDER NORMALIZATION
+COST CONVERSION
+09-G ORCHESTRATION OR EXECUTION ECONOMICS
 
 DISPOSITION:
-VALID CANDIDATE / NOT AUTOMATIC NEXT CHANGE
+PRODUCT COMMITTED / CHANGE CLOSED
+PRODUCT_COMMIT:
+a41bfb2c22ac63bc9f6a918a2f1a23859857f8ad
+
+09-F:
+OPTIONAL / NOT RELEASE PREREQUISITE
+
+09-G:
+NOT STARTED
+
+09-H:
+FUTURE RELEASE / PROMOTION GATE
 ```
 
-The next implementation Change is intentionally not selected here. Candidates
-are recorded only:
+Evidence:
 
 ```text
-NEXT_CHANGE_CANDIDATES:
+docs/design/project-spine/checkpoints/PL-V39-08-RUNRECEIPT-MEASUREMENT-CORRECTION-ROUTE-B-FORMAL-READINESS-VERDICT-v1.md
+docs/design/project-spine/checkpoints/PL-V39-08-RUNRECEIPT-MEASUREMENT-CORRECTION-ROUTE-B-T01-T05-IMPLEMENTATION-CANDIDATE-REVIEW-v1.md
+docs/design/project-spine/checkpoints/PL-V39-08-RUNRECEIPT-MEASUREMENT-CORRECTION-ROUTE-B-T06-POKER-REGISTRATION-AND-FIELD-PROOF-v1.md
+docs/design/project-spine/checkpoints/PL-V39-08-RUNRECEIPT-MEASUREMENT-CORRECTION-ROUTE-B-T06-REAL-SOURCE-COMPATIBILITY-CORRECTION-v1.md
+docs/design/project-spine/checkpoints/PL-V39-08-RUNRECEIPT-MEASUREMENT-CORRECTION-ROUTE-B-T06-V2-FIELD-PROOF-v1.md
+docs/design/project-spine/checkpoints/PL-V39-08-RUNRECEIPT-MEASUREMENT-CORRECTION-ROUTE-B-PRODUCT-COMMIT-AND-CLOSEOUT-v1.md
+```
+
+The next implementation Change is intentionally not selected here. The next
+step is a bounded owner decision; it does not activate 09-G:
+
+```text
+NEXT_PERMITTED_ACTION:
+OWNER_ADJUDICATION_NEXT_IMPLEMENTATION_CHANGE_AFTER_ROADMAP_RECONCILIATION
+
+UNSELECTED_CANDIDATES:
 09-B field/content/validation continuation
-09-E capability-aware plan compilation
-Change 3 measurement/telemetry correction
+09-G safe multi-operation orchestration (not started; separate authorization required)
 ```
 
 The next owner gate is:
@@ -2967,7 +3021,8 @@ Maintain these invariants:
 
 # 18. Current next gate
 
-The documentation/information-architecture reconciliation is complete.
+The documentation/information-architecture reconciliation and Change 3 Route B
+closeout are complete.
 
 The product Roadmap mainline remains:
 
@@ -2982,8 +3037,10 @@ CURRENT FIELD GATE
 
 Do not start PL-V39-05 merely because this document was reorganized.
 
-Immediate product work is still determined by the current field checkpoint and
-its accepted reconciliation.
+The exact next gate is
+`OWNER_ADJUDICATION_NEXT_IMPLEMENTATION_CHANGE_AFTER_ROADMAP_RECONCILIATION`.
+The owner must select and authorize the next slice before implementation; 09-G
+remains not started.
 
 The next Planning Lite recommendation-intake exercise should use the new stable
 Discovery / Recommendation / Future Reserve structure and preserve the result
