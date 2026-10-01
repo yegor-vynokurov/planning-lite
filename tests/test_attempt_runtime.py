@@ -19,6 +19,7 @@ from planning_lite.attempt_evaluation import (
 )
 from planning_lite.attempt_runtime import (
     AdmissibilityOutcome,
+    AttemptAuthorizationError,
     AttemptRuntimeError,
     AttemptStoreV1,
     LookupOutcome,
@@ -36,6 +37,7 @@ from planning_lite.attempt_runtime import (
 )
 from planning_lite.authorization import (
     AuthorizationAction,
+    PreparationScopeV1,
     RecoveryScopeV1,
     ResolutionOutcome,
     authorization_store_path,
@@ -69,6 +71,83 @@ def _prepare(target: Path, *, change_id: str = CHANGE_ID, task_id: str = TASK_ID
 
 def _store_bytes(target: Path) -> bytes:
     return attempt_store_path(target).read_bytes()
+
+
+def _assert_canonical_scope_mutant_rejected(
+    target: Path,
+    *,
+    original_change_id: str = CHANGE_ID,
+    original_task_id: str = TASK_ID,
+    foreign_change_id: str | None = None,
+    foreign_task_id: str | None = None,
+) -> None:
+    envelope, authorization_ref = _prepare(
+        target,
+        change_id=original_change_id,
+        task_id=original_task_id,
+    )
+    if foreign_change_id is not None:
+        mutated_attempt = replace(
+            envelope.attempt,
+            change_id=foreign_change_id,
+            attempt_id=f"{foreign_change_id}/{envelope.attempt.task_or_operation_id}/A{envelope.attempt.attempt_ordinal}",
+        )
+    else:
+        assert foreign_task_id is not None
+        mutated_attempt = replace(
+            envelope.attempt,
+            task_or_operation_id=foreign_task_id,
+            attempt_id=f"{envelope.attempt.change_id}/{foreign_task_id}/A{envelope.attempt.attempt_ordinal}",
+        )
+    mutated_envelope = replace(envelope, attempt=mutated_attempt)
+    mutant_bytes = encode_attempt_store(AttemptStoreV1((mutated_envelope,)))
+    decoded_mutant = decode_attempt_store(mutant_bytes)
+    assert encode_attempt_store(decoded_mutant) == mutant_bytes
+
+    original_resolution = resolve_authorization(
+        target,
+        authorization_ref,
+        AuthorizationAction.PREPARATION,
+        PreparationScopeV1(envelope.attempt.change_id, envelope.attempt.task_or_operation_id),
+    )
+    assert original_resolution.outcome is ResolutionOutcome.AUTHORIZED
+    assert original_resolution.record is not None
+    assert original_resolution.record.authorization_ref == authorization_ref
+    assert original_resolution.record.scope == PreparationScopeV1(
+        envelope.attempt.change_id,
+        envelope.attempt.task_or_operation_id,
+    )
+    foreign_resolution = resolve_authorization(
+        target,
+        authorization_ref,
+        AuthorizationAction.PREPARATION,
+        PreparationScopeV1(mutated_attempt.change_id, mutated_attempt.task_or_operation_id),
+    )
+    assert foreign_resolution.outcome is ResolutionOutcome.WRONG_SCOPE
+
+    attempt_store_path(target).write_bytes(mutant_bytes)
+    before_claim = _store_bytes(target)
+    with pytest.raises(AttemptAuthorizationError):
+        claim_attempt(target, mutated_attempt.attempt_id)
+
+    assert _store_bytes(target) == before_claim
+    persisted = decode_attempt_store(before_claim).by_id(mutated_attempt.attempt_id)
+    assert persisted is not None
+    assert persisted.runtime_state == "ACTIVATABLE"
+    assert persisted.attempt == mutated_attempt
+
+
+def test_p05_foreign_change_canonical_persisted_attempt_cannot_be_claimed(tmp_path: Path) -> None:
+    _assert_canonical_scope_mutant_rejected(
+        tmp_path,
+        original_change_id="CHG-P05-ORIGINAL",
+        original_task_id="T-P05-01",
+        foreign_change_id="CHG-P05-FOREIGN",
+    )
+
+
+def test_p05_foreign_task_canonical_persisted_attempt_cannot_be_claimed(tmp_path: Path) -> None:
+    _assert_canonical_scope_mutant_rejected(tmp_path, foreign_task_id="T-P05-FOREIGN")
 
 
 def _claim_worker(target: str, attempt_id: str, queue) -> None:

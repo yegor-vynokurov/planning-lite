@@ -957,7 +957,8 @@ def claim_attempt(
     """Atomically claim one exact ``ACTIVATABLE`` Attempt as ``IN_FLIGHT``."""
 
     _exact_id(attempt_id)
-    store = attempt_store_path(target)
+    product_root = Path(target).expanduser().resolve()
+    store = attempt_store_path(product_root)
     if not store.exists():
         raise AttemptNotFoundError("Attempt Runtime store is absent")
     with _store_lock(store, create=False):
@@ -967,6 +968,12 @@ def claim_attempt(
             raise AttemptNotFoundError("Attempt is not found")
         if row.runtime_state != "ACTIVATABLE":
             raise AttemptStateError(f"Attempt cannot be claimed from {row.runtime_state}")
+        _auth_or_raise(
+            product_root,
+            row.authorization_ref,
+            AuthorizationAction.PREPARATION,
+            PreparationScopeV1(row.attempt.change_id, row.attempt.task_or_operation_id),
+        )
         claimed = replace(row, runtime_state="IN_FLIGHT")
         proposed = AttemptStoreV1(tuple(sorted((claimed if item.attempt_id == attempt_id else item for item in current.attempts), key=lambda item: item.attempt_id)))
         _safe_replace(store, proposed, hook=fault_hook)
