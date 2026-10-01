@@ -29,6 +29,17 @@ Verify:
 - no journey path transfers Project Spine ownership, validator purity, or
   reconciliation authority to runtime code;
 
+For coding work, independently verify the Plan's `MATERIAL_CODE_CONTRACT`
+classification against its approved scope and affected symbols using
+`disciplines/CODEBASE_DESIGN.md`. Check that a triggered contract is not
+classified `NO`; that `YES` names a concrete symbol or boundary, source
+documentation obligation, location and form; that implementation can follow
+the approved meaning without inventing it; and that a review and verification
+route exists. The classification alone or a generic “documentation addressed
+where applicable” statement is insufficient. If a trigger is present but the
+Plan says `NO`, or a `YES` obligation is indeterminate, return Needs revision
+or Blocked under the existing workflow semantics and record the evidence.
+
 Record evidence and one verdict in `readiness.md`:
 
 - `Ready`;

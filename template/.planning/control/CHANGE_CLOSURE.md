@@ -30,6 +30,9 @@ A failed mandatory criterion is not an accepted limitation.
 2. Identify change, branch, working-tree state, and bounded implementation commit range.
 3. Run **Pass 1: spec conformance** against approved scope, non-goals, requirements, criteria, plan, and amendments.
 4. Run **Pass 2: standards conformance** against project rules, Definition of Done, architecture, tests, failure handling, data, migration, recovery, compatibility, security, operations, and maintainability.
+   For applicable material code contracts, use the selected `CODE_REVIEW.md`
+   procedure to make conformance with `disciplines/CODEBASE_DESIGN.md`
+   observable; do not duplicate its normative rule here.
 5. Record `Pass`, `Fail`, or `Partial` and exact evidence for every criterion and material standard finding.
 5a. Compare each affected journey's observed state, first broken seam, Gap
 class, downstream-unreachable seams, evidence disposition, and placeholder

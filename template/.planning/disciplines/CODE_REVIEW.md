@@ -23,6 +23,13 @@ Check engineering quality against:
 - data, migration, recovery, compatibility, security, and operations;
 - maintainability and repository conventions.
 
+For applicable material code contracts, use `CODEBASE_DESIGN.md` as the
+single normative standard. Verify material applicability, required nearby
+source-document presence and semantic adequacy, consistency with the
+implementation and invariants, and maintainability conformance. This review
+procedure checks the rule; it does not define a second documentation or
+maintainability policy.
+
 Do not assume the specification itself is good merely because it was approved.
 
 ## Findings

@@ -22,6 +22,19 @@ consumer, or live consumer authority.
 6. Update `tasks.md`, append evidence to `progress.md`, and refresh `context.md` at meaningful checkpoints.
 7. Do not narrate routine reads, edits, or checks. Report only a blocker, decision, risk, or completed milestone that changes the next action.
 
+## Material code contract selector
+
+Read the approved Plan's `MATERIAL_CODE_CONTRACT` marker and carry its
+symbol-specific source-document obligation in the existing task or Execution
+Envelope context. For `YES`, load and read
+`disciplines/CODEBASE_DESIGN.md` before or during generation of the dependent
+material code. If execution discovers another material contract missing from
+the approved Plan, use the existing amendment and re-plan path before
+generating code that depends on it; do not silently classify or add the
+obligation during execution. For `NO`, do not load CODEBASE_DESIGN for this
+selector alone; load it only when another existing applicability trigger
+requires it.
+
 ## Divergence
 
 When reality differs from the plan, follow `CHANGE_AMENDMENT.md` before continuing the affected work. Do not hide attractive unrelated work inside implementation.

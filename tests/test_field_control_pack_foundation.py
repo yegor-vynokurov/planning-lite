@@ -476,3 +476,163 @@ def test_execution_routing_manifest_and_canonical_lf_integrity() -> None:
         raise AssertionError("missing canonical checksum entry")
 
     assert "EXECUTION_ROUTING.md" not in _read("template/.planning/framework/OWNERSHIP.yml")
+
+
+def test_f01_codebase_design_is_the_single_normative_owner() -> None:
+    policy = _read("template/.planning/disciplines/CODEBASE_DESIGN.md")
+    review = _read("template/.planning/disciplines/CODE_REVIEW.md")
+    planning = _read("template/.planning/control/CHANGE_PLANNING.md")
+    readiness = _read("template/.planning/control/CHANGE_READINESS.md")
+    execution = _read("template/.planning/control/CHANGE_EXECUTION.md")
+    closure = _read("template/.planning/control/CHANGE_CLOSURE.md")
+
+    assert "## Material code contracts" in policy
+    assert "single normative standard" in review
+    assert "does not define a second" in review
+    assert all("CODEBASE_DESIGN.md" in doc for doc in (planning, readiness, execution, closure))
+    assert "## Material code contracts" not in "\n".join(
+        (review, planning, readiness, execution, closure)
+    )
+
+
+def test_f02_material_contract_triggers_are_bounded_and_concrete() -> None:
+    policy = _read("template/.planning/disciplines/CODEBASE_DESIGN.md").lower()
+    for trigger in (
+        "public or externally used callable or class",
+        "ownership of a state transition",
+        "authorization or security boundary",
+        "persistence, serialization, or schema behavior",
+        "concurrency, locking, or atomicity behavior",
+        "parser or validator with non-obvious grammar or failure semantics",
+        "routing, orchestration, or policy selection",
+        "a material side effect",
+        "a non-obvious algorithm or invariant",
+        "specifically named hidden contract",
+        "cannot safely infer from a trivial signature and body",
+    ):
+        assert trigger in policy
+
+
+def test_f03_trivial_and_non_owning_symbols_can_omit_redundant_docs() -> None:
+    policy = _norm(_read("template/.planning/disciplines/CODEBASE_DESIGN.md")).lower()
+    for exemption in (
+        "obvious tiny private transformation",
+        "straightforward accessor or property",
+        "trivial forwarding",
+        "generated code",
+        "symbol that does not own the material contract",
+    ):
+        assert exemption in policy
+    assert "do not override a concrete material trigger" in policy
+
+
+def test_f04_documentation_presence_is_distinct_from_contract_adequacy() -> None:
+    policy = _read("template/.planning/disciplines/CODEBASE_DESIGN.md")
+    assert "`DOCSTRING_PRESENT` and `MATERIAL_CONTRACT_DOCUMENTED` are separate checks" in policy
+
+
+def test_f05_tautological_or_generic_material_documentation_is_insufficient() -> None:
+    policy = _read("template/.planning/disciplines/CODEBASE_DESIGN.md").lower()
+    assert "only restates a" in policy
+    assert "generic wording such as" in policy
+    assert "process the data" in policy
+    assert "repeats parameter" in policy
+
+
+def test_f06_stale_or_contradictory_documentation_fails_standards_review() -> None:
+    policy = _read("template/.planning/disciplines/CODEBASE_DESIGN.md").lower()
+    review = _read("template/.planning/disciplines/CODE_REVIEW.md").lower()
+    assert "contradicts current behavior or an invariant" in policy
+    assert "update its source documentation in that same change" in policy
+    assert "passing behavior tests alone does not excuse stale" in policy
+    assert "consistency with the" in review
+
+
+def test_f07_planning_records_yes_no_and_symbol_level_obligation() -> None:
+    planning = _read("template/.planning/control/CHANGE_PLANNING.md")
+    assert "MATERIAL_CODE_CONTRACT: YES | NO" in planning
+    for required in (
+        "Documentation and operations area",
+        "material symbol or boundary",
+        "contract meaning",
+        "source-document location and form",
+        "verification route",
+        "one concrete reason",
+    ):
+        assert required in planning
+
+
+def test_f08_readiness_independently_checks_classification_and_obligation() -> None:
+    readiness = _norm(_read("template/.planning/control/CHANGE_READINESS.md")).lower()
+    assert "independently verify" in readiness
+    assert "approved scope and affected symbols" in readiness
+    assert "triggered contract is not" in readiness and "classified `no`" in readiness
+    assert "source documentation obligation, location and form" in readiness
+    assert "review and verification route exists" in readiness
+
+
+def test_f09_execution_loads_policy_for_approved_yes_before_or_during_generation() -> None:
+    execution = _read("template/.planning/control/CHANGE_EXECUTION.md").lower()
+    assert "approved plan's `material_code_contract` marker" in execution
+    assert "for `yes`" in execution
+    assert "load and read" in execution
+    assert "before or during generation" in execution
+    assert "symbol-specific source-document obligation" in execution
+
+
+def test_f10_unplanned_material_contract_uses_amendment_before_dependent_code() -> None:
+    execution = _norm(_read("template/.planning/control/CHANGE_EXECUTION.md")).lower()
+    assert "another material contract missing from the approved plan" in execution
+    assert "existing amendment and re-plan path" in execution
+    assert "before generating code that depends on it" in execution
+    assert "do not silently classify" in execution
+
+
+def test_f11_code_review_checks_the_norm_without_becoming_its_owner() -> None:
+    review = _norm(_read("template/.planning/disciplines/CODE_REVIEW.md")).lower()
+    for check in (
+        "codebase_design.md",
+        "single normative standard",
+        "material applicability",
+        "source-document presence and semantic adequacy",
+        "consistency with the implementation and invariants",
+        "maintainability conformance",
+        "does not define a second",
+    ):
+        assert check in review
+
+
+def test_f12_closure_selects_code_review_for_material_contract_conformance() -> None:
+    closure = _read("template/.planning/control/CHANGE_CLOSURE.md")
+    assert "disciplines/CODE_REVIEW.md" in closure
+    assert "selected `CODE_REVIEW.md`" in closure
+    assert "disciplines/CODEBASE_DESIGN.md" in closure
+    assert "do not duplicate its normative rule" in closure
+
+
+def test_f13_no_universal_docstring_quota_or_private_helper_mandate() -> None:
+    policy = _norm(_read("template/.planning/disciplines/CODEBASE_DESIGN.md")).lower()
+    assert "no docstring coverage quota or minimum documentation length" in policy
+    assert "obvious tiny private transformation" in policy
+    assert "symbol that does not own the material contract" in policy
+
+
+def test_f14_performance_optimization_requires_evidence_of_need() -> None:
+    policy = _norm(_read("template/.planning/disciplines/CODEBASE_DESIGN.md")).lower()
+    assert "maintainability and performance optimization are different concerns" in policy
+    assert "optimize performance only when evidence shows a performance need" in policy
+
+
+def test_f15_existing_documentation_debt_is_prospective_not_retrofit_scope() -> None:
+    policy = _read("template/.planning/disciplines/CODEBASE_DESIGN.md").lower()
+    assert "applicability is prospective" in policy
+    assert "existing undocumented symbols remain observed debt" in policy
+    assert "does not authorize a repository-wide docstring retrofit" in policy
+
+
+def test_f16_ordinary_runtime_guidance_keeps_zero_discipline_refs() -> None:
+    execution = _read("template/.planning/control/CHANGE_EXECUTION.md")
+    runtime_test = _read("tests/test_execution_guidance.py")
+    assert "MATERIAL_CODE_CONTRACT" not in runtime_test
+    assert 'ordinary["guidance"]["discipline_refs"] == []' in runtime_test
+    assert "discipline_refs" not in execution

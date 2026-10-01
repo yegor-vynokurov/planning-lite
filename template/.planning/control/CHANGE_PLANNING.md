@@ -2,7 +2,7 @@
 
 Use in Planning mode for an approved change. Do not edit production code.
 
-Follow `CHANGE_LIFECYCLE.md` and `CHANGE_SCAFFOLD.md`. Load `disciplines/CODEBASE_DESIGN.md` for architectural work or `disciplines/DELIVERY_SLICES.md` for task decomposition. Load both only when necessary.
+Follow `CHANGE_LIFECYCLE.md` and `CHANGE_SCAFFOLD.md`. Load `disciplines/CODEBASE_DESIGN.md` for architectural work or a `MATERIAL_CODE_CONTRACT`, and `disciplines/DELIVERY_SLICES.md` for task decomposition. Load both only when necessary.
 
 ## Minimum context
 
@@ -29,6 +29,22 @@ Specification's ordered seams, and any evidence-backed bypass record.
 8. Record durable architectural decisions separately when needed.
 9. Initialize or update `context.md`.
 10. Mark `plan.md` as `Draft`, set `Planning / Awaiting approval`, and ask the user to approve or revise the plan.
+
+## Material code contract selection
+
+For coding work, assess the approved scope against the bounded triggers in
+`disciplines/CODEBASE_DESIGN.md` and record this marker in the Plan's existing
+Documentation and operations area:
+
+```text
+MATERIAL_CODE_CONTRACT: YES | NO
+```
+
+For `YES`, name the material symbol or boundary, the contract meaning that
+must remain clear, the expected source-document location and form, and the
+verification route. For `NO`, give one concrete reason no bounded trigger
+applies. Do not draft final docstring prose unless needed to settle the
+contract semantics.
 
 ## Plan approval
 
