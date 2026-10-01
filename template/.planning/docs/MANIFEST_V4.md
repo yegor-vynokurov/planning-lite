@@ -1,6 +1,6 @@
 # Planning Lite 4.x template `.planning` manifest
 
-Files: **166**.
+Files: **167**.
 
 ## Files
 
@@ -48,6 +48,7 @@ Files: **166**.
 - `.planning/control/AGENT_ADAPTER_CONTRACT.md`
 - `.planning/control/AGENT_PORTABILITY.md`
 - `.planning/control/APPROVAL_GATES.md`
+- `.planning/control/ARCHITECTURE_DECISION_FLOW.md`
 - `.planning/control/CAUSAL_GAP_DERIVATION.md`
 - `.planning/control/CHANGE_AMENDMENT.md`
 - `.planning/control/CHANGE_CLOSURE.md`
@@ -103,9 +104,9 @@ Files: **166**.
 - `.planning/drift/README.md`
 - `.planning/drift/reviews/.gitkeep`
 - `.planning/drift/reviews/TEMPLATE.md`
-- `.planning/framework/architecture-knowledge/ARCHITECTURE_KNOWLEDGE_PACK.md`
 - `.planning/framework/OWNERSHIP.yml`
 - `.planning/framework/SHA256SUMS.txt`
+- `.planning/framework/architecture-knowledge/ARCHITECTURE_KNOWLEDGE_PACK.md`
 - `.planning/framework/defaults.yml`
 - `.planning/modes/AUDIT.md`
 - `.planning/modes/DIALOGUE_CRITIC.md`

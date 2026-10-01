@@ -19,6 +19,8 @@ BROWNFIELD_RECOVERY = PLANNING / "assessments/BROWNFIELD_RECOVERY_TEMPLATE.md"
 OUTCOME_LADDER = PLANNING / "assessments/OUTCOME_LADDER_TEMPLATE.md"
 DIRECTION_INVENTORY = PLANNING / "control/DIRECTION_INVENTORY.md"
 TARGET_EXPLORER = PLANNING / "control/TARGET_STATE_EXPLORER.md"
+ARCHITECTURE_FLOW = PLANNING / "control/ARCHITECTURE_DECISION_FLOW.md"
+ARCHITECTURE_OVERVIEW = PLANNING / "project/ARCHITECTURE_OVERVIEW.md"
 
 
 def read(path: Path) -> str:
@@ -300,6 +302,111 @@ def test_pl_v39_05_b_later_shaping_remains_deferred():
     e=re.sub(r"\s+"," ",collapsed(TARGET_EXPLORER))
     for x in ("Adaptive Engagement","Strategy Portfolio","Target Skeleton","Executable Target Contract"):
         assert x in e
+
+def test_architecture_decision_flow_is_opt_in_and_preserves_routine_routing():
+    router = collapsed(ROOT_ROUTER).lower()
+    flow = collapsed(ARCHITECTURE_FLOW).lower()
+    assert "architecture_decision_flow.md" in router
+    assert "owner explicitly opts" in router
+    assert "routine work and routine implementation choices stay on their ordinary route" in router
+    assert "do not send every technical/design question through this flow" in router
+    assert "only for one material architecture-sensitive question" in flow
+    assert "optional and does not apply to routine work or every technical/design question" in flow
+
+def test_architecture_decision_flow_records_one_question_and_provenanced_drivers():
+    flow = collapsed(ARCHITECTURE_FLOW).lower()
+    for phrase in (
+        "exactly one material decision question for this invocation",
+        "a second material question requires a separate record and invocation",
+        "goal and tier when available",
+        "one critical flow",
+        "greenfield",
+        "brownfield",
+        "for each material driver",
+        "id, source reference, affected capability or seam",
+        "functional",
+        "quality",
+        "constraint",
+        "risk",
+        "evolution",
+        "uncertainty",
+        "confidence",
+        "measurable bound",
+    ):
+        assert phrase in flow
+
+def test_architecture_decision_flow_requires_measurable_scenarios_and_credible_alternatives():
+    flow = collapsed(ARCHITECTURE_FLOW).lower()
+    for phrase in (
+        "one to three measurable scenarios",
+        "stimulus, context, affected asset, expected response, and response measure",
+        "quality scenarios need a measurable response measure or bound",
+        "at least two credible alternatives",
+        "including a simpler option",
+        "benefit, trade-off, operational burden, reversibility, and evidence",
+        "do not invent weighted scores or an arbitrary numeric winner",
+        "exactly one terminal result",
+        "decision_accepted",
+        "spike_required",
+        "bounded request, the stop condition, and the evidence or answer that unlocks the decision",
+    ):
+        assert phrase in flow
+
+def test_architecture_decision_flow_keeps_horizons_and_local_risk_fields_bounded():
+    flow = collapsed(ARCHITECTURE_FLOW).lower()
+    carrier = collapsed(ARCHITECTURE_OVERVIEW)
+    for phrase in (
+        "`target`: the intended architecture outcome",
+        "`mvp-reference`: the smallest useful realization",
+        "`transition`: the bounded move",
+        "`replacement_or_scale_risk`",
+        "`reopen_trigger`",
+        "`next_transition`",
+        "`cheap_replaceability_seam` only when",
+        "for each material selected claim",
+        "at least one practical evidence/fitness route",
+    ):
+        assert phrase in flow
+    for field in (
+        "TARGET:", "MVP-REFERENCE:", "TRANSITION:",
+        "REPLACEMENT_OR_SCALE_RISK:", "REOPEN_TRIGGER:", "NEXT_TRANSITION:",
+        "CHEAP_REPLACEABILITY_SEAM:", "EVIDENCE_OBLIGATIONS:",
+    ):
+        assert field in carrier
+    assert "[optional]" in carrier
+
+def test_architecture_decision_flow_preserves_brownfield_evidence_and_existing_handoff():
+    flow = collapsed(ARCHITECTURE_FLOW).lower()
+    for phrase in (
+        "observed topology only from scoped repository/runtime evidence",
+        "label observation, inference, and unknowns",
+        "never authority for ideal or target architecture",
+        "existing 09-e `plan-compile` workflow",
+        "ordinary change definition, semantic plan, and tasks",
+        "compiled output never replaces the semantic plan as decision authority",
+        "do not duplicate the full 09-b definition or 09-e planning rules",
+        "a new schema, decision authority, or runtime mechanism",
+        "does not introduce 09-g, context compiler, sqlite/vector storage, prompt garden machinery",
+    ):
+        assert phrase in flow
+
+def test_architecture_overview_is_a_compact_reference_carrier_without_new_authority():
+    carrier = collapsed(ARCHITECTURE_OVERVIEW)
+    flow = collapsed(ARCHITECTURE_FLOW)
+    required_fields = (
+        "DECISION_QUESTION:", "GOAL_REF:", "GOAL_TIER:", "CRITICAL_FLOW_REF:",
+        "FACTS_AND_CONSTRAINT_REFS:", "PROJECT_CONTEXT:", "DRIVERS:", "SCENARIOS:",
+        "ALTERNATIVES:", "TERMINAL_RESULT:", "SELECTED_ALTERNATIVE:", "SPIKE_REQUEST:",
+        "TARGET:", "MVP-REFERENCE:", "TRANSITION:", "REPLACEMENT_OR_SCALE_RISK:",
+        "REOPEN_TRIGGER:", "NEXT_TRANSITION:", "CHEAP_REPLACEABILITY_SEAM:",
+        "EVIDENCE_OBLIGATIONS:", "SEMANTIC_PLAN_REF:", "RELATED_FUTURE_QUESTIONS:",
+    )
+    for field in required_fields:
+        assert field in carrier
+    assert "DECISION_ACCEPTED | SPIKE_REQUIRED" in carrier
+    assert "one question per record" in carrier
+    assert "does not create ADR authority" in carrier
+    assert "references" in flow.lower()
 
 def test_pl_v39_05_b_docs_and_integrity_registration():
     d=collapsed(ASSESSMENTS_README)
