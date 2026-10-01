@@ -5,13 +5,53 @@ repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
 active_change: NONE
-lifecycle_gate: CHANGE_CLOSED / MVP_LIVE_NARROW_FIELD_PROVEN / P05_OPEN_PRE_09_G
+lifecycle_gate: P05_CLOSED / OWNER_ADJUDICATION_REQUIRED_FOR_FRESH_SESSION_SEQUENTIAL_WHOLE_ORGANISM_PROOF
 implementation_authorized: NO
-blockers: P05_OPEN_MATERIAL_PRE_09_G / SEQUENTIAL_WHOLE_ORGANISM_PROOF_NOT_EXECUTED
-next_permitted_action: OWNER_ADJUDICATION_P05_ATTEMPT_AUTHORIZATION_SCOPE_CONTINUITY_CORRECTION_BEFORE_SEQUENTIAL_TRUNK_PROOF
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-MINIMAL-ARCHITECTURE-DECISION-FLOW-MVP-PRODUCT-COMMIT-AND-CLOSEOUT-v1.md
+blockers: FRESH_SESSION_SEQUENTIAL_WHOLE_ORGANISM_PROOF_NOT_AUTHORIZED
+next_permitted_action: OWNER_ADJUDICATION_FRESH_SESSION_SEQUENTIAL_WHOLE_ORGANISM_PROOF
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-P05-ATTEMPT-AUTHORIZATION-SCOPE-CONTINUITY-CORRECTION-PRODUCT-COMMIT-AND-CLOSEOUT-v1.md
 state_as_of: 2026-10-01
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
+
+<!-- PL_V39_09_P05_ATTEMPT_AUTHORIZATION_SCOPE_CONTINUITY_CORRECTION_V1:BEGIN -->
+## Closed P-05 Attempt Authorization Scope Continuity Correction
+
+```text
+change_id: CHG-PL-V39-09-ATTEMPT-AUTHORIZATION-SCOPE-CONTINUITY-CORRECTION-001
+change_status: CLOSED
+owner_decision: AUTHORIZE_P05_CANDIDATE_RECEIPT_CORRECTION_PRODUCT_COMMIT_AND_CLOSEOUT / CONSUMED
+problem: ATTEMPT_AUTHORIZATION_SCOPE_CONTINUITY / P-05
+P-05: CLOSED / ADVERSARIAL_RECHALLENGE_PASS
+p05_reproduction: CANONICAL FOREIGN-CHANGE MUTANT REJECTED BEFORE IN_FLIGHT
+implementation: COMMITTED / COMPLETE
+candidate_state_id: c637a709a1ca3fc51415fb8c66a7dc8db973e14b406c4eff7f491248b2f09a13
+product_commit: e8e092125c7528261396219d7867c714a23c563f
+attempt_authorization_bearing_fields: change_id / task_or_operation_id
+authorization_scope_fields: PreparationScopeV1(change_id, task_or_operation_id)
+claim_admission_owner: src/planning_lite/attempt_runtime.py::claim_attempt
+minimum_product_write_surface: src/planning_lite/attempt_runtime.py
+minimum_test_write_surface: tests/test_attempt_runtime.py
+definition: ACCEPTED / OWNER REVIEW PASS
+plan: ACCEPTED / OWNER REVIEW PASS
+formal_readiness: READY / OWNER REVIEW PASS
+implementation_authorized: NO / CLOSEOUT COMPLETE
+product_source_changed: YES
+tests_changed: YES
+roadmap_changed: NO
+receipt_finding: P05-RF-01_STALE_CANDIDATE_STATE_RECEIPT / CLOSED BY CANDIDATE RECEIPT CORRECTION
+sequential_whole_organism_proof: NOT EXECUTED
+09-G: NOT STARTED
+next_permitted_action: OWNER_ADJUDICATION_FRESH_SESSION_SEQUENTIAL_WHOLE_ORGANISM_PROOF
+definition_checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-P05-ATTEMPT-AUTHORIZATION-SCOPE-CONTINUITY-CORRECTION-CHANGE-DEFINITION-v1.md
+plan_checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-P05-ATTEMPT-AUTHORIZATION-SCOPE-CONTINUITY-CORRECTION-IMPLEMENTATION-PLAN-v1.md
+formal_readiness_checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-P05-ATTEMPT-AUTHORIZATION-SCOPE-CONTINUITY-CORRECTION-FORMAL-READINESS-VERDICT-v1.md
+implementation_checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-P05-ATTEMPT-AUTHORIZATION-SCOPE-CONTINUITY-CORRECTION-IMPLEMENTATION-CANDIDATE-v1.md
+candidate_receipt_correction_checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-P05-ATTEMPT-AUTHORIZATION-SCOPE-CONTINUITY-CORRECTION-CANDIDATE-RECEIPT-CORRECTION-v1.md
+product_closeout_checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-P05-ATTEMPT-AUTHORIZATION-SCOPE-CONTINUITY-CORRECTION-PRODUCT-COMMIT-AND-CLOSEOUT-v1.md
+```
+
+The committed correction re-resolves the retained Preparation authorization against the authoritative stored Change/task scope after the row is confirmed `ACTIVATABLE` and before its transition to `IN_FLIGHT`. Canonical foreign-Change and foreign-task mutants are rejected with byte-identical stores and remain `ACTIVATABLE`. The reviewed P-05 candidate is committed and its receipt finding is closed. P-05 is no longer an open blocker. The Architecture Decision Flow MVP remains CLOSED / LIVE_NARROW / FIELD_PROVEN; 09-B remains OPEN / PARTIALLY DESIGNED. The fresh-session sequential whole-organism proof remains NOT EXECUTED and requires owner adjudication; 09-G remains NOT STARTED.
+<!-- PL_V39_09_P05_ATTEMPT_AUTHORIZATION_SCOPE_CONTINUITY_CORRECTION_V1:END -->
 
 <!-- PL_V39_09_MINIMAL_ARCHITECTURE_DECISION_FLOW_MVP_V3:BEGIN -->
 ## Closed PL-V39-09 Minimal Architecture Decision Flow MVP
