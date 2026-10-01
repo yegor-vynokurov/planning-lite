@@ -5,11 +5,11 @@ repository_role: CENTRAL_SOURCE
 resume_authority: docs/design/project-spine/CURRENT.md
 current_roadmap: docs/design/project-spine/roadmap/ROADMAP.md
 active_change: NONE
-lifecycle_gate: P05_CLOSED / OWNER_ADJUDICATION_REQUIRED_FOR_FRESH_SESSION_SEQUENTIAL_WHOLE_ORGANISM_PROOF
+lifecycle_gate: MATERIAL_CODE_DOCUMENTATION_AND_MAINTAINABILITY_BINDING / CLOSED / WHOLE_ORGANISM_PROOF_OWNER_ADJUDICATION_REQUIRED
 implementation_authorized: NO
-blockers: FRESH_SESSION_SEQUENTIAL_WHOLE_ORGANISM_PROOF_NOT_AUTHORIZED
+blockers: NONE_FOR_CLOSED_CHANGE / SEQUENTIAL_WHOLE_ORGANISM_PROOF_NOT_STARTED
 next_permitted_action: OWNER_ADJUDICATION_FRESH_SESSION_SEQUENTIAL_WHOLE_ORGANISM_PROOF
-last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-P05-ATTEMPT-AUTHORIZATION-SCOPE-CONTINUITY-CORRECTION-PRODUCT-COMMIT-AND-CLOSEOUT-v1.md
+last_transition_receipt: docs/design/project-spine/checkpoints/PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-PRODUCT-COMMIT-AND-CLOSEOUT-v1.md
 state_as_of: 2026-10-01
 <!-- PLANNING_LITE_RESUME_CONTRACT_V1:END -->
 
@@ -52,6 +52,138 @@ product_closeout_checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-P05
 
 The committed correction re-resolves the retained Preparation authorization against the authoritative stored Change/task scope after the row is confirmed `ACTIVATABLE` and before its transition to `IN_FLIGHT`. Canonical foreign-Change and foreign-task mutants are rejected with byte-identical stores and remain `ACTIVATABLE`. The reviewed P-05 candidate is committed and its receipt finding is closed. P-05 is no longer an open blocker. The Architecture Decision Flow MVP remains CLOSED / LIVE_NARROW / FIELD_PROVEN; 09-B remains OPEN / PARTIALLY DESIGNED. The fresh-session sequential whole-organism proof remains NOT EXECUTED and requires owner adjudication; 09-G remains NOT STARTED.
 <!-- PL_V39_09_P05_ATTEMPT_AUTHORIZATION_SCOPE_CONTINUITY_CORRECTION_V1:END -->
+
+<!-- PLANNING_LITE_CODE_DOCUMENTATION_AND_MAINTAINABILITY_VITALITY_CHALLENGE_V1:BEGIN -->
+## Code Documentation and Maintainability Vitality Challenge
+
+```text
+challenge_id: PLANNING_LITE_CODE_DOCUMENTATION_AND_MAINTAINABILITY_VITALITY_CHALLENGE_V0_1
+challenge_status: COMPLETE / OWNER_ADJUDICATION_REQUIRED
+code_documentation_capability: PARTIAL
+maintainability_capability: LIVE_NARROW
+first_broken_seam: POLICY_TOO_VAGUE
+whole_organism_proof: NOT AUTHORIZED / NOT STARTED
+recommended_next_gate: OWNER_ADJUDICATION_BOUNDED_CODEBASE_DESIGN_CORRECTION_BEFORE_FRESH_SESSION_SEQUENTIAL_WHOLE_ORGANISM_PROOF
+checkpoint: docs/design/project-spine/checkpoints/PLANNING-LITE-CODE-DOCUMENTATION-AND-MAINTAINABILITY-VITALITY-CHALLENGE-v1.md
+implementation_authorized: NO
+```
+
+This later owner gate supersedes the next action recorded at P-05 closeout. Do not start the fresh-session sequential whole-organism proof or 09-G until owner adjudication resolves the bounded documentation correction recommendation.
+<!-- PLANNING_LITE_CODE_DOCUMENTATION_AND_MAINTAINABILITY_VITALITY_CHALLENGE_V1:END -->
+
+<!-- PL_V39_09_MATERIAL_CODE_DOCUMENTATION_AND_MAINTAINABILITY_BINDING_V1:BEGIN -->
+## Material Code Documentation and Maintainability Binding
+
+```text
+change_id: CHG-PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-001
+change_status: DEFINITION_PLAN_READINESS_CANDIDATE / OWNER REVIEW REQUIRED
+owner_decision: ACCEPT_BOUNDED_OPTION_B_PLUS / CONSUMED
+single_normative_owner: template/.planning/disciplines/CODEBASE_DESIGN.md
+formal_readiness: READY
+implementation_authorized: NO
+code_documentation_capability: PARTIAL / CORRECTION READY FOR OWNER REVIEW
+maintainability_capability: LIVE_NARROW / EXECUTION BINDING CORRECTION READY
+sequential_whole_organism_proof: NOT STARTED
+09-G: NOT STARTED
+product_changed: NO
+templates_changed: NO
+tests_changed: NO
+roadmap_changed: NO
+definition: docs/design/project-spine/checkpoints/PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-CHANGE-DEFINITION-v1.md / CANDIDATE
+plan: docs/design/project-spine/checkpoints/PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-IMPLEMENTATION-PLAN-v1.md / CANDIDATE
+formal_readiness_checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-FORMAL-READINESS-VERDICT-v1.md
+next_permitted_action: OWNER_REVIEW_MATERIAL_CODE_DOCUMENTATION_AND_MAINTAINABILITY_BINDING_DEFINITION_PLAN_AND_READINESS
+```
+
+The owner accepted bounded Option B+ for preparation of the Definition, Plan,
+Formal Readiness, and this CURRENT projection. This does not authorize
+implementation. The Plan records the deterministic workflow-level
+`MATERIAL_CODE_CONTRACT` selector and the live evidence for keeping ordinary
+execution guidance and runtime schema unchanged. Owner review of the three
+candidate checkpoints is the sole next gate. The prior vitality challenge
+remains historical evidence; its 14 unrelated dirty paths are preserved.
+<!-- PL_V39_09_MATERIAL_CODE_DOCUMENTATION_AND_MAINTAINABILITY_BINDING_V1:END -->
+
+<!-- PL_V39_09_MATERIAL_CODE_DOCUMENTATION_AND_MAINTAINABILITY_BINDING_PLAN_INTEGRITY_CORRECTION_V1:BEGIN -->
+## Material Code Documentation and Maintainability Binding - integrity plan correction
+
+```text
+change_id: CHG-PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-001
+owner_review_verdict: SEMANTIC_CONTRACT_PASS / FORMAL_READINESS_HOLD_FOR_ONE_TEMPLATE_INTEGRITY_PLAN_CORRECTION
+owner_finding: DOC-MAINT-RF-01_TEMPLATE_INTEGRITY_SURFACE_OMITTED / CLOSED_BY_PLAN_CORRECTION
+definition: v1 / CANDIDATE / OWNER REVIEWED SEMANTIC PASS / BYTE-IDENTICAL
+plan: v1 / BYTE-IDENTICAL
+effective_plan: PLAN v1 + PLAN AMENDMENT v1
+formal_readiness: READY / v2
+implementation_authorized: NO
+sequential_whole_organism_proof: NOT STARTED
+09-G: NOT STARTED
+manifest_expected_to_change: NO / VERIFY BYTE-IDENTICAL
+sha256sums_expected_to_change: YES / FUTURE IMPLEMENTATION ONLY
+product_changed: NO
+templates_changed: NO
+tests_changed: NO
+roadmap_changed: NO
+next_permitted_action: OWNER_AUTHORIZE_MATERIAL_CODE_DOCUMENTATION_AND_MAINTAINABILITY_BINDING_IMPLEMENTATION_AFTER_INTEGRITY_CORRECTION
+```
+
+Formal Readiness v2 freshly evaluates Definition v1, Plan v1, and Plan
+Amendment v1. The amendment adds the two integrity receipt paths and orders
+receipt regeneration/verification before focused acceptance tests and the
+M0-M4 consumer proof. This correction closes
+`DOC-MAINT-RF-01_TEMPLATE_INTEGRITY_SURFACE_OMITTED`; it does not authorize
+implementation. The candidate implementation surface includes six semantic
+managed template paths, one focused test path, and two integrity receipt
+paths. No runtime or schema expansion is planned.
+<!-- PL_V39_09_MATERIAL_CODE_DOCUMENTATION_AND_MAINTAINABILITY_BINDING_PLAN_INTEGRITY_CORRECTION_V1:END -->
+
+<!-- PL_V39_09_MATERIAL_CODE_DOCUMENTATION_AND_MAINTAINABILITY_BINDING_IMPLEMENTATION_CANDIDATE_V1:BEGIN -->
+## Material Code Documentation and Maintainability Binding implementation candidate
+
+- change_id: CHG-PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-001
+- implementation: CANDIDATE_COMPLETE
+- implementation_authorization: YES / CONSUMED
+- code_documentation_capability: CANDIDATE_LIVE_NARROW / M0-M4 FIELD PROVEN
+- maintainability_capability: LIVE_NARROW / EXECUTION_BINDING_FIELD_PROVEN
+- open_material_findings: NONE
+- sequential_whole_organism_proof: NOT STARTED
+- 09-G: NOT STARTED
+- product_commit: NOT AUTHORIZED / NOT PERFORMED
+- closeout_commit: NOT AUTHORIZED / NOT PERFORMED
+- next_permitted_action: OWNER_REVIEW_MATERIAL_CODE_DOCUMENTATION_AND_MAINTAINABILITY_BINDING_IMPLEMENTATION_AND_FIELD_PROOF
+- implementation_checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-IMPLEMENTATION-CANDIDATE-v1.md
+
+T-01 through T-06 are complete under the consumed owner authorization. The implementation candidate, bounded selector/M0-M4 field proof, integrity receipts, isolated clean-source update smokes, consumer adoption/Doctor, and regression evidence are recorded in the implementation checkpoint. This is an uncommitted review candidate. It does not authorize T-07, a product or closeout commit, Roadmap changes, whole-organism proof, 09-G, push, or release.
+<!-- PL_V39_09_MATERIAL_CODE_DOCUMENTATION_AND_MAINTAINABILITY_BINDING_IMPLEMENTATION_CANDIDATE_V1:END -->
+
+<!-- PL_V39_09_MATERIAL_CODE_DOCUMENTATION_AND_MAINTAINABILITY_BINDING_CLOSEOUT_V1:BEGIN -->
+## Material Code Documentation and Maintainability Binding closeout
+
+change_id: CHG-PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-001
+change_status: CLOSED
+owner_decision: AUTHORIZE_PRODUCT_COMMIT_AND_CLOSEOUT / CONSUMED
+active_change: NONE
+implementation: COMPLETE
+code_documentation_capability: LIVE_NARROW / FIELD_PROVEN
+maintainability_capability: LIVE_NARROW / FIELD_PROVEN
+MATERIAL_CODE_CONTRACT: ACTIVE BOUNDED PROSPECTIVE POLICY
+historical_documentation_debt: OBSERVED / NOT CURRENT BLOCKER / NOT RETROFIT
+architecture_decision_flow: CLOSED / LIVE_NARROW / FIELD_PROVEN
+P05: CLOSED / ADVERSARIAL_RECHALLENGE_PASS
+product_commit: 49b25689b44a3aaf01aee1c55e0fad945213505d
+product_commit_canonical_identity: PASS
+implementation_candidate_checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-IMPLEMENTATION-CANDIDATE-v1.md
+closeout_checkpoint: docs/design/project-spine/checkpoints/PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-PRODUCT-COMMIT-AND-CLOSEOUT-v1.md
+ROADMAP_CHANGE_REQUIRED: NO
+roadmap: UNCHANGED
+sequential_whole_organism_proof: NOT STARTED
+09-G: NOT STARTED
+push: NO
+release: NO
+next_permitted_action: OWNER_ADJUDICATION_FRESH_SESSION_SEQUENTIAL_WHOLE_ORGANISM_PROOF
+
+The bounded documentation and maintainability capability correction is closed. The live Roadmap retains its retrospective 09-CORE integrated baseline; the fresh-session sequential whole-organism proof is a distinct gate and remains not started. Historical source documentation debt remains observed and was not retrofitted. This closeout does not start the whole-organism proof or 09-G and does not authorize push or release.
+<!-- PL_V39_09_MATERIAL_CODE_DOCUMENTATION_AND_MAINTAINABILITY_BINDING_CLOSEOUT_V1:END -->
 
 <!-- PL_V39_09_MINIMAL_ARCHITECTURE_DECISION_FLOW_MVP_V3:BEGIN -->
 ## Closed PL-V39-09 Minimal Architecture Decision Flow MVP

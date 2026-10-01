@@ -1,0 +1,162 @@
+# Product Commit and Closeout: Material Code Documentation and Maintainability Binding
+
+## Closeout decision
+
+CHANGE_ID: CHG-PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-001
+CHANGE_STATUS: CLOSED
+OWNER_DECISION: AUTHORIZE_PRODUCT_COMMIT_AND_CLOSEOUT / CONSUMED
+OWNER_REVIEW_VERDICT: PASS / 0 MATERIAL IMPLEMENTATION FINDINGS
+OWNER_ACTUAL_BYTE_REVIEW: PASS
+ENTRY_HEAD: 7bbf5937094484b074d20224aadb370c0d3ae493
+ENTRY_AUTHORITY_STATE_ID: 9d62a0f39218f6e1d55ec72c9e4ec56105add92433382e7a8a33d075d71452c2
+ENTRY_CANDIDATE_STATE_ID: 6172007b1bbb9119bd8f80e36ee74e73319fd19e5b730cf99649a69153bd638d
+ENTRY_IMPLEMENTATION_CHECKPOINT_SHA256: 4564352b179a167ed461f2df059765d20e579cd2799daf05c8ab978e27d8cfe9
+ENTRY_UNRELATED_DIRT_STATE_ID: 2153d2ac08da5f6f91d2cf783af37a29dca34f340dad3d132e7bf8e844a43821
+ENTRY_INDEX_EMPTY: YES
+
+## Reviewed implementation record
+
+ORIGINATING_VITALITY_CHALLENGE: ACCEPTED
+PRE_CHANGE_CODE_DOCUMENTATION_CAPABILITY: PARTIAL
+PRE_CHANGE_MAINTAINABILITY_CAPABILITY: LIVE_NARROW
+FIRST_BROKEN_SEAM: POLICY_TOO_VAGUE
+DEFINITION: v1 / ACCEPTED
+EFFECTIVE_PLAN: Plan v1 + Amendment v1
+FORMAL_READINESS: READY / v2
+INTEGRITY_FINDING: DOC-MAINT-RF-01 / CLOSED
+IMPLEMENTATION: COMPLETE
+SINGLE_NORMATIVE_OWNER: CODEBASE_DESIGN
+MATERIAL_CODE_CONTRACT: LIVE / BOUNDED / PROSPECTIVE
+PLANNING_BINDING: FIELD_PROVEN
+READINESS_BINDING: FIELD_PROVEN
+EXECUTION_BINDING: FIELD_PROVEN
+CLOSURE_BINDING: FIELD_PROVEN
+M0: PASS
+M1: KILLED / MISSING MATERIAL DOCUMENTATION REJECTED
+M2: KILLED / TAUTOLOGICAL DOCUMENTATION REJECTED
+M3: KILLED / CONTRADICTORY DOCUMENTATION REJECTED
+M4: PASS
+DOCUMENTATION_CAPABILITY: LIVE_NARROW / FIELD_PROVEN
+MAINTAINABILITY_CAPABILITY: LIVE_NARROW / FIELD_PROVEN
+ARCHITECTURE_DECISION_FLOW: CLOSED / LIVE_NARROW / FIELD_PROVEN
+P05_STATUS: CLOSED / ADVERSARIAL_RECHALLENGE_PASS
+HISTORICAL_DOCSTRING_DEBT: OBSERVED_EXISTING_DEBT / NOT RETROFIT
+RUNTIME_SCHEMA_CHANGED: NO
+EXECUTION_GUIDANCE_RUNTIME_CHANGED: NO
+MANIFEST_CHANGED: NO
+SHA256SUMS_CHANGED: YES
+
+Preserved source pointers and canonical-LF SHA-256 identities:
+
+| Source | Path | Canonical-LF SHA-256 |
+|---|---|---|
+| docs/design/project-spine/checkpoints/PLANNING-LITE-CODE-DOCUMENTATION-AND-MAINTAINABILITY-VITALITY-CHALLENGE-v1.md | a337a1c7ef947ab423d6c81a57ac61b12f93b6420d084391a92a920d3c5acf18 |
+| docs/design/project-spine/checkpoints/PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-CHANGE-DEFINITION-v1.md | 4eba43b069348750bd860441866b8c6f09ac7a17d36d547e1895b6110eaf89a6 |
+| docs/design/project-spine/checkpoints/PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-IMPLEMENTATION-PLAN-v1.md | a1e0f00e2b48333ba01ec526a06fce20c472a887c61999dfc9ede21acf1db204 |
+| docs/design/project-spine/checkpoints/PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-FORMAL-READINESS-VERDICT-v1.md | a4f6c3a54bfa7386745a417f8f57368db36988ad902c5c84b50e001f114bc0ea |
+| docs/design/project-spine/checkpoints/PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-IMPLEMENTATION-PLAN-AMENDMENT-v1.md | 5e9b2bc6c22391b6ca7280cb20cddaf50e7aff071cd04fba4080514fed7f39f5 |
+| docs/design/project-spine/checkpoints/PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-FORMAL-READINESS-VERDICT-v2.md | 26dc61953026a51742d9b5d1c4f6eb6bff9122d2a1eefd716ed97c7e890b0af8 |
+| Implementation Candidate v1 | docs/design/project-spine/checkpoints/PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-IMPLEMENTATION-CANDIDATE-v1.md | 4564352b179a167ed461f2df059765d20e579cd2799daf05c8ab978e27d8cfe9 |
+
+## Product commit and verification
+
+PRODUCT_STAGE_MANIFEST:
+- template/.planning/control/CHANGE_CLOSURE.md
+- template/.planning/control/CHANGE_EXECUTION.md
+- template/.planning/control/CHANGE_PLANNING.md
+- template/.planning/control/CHANGE_READINESS.md
+- template/.planning/disciplines/CODEBASE_DESIGN.md
+- template/.planning/disciplines/CODE_REVIEW.md
+- template/.planning/framework/SHA256SUMS.txt
+- tests/test_field_control_pack_foundation.py
+
+DOC_MAINT_PRODUCT_COMMIT: 49b25689b44a3aaf01aee1c55e0fad945213505d
+PRODUCT_COMMIT_CHANGED_PATHS: 8 / EXACT
+COMMITTED_CANONICAL_IDENTITY: PASS
+MANIFEST_PREDECESSOR_BLOB: UNCHANGED
+PRODUCT_INDEX_AFTER_COMMIT: EMPTY
+
+POST_PRODUCT_FOCUSED_TESTS: PASS / 39 passed
+POST_PRODUCT_INTEGRITY_TEST: PASS
+POST_PRODUCT_EXECUTION_GUIDANCE_REGRESSION: PASS
+POST_PRODUCT_FULL_SUITE: PASS / 833 passed / 88 existing warnings
+EXISTING_WARNINGS: 44 each from the two existing pathspec GitWildMatchPattern deprecation sites in tests/test_field_control_pack_foundation.py.
+
+SELECTOR_FIELD_PROOF_REUSED: YES
+M0_M4_FIELD_PROOF_REUSED: YES
+CLEAN_SOURCE_SMOKES_REUSED: YES
+SYNTHETIC_PROOF_COMMIT: 19d13186a7d7684686f7ce365f2cb91f6c921b21
+REUSE_BASIS: All committed canonical-LF semantic/test blobs equal the reviewed identities; SHA256SUMS content matches; MANIFEST remains unchanged; no relevant execution/review source changed after the bounded field proof.
+
+## Roadmap reconciliation
+
+ROADMAP_CHANGE_REQUIRED: NO
+ROADMAP_CHANGED: NO
+ROADMAP_CANONICAL_LF_SHA256: 056933c1116e3adbaf2330baba32718498aa5cf2f88eb4ea1ef576433392f0bc
+ROADMAP_RECONCILIATION: The Roadmap's 09-CORE whole-organism-proven entry is explicitly a retrospective integrated baseline. This Change's fresh-session sequential proof is a distinct, unstarted gate recorded in CURRENT. 09-G remains not started. There is no material contradiction requiring a Roadmap edit; no new Roadmap branch was added.
+
+## Closeout state
+
+SEQUENTIAL_WHOLE_ORGANISM_PROOF: NOT STARTED
+09_G: NOT STARTED
+PUSH: NO
+RELEASE: NO
+
+CLOSEOUT_STAGE_MANIFEST:
+- docs/design/project-spine/CURRENT.md
+- docs/design/project-spine/checkpoints/PLANNING-LITE-CODE-DOCUMENTATION-AND-MAINTAINABILITY-VITALITY-CHALLENGE-v1.md
+- docs/design/project-spine/checkpoints/PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-CHANGE-DEFINITION-v1.md
+- docs/design/project-spine/checkpoints/PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-IMPLEMENTATION-PLAN-v1.md
+- docs/design/project-spine/checkpoints/PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-FORMAL-READINESS-VERDICT-v1.md
+- docs/design/project-spine/checkpoints/PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-IMPLEMENTATION-PLAN-AMENDMENT-v1.md
+- docs/design/project-spine/checkpoints/PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-FORMAL-READINESS-VERDICT-v2.md
+- docs/design/project-spine/checkpoints/PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-IMPLEMENTATION-CANDIDATE-v1.md
+- docs/design/project-spine/checkpoints/PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-PRODUCT-COMMIT-AND-CLOSEOUT-v1.md
+
+## Post-closeout authority receipt
+
+POST_CLOSEOUT_AUTHORITY_STATE_ID: 0a8eaa2d64925ba473a7cf1cd3bf68b1c7776052539301e9b29e782bacbb862c
+POST_CLOSEOUT_AUTHORITY_STATE_METHOD: SHA-256 of canonical UTF-8 JSON with sorted keys and compact separators over previous_authority_state_id, candidate_state_id, current_sha256, and the sorted source_path_sha256_rows below. CURRENT is represented separately by current_sha256. This closeout checkpoint is excluded from its own digest.
+POST_CLOSEOUT_PREVIOUS_AUTHORITY_STATE_ID: 9d62a0f39218f6e1d55ec72c9e4ec56105add92433382e7a8a33d075d71452c2
+POST_CLOSEOUT_CANDIDATE_STATE_ID: 6172007b1bbb9119bd8f80e36ee74e73319fd19e5b730cf99649a69153bd638d
+POST_CLOSEOUT_CURRENT_CANONICAL_LF_SHA256: c70ba7fb565c650423af42aefc0d70f0a0acf659a83abc5fbe91be106fa263a7
+POST_CLOSEOUT_SYNC_STATE_ID: NOT_REPRODUCIBLE_BY_CURRENT_TOOLING
+POST_CLOSEOUT_UNRELATED_DIRT_PATHS: 14
+POST_CLOSEOUT_UNRELATED_DIRT_STATE_ID: 2153d2ac08da5f6f91d2cf783af37a29dca34f340dad3d132e7bf8e844a43821
+POST_CLOSEOUT_INDEX_EMPTY: YES
+
+The post-closeout authority path map is sorted by repository path and uses canonical-LF SHA-256 values:
+
+| Authority source path | Canonical-LF SHA-256 |
+|---|---|
+| copier.yml | 92d9460e25a2178f3ada6d8badce9eb1c9aa2ca94765d374385885be752cb8ad |
+| docs/design/project-spine/checkpoints/PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-CHANGE-DEFINITION-v1.md | 4eba43b069348750bd860441866b8c6f09ac7a17d36d547e1895b6110eaf89a6 |
+| docs/design/project-spine/checkpoints/PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-FORMAL-READINESS-VERDICT-v1.md | a4f6c3a54bfa7386745a417f8f57368db36988ad902c5c84b50e001f114bc0ea |
+| docs/design/project-spine/checkpoints/PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-IMPLEMENTATION-PLAN-AMENDMENT-v1.md | 5e9b2bc6c22391b6ca7280cb20cddaf50e7aff071cd04fba4080514fed7f39f5 |
+| docs/design/project-spine/checkpoints/PL-V39-09-MATERIAL-CODE-DOCUMENTATION-AND-MAINTAINABILITY-BINDING-IMPLEMENTATION-PLAN-v1.md | a1e0f00e2b48333ba01ec526a06fce20c472a887c61999dfc9ede21acf1db204 |
+| docs/design/project-spine/checkpoints/PLANNING-LITE-CODE-DOCUMENTATION-AND-MAINTAINABILITY-VITALITY-CHALLENGE-v1.md | a337a1c7ef947ab423d6c81a57ac61b12f93b6420d084391a92a920d3c5acf18 |
+| docs/design/project-spine/roadmap/ROADMAP.md | 056933c1116e3adbaf2330baba32718498aa5cf2f88eb4ea1ef576433392f0bc |
+| scripts/maintainer_resume.py | 80ea9cb61498cc647f76a881c71b0003964f9d439cf33264fc572f565bb85a2d |
+| scripts/test_local_only_update.py | 6d3b3dc3bfb9fe6317619f04ed5553556fb8268ba4e273af1194d56b489333b6 |
+| scripts/test_template_update.py | 0bf1541bfb3f80e4654512f0a8474f20c8c6542f25073faedb01a1fe4ca527e7 |
+| src/planning_lite/execution_guidance.py | 7a7c7a0c96f3dd3d9f2d21c7453b156e7c34d00513ae0a0589d0ecc3f71bd33e |
+| template/.planning/changes/templates/plan.md | 251e6148258e865bf20f854bdbb95016f6cd1197d4865e9d4dfcf3a723f56703 |
+| template/.planning/control/CHANGE_CLOSURE.md | 54c98ae2651bf55df1e07760d19d8b264c7c3f042e943d48e35b8d3f201cafc1 |
+| template/.planning/control/CHANGE_EXECUTION.md | 357044a097f5177d41355145e57d15407a342534f477965fe3d9e71a06562da7 |
+| template/.planning/control/CHANGE_PLANNING.md | eb1602961f26ea6a495bc5d30501abedf72d71fe94e8cffef3585a1c381fd4d0 |
+| template/.planning/control/CHANGE_READINESS.md | 6d80f0abb4b8f03398522cae1a309850c74fac1c70acb8cedeb7128b240e751e |
+| template/.planning/disciplines/CODEBASE_DESIGN.md | 237f5ebd9cc83122231b20ae8b2553c331051597c48077965e8e71dd5b10c3ac |
+| template/.planning/disciplines/CODE_REVIEW.md | 9c2528fdfc79ccece5d3b1ed491ce2ad83f69a61ccb1f8d5f56e5cf7c191e6ff |
+| template/.planning/docs/MANIFEST_V4.md | e9f39bf28f4d84ce05b50758d3dc2978e02d8302e465151a771e41c7c6edb258 |
+| template/.planning/framework/OWNERSHIP.yml | df9013d773cd1b5d433354dd82ba45e517835b1b92d3ce565260a6d496ac80ff |
+| template/.planning/framework/SHA256SUMS.txt | 6faeb22c9aea9f8900350ef8a9f8fa1af10f8f65b5620b60c1dd1c7934ac1b4e |
+| template/.planning/modes/EXECUTE.md | 86334ad9146bb175a24fb742d12a1b305fc29727afc853705d1804cc3449dbef |
+| template/.planning/modes/PLAN.md | 87d000a96a34e115de24c23eff4e2c9a82db13e04d7cc431c312f50eea457f71 |
+| template/.planning/skills/planning-audit/SKILL.md | 2f0596b16cb6b7b36ff6a3a9ee07652258c7f7cf636d1476a1a5e18caba96283 |
+| template/.planning/skills/planning-execute/SKILL.md | 0eb65e095de5e92ba9199eb039fd0361f3415b243de594d40d0578eee608bf4a |
+| template/.planning/skills/planning-plan/SKILL.md | 03170663e2c080df19f155cd483791cd06d4b5c7a5bf9fe7a4b879ddfbe49f19 |
+| tests/test_direction_foundation.py | 69f46fdc3254f096b9d0c2deb1e68f32671794e6e044dbc97e4657df0d3ed094 |
+| tests/test_execution_guidance.py | 91338fe086c8475bb042d6e3d6105094b4d7ce551dccab5903bbc51f18da3fa5 |
+| tests/test_field_control_pack_foundation.py | 0b09397c728098aa72b6262f0cbdea4e879ddaa5180010537e54a9612edf03f7 |
+
+This receipt excludes CURRENT from the path rows because CURRENT is represented by POST_CLOSEOUT_CURRENT_CANONICAL_LF_SHA256. The closeout checkpoint itself is excluded to avoid self-reference. The product commit is the direct parent of the closeout commit to be created from this reviewed closeout surface. No push or release is authorized or performed.
