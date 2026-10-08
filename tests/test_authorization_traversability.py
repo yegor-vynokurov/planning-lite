@@ -7,15 +7,27 @@ import pytest
 
 from planning_lite.authorization import (
     AuthorizationAction,
-    PreparationScopeV1,
+    AuthorizationRecordV2,
+    PreparationScopeV2,
     RecoveryScopeV1,
     ResolutionOutcome,
+    decode_authorization_record,
     resolve_authorization,
 )
+from planning_lite.dependency_admission import resolve_dependency
 from planning_lite.cli import main
+from test_authorization import _governed_target
 
 
-def _target(root: Path) -> Path:
+def _target(root: Path, *, change_id: str | None = None) -> Path:
+    """Select managed-planning for canonical governance and owner stores."""
+    if change_id is not None:
+        return _governed_target(
+            root,
+            change_id=change_id,
+            task_ids=("T-03",),
+            planning_root="managed-planning",
+        )
     framework = root / ".planning/framework"
     framework.mkdir(parents=True)
     (framework / "defaults.yml").write_text(
@@ -36,7 +48,17 @@ def _target(root: Path) -> Path:
 def test_preparation_positive_and_recovery_traversability_for_custom_planning_root(
     tmp_path: Path, capsys
 ) -> None:
-    target = _target(tmp_path / "consumer")
+    """Prove resolver, Preparation, and Recovery traversal under managed-planning.
+
+    Bootstrap CONFIG remains in product ``.planning``. The complete canonical
+    Change and ACTIVE pointer live below the selected effective root; the
+    resulting Preparation refs remain product-root-relative, while Recovery
+    retains its Plan-independent V1 path.
+    """
+    target = _target(
+        tmp_path / "consumer",
+        change_id="CHG-1",
+    )
     assert main(
         [
             "authorize-preparation",
@@ -44,20 +66,45 @@ def test_preparation_positive_and_recovery_traversability_for_custom_planning_ro
             "--change-id",
             "CHG-1",
             "--task-or-operation-id",
-            "TASK-1",
+            "T-03",
             "--decision-provenance-ref",
             "PROV-1",
         ]
     ) == 0
     preparation_ref = capsys.readouterr().out.strip()
     assert preparation_ref.startswith("authz_")
+    preparation_record = decode_authorization_record(
+        (target / "managed-planning/project/authorizations" / f"{preparation_ref}.json").read_bytes()
+    )
+    assert isinstance(preparation_record, AuthorizationRecordV2)
+    current = resolve_dependency(target, "T-03")
+    assert current.plan_ref == "managed-planning/changes/active/CHG-1/plan.md"
+    assert current.tasks_ref == "managed-planning/changes/active/CHG-1/tasks.md"
+    assert preparation_record.scope == PreparationScopeV2(
+        "CHG-1",
+        "T-03",
+        current.plan_ref,
+        current.tasks_ref,
+        current.approved_plan_digest,
+        current.dependency_semantic_digest,
+        current.requirement["requirement_id"],
+        "NOT_APPLICABLE",
+        None,
+    )
     preparation = resolve_authorization(
         target,
         preparation_ref,
         AuthorizationAction.PREPARATION,
-        PreparationScopeV1("CHG-1", "TASK-1"),
+        preparation_record.scope,
     )
     assert preparation.outcome is ResolutionOutcome.AUTHORIZED
+    from planning_lite.attempt_runtime import attempt_store_v2_path
+
+    v2_store = attempt_store_v2_path(target)
+    assert v2_store == target / "managed-planning/changes/active/.planning-lite/attempt-runtime-v2.json"
+    assert (v2_store.parent / f"{v2_store.name}.lock").is_file()
+    assert not v2_store.exists()
+    assert not (v2_store.parent / "dependency-admission/cancellations").exists()
 
     assert main(
         [
@@ -98,7 +145,11 @@ def test_cli_authorization_arguments_are_required() -> None:
 
 @pytest.mark.parametrize("action", ["preparation", "recovery"])
 def test_independent_closure_single_use_contract(action: str, tmp_path: Path, capsys) -> None:
-    target = _target(tmp_path / "consumer")
+    """Keep V2 single-use semantics; custom-root Preparation shares the D2 path mismatch above."""
+    target = _target(
+        tmp_path / "consumer",
+        change_id="CHG-CLOSURE" if action == "preparation" else None,
+    )
     if action == "preparation":
         argv = [
             "authorize-preparation",
@@ -106,12 +157,12 @@ def test_independent_closure_single_use_contract(action: str, tmp_path: Path, ca
             "--change-id",
             "CHG-CLOSURE",
             "--task-or-operation-id",
-            "TASK-CLOSURE",
+            "T-03",
             "--decision-provenance-ref",
             "PROV-CLOSURE",
         ]
         expected_action = AuthorizationAction.PREPARATION
-        expected_scope = PreparationScopeV1("CHG-CLOSURE", "TASK-CLOSURE")
+        expected_scope = None
     else:
         argv = [
             "authorize-recovery",
@@ -126,6 +177,22 @@ def test_independent_closure_single_use_contract(action: str, tmp_path: Path, ca
     assert main(argv) == 0
     reference = capsys.readouterr().out.strip()
     record_path = target / "managed-planning/project/authorizations" / f"{reference}.json"
+    if action == "preparation":
+        record = decode_authorization_record(record_path.read_bytes())
+        assert isinstance(record, AuthorizationRecordV2)
+        current = resolve_dependency(target, "T-03")
+        expected_scope = PreparationScopeV2(
+            "CHG-CLOSURE",
+            "T-03",
+            current.plan_ref,
+            current.tasks_ref,
+            current.approved_plan_digest,
+            current.dependency_semantic_digest,
+            current.requirement["requirement_id"],
+            "NOT_APPLICABLE",
+            None,
+        )
+        assert record.scope == expected_scope
     before_hash = hashlib.sha256(record_path.read_bytes()).hexdigest()
     used: set[str] = set()
 

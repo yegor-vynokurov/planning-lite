@@ -42,6 +42,48 @@ class GovernedExecutorError(ValueError):
     """Fail-closed validation error for one bounded execution call."""
 
 
+@dataclass(frozen=True, slots=True)
+class EvidenceContentInputV1:
+    """Transient exact-ref evidence bytes returned with a governed completion.
+
+    This value carries no caller, digest, path, or authority facts. Lifecycle
+    accepts it only as invocation-associated Class-B content and publishes it
+    through the existing dependency-admission owner. It is never persisted or
+    hashed into the execution envelope.
+    """
+
+    evidence_ref: str
+    exact_raw_bytes: bytes
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "evidence_ref", _nonempty(self.evidence_ref, "evidence_ref"))
+        if type(self.exact_raw_bytes) is not bytes:
+            raise GovernedExecutorError("exact_raw_bytes must be exact bytes")
+
+
+@dataclass(frozen=True, slots=True)
+class GovernedExecutionDependencyInputV1:
+    """Transient non-authoritative exact bytes for a legally claimed T-02.
+
+    Lifecycle creates this two-field value only after the T-02 D11 claim and
+    fresh current requirement/admission/route joins. It remains outside the
+    persisted envelope, bounded payload, and envelope digest; the executor
+    validates shape and passes the same bytes to host execution.
+    """
+
+    required_input_logical_ref: str
+    exact_raw_bytes: bytes
+
+    def __post_init__(self) -> None:
+        object.__setattr__(
+            self,
+            "required_input_logical_ref",
+            _nonempty(self.required_input_logical_ref, "required_input_logical_ref"),
+        )
+        if type(self.exact_raw_bytes) is not bytes:
+            raise GovernedExecutorError("exact_raw_bytes must be exact bytes")
+
+
 def _attribute(value: object, name: str, default: object = None) -> object:
     try:
         return object.__getattribute__(value, name)
@@ -203,7 +245,14 @@ class GovernedExecutionEnvelopeV1:
 
 @dataclass(frozen=True, slots=True)
 class GovernedExecutionCompletionV1:
-    """Typed facts returned by one synchronous execution occurrence."""
+    """Typed facts and transient output bytes returned by one occurrence.
+
+    ``artifact_output_bytes`` is the actual producer output associated with
+    this exact completion. ``evidence_content_inputs`` carries only exact
+    evidence refs and raw bytes. Lifecycle joins both to the completed source
+    Attempt and PL08 refs before publication. They remain transient and are
+    excluded from the unchanged persisted envelope and digest domain.
+    """
 
     attempt_id: str
     execution_invocation_id: str
@@ -226,6 +275,8 @@ class GovernedExecutionCompletionV1:
     evaluation_run: bool = True
     candidate_quality: bool = True
     receipt_id: str | None = None
+    artifact_output_bytes: bytes | None = None
+    evidence_content_inputs: tuple[EvidenceContentInputV1, ...] = ()
 
     def __post_init__(self) -> None:
         for name in ("attempt_id", "execution_invocation_id", "envelope_digest", "operation_id", "task_or_operation_id", "result_id"):
@@ -240,6 +291,12 @@ class GovernedExecutionCompletionV1:
         object.__setattr__(self, "verifier_evidence", tuple(self.verifier_evidence))
         object.__setattr__(self, "findings", tuple(self.findings))
         object.__setattr__(self, "supersession", tuple(self.supersession))
+        if self.artifact_output_bytes is not None and type(self.artifact_output_bytes) is not bytes:
+            raise GovernedExecutorError("artifact_output_bytes must be exact bytes or None")
+        evidence_inputs = tuple(self.evidence_content_inputs)
+        if any(type(item) is not EvidenceContentInputV1 for item in evidence_inputs):
+            raise GovernedExecutorError("evidence_content_inputs must contain exact EvidenceContentInputV1 values")
+        object.__setattr__(self, "evidence_content_inputs", evidence_inputs)
         if self.receipt_id is not None:
             object.__setattr__(self, "receipt_id", _nonempty(self.receipt_id, "receipt_id"))
         if not isinstance(self.evaluation_run, bool) or not isinstance(self.candidate_quality, bool):
@@ -351,7 +408,22 @@ def prepare_governed_operation(
 
 def _completion_from_mapping(value: Mapping[str, Any]) -> GovernedExecutionCompletionV1:
     fields = {field.name for field in GovernedExecutionCompletionV1.__dataclass_fields__.values()}
-    return GovernedExecutionCompletionV1(**{key: value[key] for key in fields if key in value})
+    if set(value) - fields:
+        raise GovernedExecutorError("completion mapping contains unsupported fields")
+    raw_inputs = value.get("evidence_content_inputs", ())
+    if not isinstance(raw_inputs, (tuple, list)):
+        raise GovernedExecutorError("evidence_content_inputs must be an ordered array")
+    typed_inputs: list[EvidenceContentInputV1] = []
+    for item in raw_inputs:
+        if type(item) is EvidenceContentInputV1:
+            typed_inputs.append(item)
+        elif isinstance(item, Mapping) and set(item) == {"evidence_ref", "exact_raw_bytes"}:
+            typed_inputs.append(EvidenceContentInputV1(item["evidence_ref"], item["exact_raw_bytes"]))
+        else:
+            raise GovernedExecutorError("EvidenceContentInputV1 mapping has an incorrect type or key set")
+    values = {key: value[key] for key in fields if key in value and key != "evidence_content_inputs"}
+    values["evidence_content_inputs"] = tuple(typed_inputs)
+    return GovernedExecutionCompletionV1(**values)
 
 
 def validate_governed_completion(
@@ -412,13 +484,26 @@ def invoke_governed_operation(
     payload_schema_ref: str = "payload.v1",
     authority_refs: Sequence[str] | None = None,
     guidance_ref: str | None = None,
+    *,
+    dependency_input: GovernedExecutionDependencyInputV1 | None = None,
 ) -> GovernedExecutionResultV1:
-    """Perform one synchronous bounded binding occurrence.
+    """Perform one synchronous bounded invocation with optional transient input.
 
     The current host supplies ``completion`` as already-observed typed facts.
-    There is intentionally no callback, worker, retry, receipt, or persistence
-    fallback in this contract.
+    The optional dependency input is exact typed transient data supplied after
+    the caller-owned claim/join boundary, does not alter the execution
+    envelope, and is supported only for T-02. This owner checks shape only; it
+    does not resolve governance, routes, storage, or authority. There is
+    intentionally no callback, worker, retry, receipt, or persistence fallback.
     """
+
+    if dependency_input is not None:
+        if type(dependency_input) is not GovernedExecutionDependencyInputV1:
+            raise GovernedExecutorError(
+                "dependency_input must be exact GovernedExecutionDependencyInputV1 or None"
+            )
+        if _attribute(attempt, "task_or_operation_id") != "T-02":
+            raise GovernedExecutorError("dependency_input is supported only for T-02")
 
     try:
         envelope = prepare_governed_operation(
@@ -456,7 +541,9 @@ __all__ = [
     "CONTRACT_VERSION",
     "EXECUTION_STATUSES",
     "FAILURE_CATEGORIES",
+    "EvidenceContentInputV1",
     "GovernedExecutionCompletionV1",
+    "GovernedExecutionDependencyInputV1",
     "GovernedExecutionEnvelopeV1",
     "GovernedExecutionResultV1",
     "GovernedExecutorError",

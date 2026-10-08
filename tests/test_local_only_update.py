@@ -11,10 +11,13 @@ import yaml
 
 from planning_lite.authorization import (
     AuthorizationAction,
-    PreparationScopeV1,
+    AuthorizationRecordV2,
+    PreparationScopeV2,
     ResolutionOutcome,
+    decode_authorization_record,
     resolve_authorization,
 )
+from planning_lite.dependency_admission import resolve_dependency
 import planning_lite.cli as cli
 from planning_lite.local_update import (
     ANSWERS_FILE,
@@ -190,6 +193,13 @@ def _create_v21_git_source(source: Path) -> None:
 
 
 def test_current_template_is_fully_classified_for_local_only_update() -> None:
+    """Keep decision ownership classes exact for both update mechanisms.
+
+    Individual ADR items and INDEX are project-owned bytes; README/TEMPLATE
+    are managed refreshes, while other decision Markdown remains unknown and
+    makes local-only planning fail closed. These ownership rules preserve
+    records and discovery only; neither update route grants Authorization.
+    """
     policy = load_ownership_policy(ROOT / "template")
     unknown = [
         relative
@@ -199,10 +209,31 @@ def test_current_template_is_fully_classified_for_local_only_update() -> None:
     # Rendered Jinja destinations are also part of the ownership contract.
     assert classify_path(ANSWERS_FILE, policy) == "installer_metadata"
     assert classify_path(".planning/AGENT_PROFILE.yml", policy) == "project_owned"
+    assert classify_path(".planning/decisions/ADR-0042-proof-change.md", policy) == "project_owned"
+    assert classify_path(".planning/decisions/README.md", policy) == "managed"
+    assert classify_path(".planning/decisions/TEMPLATE.md", policy) == "managed"
+    assert classify_path(".planning/decisions/INDEX.md", policy) == "project_owned"
+    assert classify_path(".planning/decisions/meeting-notes.md", policy) == "unknown"
     assert unknown == []
     assert ".planning/drift/reviews/.gitkeep" in iter_files(ROOT / "template")
     assert classify_path(".planning/drift/reviews/.gitkeep", policy) == "managed"
     assert classify_path(".planning/drift/reviews/TEMPLATE.md", policy) == "managed"
+
+
+def test_unknown_decision_markdown_candidate_fails_closed(tmp_path: Path) -> None:
+    """Keep unclassified decision Markdown out of both managed and project ownership."""
+    target = tmp_path / "target"
+    candidate = tmp_path / "candidate"
+    target.mkdir()
+    candidate.mkdir()
+    _write_minimal_target(target)
+    _write_minimal_candidate(candidate)
+    unclassified = candidate / ".planning/decisions/meeting-notes.md"
+    unclassified.parent.mkdir(parents=True)
+    unclassified.write_bytes(b"not an ADR\n")
+
+    with pytest.raises(LocalUpdateError, match="unclassified files"):
+        build_local_update_plan(target, candidate)
 
 
 def test_literal_project_root_is_bounded_and_uses_host_path_semantics() -> None:
@@ -294,9 +325,25 @@ def test_literal_project_root_precedence_covers_broad_exact_and_lookalike_paths(
     ) == "unknown"
 
 
+@pytest.mark.parametrize(
+    "run_update_segment",
+    [pytest.param(False, id="t02-v2-issuance"), pytest.param(True, id="t08-causal-update")],
+)
 def test_v21_causal_tagged_local_update_preserves_literal_root_authorization(
-    tmp_path: Path, capsys
+    tmp_path: Path, capsys, run_update_segment: bool
 ) -> None:
+    """Prove V21 authority setup and its separate causal local-only update.
+
+    The completed T-02B half builds canonical CHG-V21/T-21 governance below the
+    literal ``managed[1]-planning`` root, issues a real V2 Preparation
+    Authorization through the normal issuer/resolver, and captures the exact
+    raw record. The T-08 half commits only disposable fixture state, then moves
+    a tagged source to a conflicting same-path Authorization candidate and a
+    managed README marker. It proves that project-owned CONFIG/governance and
+    the original V2 object remain byte-identical and resolvable while managed
+    README content and the installed source ref refresh. Update itself grants
+    no authority; genuine V1 read evidence remains with its existing owners.
+    """
     source = tmp_path / "source"
     consumer = tmp_path / "consumer"
     _create_v21_git_source(source)
@@ -324,6 +371,19 @@ def test_v21_causal_tagged_local_update_preserves_literal_root_authorization(
     _run("git", "add", ".gitignore", cwd=consumer)
     _run("git", "commit", "-m", "adoption bridge and local-only policy", cwd=consumer)
 
+    # Build complete T-21 governance beneath the exact literal root selected
+    # above; D8 decisions remain product-root scoped and are not involved here.
+    import test_dependency_admission as dependency_fixture
+
+    governed_rows = dependency_fixture._task_rows()[:3]
+    governed_rows[2]["id"] = "T-21"
+    dependency_fixture._write_fixture(
+        consumer,
+        change_id="CHG-V21",
+        planning_root="managed[1]-planning",
+        task_rows=governed_rows,
+    )
+
     assert cli.main(
         [
             "authorize-preparation",
@@ -331,7 +391,7 @@ def test_v21_causal_tagged_local_update_preserves_literal_root_authorization(
             "--change-id",
             "CHG-V21",
             "--task-or-operation-id",
-            "TASK-V21",
+            "T-21",
             "--decision-provenance-ref",
             "PROV-V21",
         ]
@@ -340,7 +400,45 @@ def test_v21_causal_tagged_local_update_preserves_literal_root_authorization(
     authorization_path = (
         consumer / "managed[1]-planning/project/authorizations" / f"{authorization_ref}.json"
     )
-    sentinel_sha = hashlib.sha256(authorization_path.read_bytes()).hexdigest()
+    record = decode_authorization_record(authorization_path.read_bytes())
+    assert isinstance(record, AuthorizationRecordV2)
+    current = resolve_dependency(consumer, "T-21")
+    assert current.plan_ref == "managed[1]-planning/changes/active/CHG-V21/plan.md"
+    assert current.tasks_ref == "managed[1]-planning/changes/active/CHG-V21/tasks.md"
+    assert record.scope == PreparationScopeV2(
+        "CHG-V21",
+        "T-21",
+        current.plan_ref,
+        current.tasks_ref,
+        record.scope.approved_plan_digest,
+        record.scope.dependency_semantic_digest,
+        record.scope.requirement_id,
+        "NOT_APPLICABLE",
+        None,
+    )
+    assert resolve_authorization(
+        consumer,
+        authorization_ref,
+        AuthorizationAction.PREPARATION,
+        record.scope,
+    ).outcome is ResolutionOutcome.AUTHORIZED
+    sentinel_raw = authorization_path.read_bytes()
+    sentinel_sha = hashlib.sha256(sentinel_raw).hexdigest()
+    if not run_update_segment:
+        return
+    protected_governance_paths = (
+        consumer / ".planning/CONFIG.yml",
+        consumer / "managed[1]-planning/ACTIVE.md",
+        consumer / "managed[1]-planning/changes/active/CHG-V21/plan.md",
+        consumer / "managed[1]-planning/changes/active/CHG-V21/tasks.md",
+        consumer / "managed[1]-planning/changes/active/CHG-V21/amendments.md",
+        authorization_path,
+    )
+    protected_governance_before = {
+        path.relative_to(consumer).as_posix(): path.read_bytes()
+        for path in protected_governance_paths
+    }
+    managed_readme_before = (consumer / ".planning/README.md").read_bytes()
     _run("git", "add", "managed[1]-planning", cwd=consumer)
     _run("git", "commit", "-m", "issued V21 authorization sentinel", cwd=consumer)
     assert _run("git", "status", "--short", cwd=consumer) == ""
@@ -384,14 +482,22 @@ def test_v21_causal_tagged_local_update_preserves_literal_root_authorization(
         ]
     ) == 0
     capsys.readouterr()
+    assert authorization_path.read_bytes() == sentinel_raw
     assert hashlib.sha256(authorization_path.read_bytes()).hexdigest() == sentinel_sha
+    assert {
+        path.relative_to(consumer).as_posix(): path.read_bytes()
+        for path in protected_governance_paths
+    } == protected_governance_before
+    assert decode_authorization_record(authorization_path.read_bytes()) == record
     assert resolve_authorization(
         consumer,
         authorization_ref,
         AuthorizationAction.PREPARATION,
-        PreparationScopeV1("CHG-V21", "TASK-V21"),
+        record.scope,
     ).outcome is ResolutionOutcome.AUTHORIZED
-    assert "PL09_V21_AFTER" in (consumer / ".planning/README.md").read_text(encoding="utf-8")
+    managed_readme_after = (consumer / ".planning/README.md").read_bytes()
+    assert b"PL09_V21_AFTER" in managed_readme_after
+    assert managed_readme_after != managed_readme_before
     answers = yaml.safe_load((consumer / ANSWERS_FILE).read_text(encoding="utf-8"))
     assert answers["_commit"] == "v0.0.0.dev2"
 

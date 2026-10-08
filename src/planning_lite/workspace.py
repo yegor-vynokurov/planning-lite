@@ -8,11 +8,14 @@ their owning repositories/files.
 from __future__ import annotations
 
 from copy import deepcopy
+from dataclasses import dataclass
 from fnmatch import fnmatchcase
+import hashlib
 import json
 import os
 from pathlib import Path
 import re
+import stat
 import subprocess
 import tempfile
 from typing import Any, Mapping
@@ -584,6 +587,289 @@ def load_effective_policy(target: str | Path) -> dict[str, Any]:
     policy = validate_project_policy(_mapping(merged.get("project_policy"), "project_policy"), product_root)
     merged["project_policy"] = policy
     return merged
+
+
+@dataclass(frozen=True, slots=True)
+class CanonicalArtifactOutputRouteKeyV1:
+    """Exact non-persisted identity used only to derive one artifact locator.
+
+    All semantic values are freshly derived by
+    :func:`resolve_dependency_artifact_output_route`; callers cannot use this
+    value to select or substitute a requirement. ``artifact_logical_ref`` is
+    opaque data, never a path. The digest of this exact eight-field mapping is
+    retrieval metadata only and is excluded from artifact, proof, admission,
+    and authorization identity.
+    """
+
+    change_id: str
+    source_attempt_id: str
+    requirement_id: str
+    dependency_semantic_digest: str
+    accepted_output_contract_ref: str
+    artifact_logical_ref: str
+    schema_version: int = 1
+    source_task_or_operation_id: str = "T-01"
+
+    def __post_init__(self) -> None:
+        if type(self.schema_version) is not int or self.schema_version != 1:
+            raise WorkspaceError("CanonicalArtifactOutputRouteKeyV1 schema_version must be integer 1")
+        if self.source_task_or_operation_id != "T-01":
+            raise WorkspaceError("CanonicalArtifactOutputRouteKeyV1 source task must be T-01")
+        for name in (
+            "change_id", "source_attempt_id", "requirement_id",
+            "dependency_semantic_digest", "accepted_output_contract_ref",
+            "artifact_logical_ref",
+        ):
+            value = getattr(self, name)
+            if not isinstance(value, str) or not value or value != value.strip():
+                raise WorkspaceError(f"CanonicalArtifactOutputRouteKeyV1 {name} is invalid")
+        if not re.fullmatch(r"CHG-[A-Z0-9][A-Z0-9-]*", self.change_id):
+            raise WorkspaceError("CanonicalArtifactOutputRouteKeyV1 change_id is invalid")
+        if self.source_attempt_id != f"{self.change_id}/T-01/A1":
+            raise WorkspaceError("CanonicalArtifactOutputRouteKeyV1 source attempt must be exact T-01/A1")
+        if not re.fullmatch(r"dreq_[0-9a-f]{64}", self.requirement_id):
+            raise WorkspaceError("CanonicalArtifactOutputRouteKeyV1 requirement_id is invalid")
+        if not re.fullmatch(r"[0-9a-f]{64}", self.dependency_semantic_digest):
+            raise WorkspaceError("CanonicalArtifactOutputRouteKeyV1 dependency digest is invalid")
+
+    def to_mapping(self) -> dict[str, Any]:
+        """Return the exact eight semantic fields in the internal route key."""
+        return {
+            "schema_version": self.schema_version,
+            "change_id": self.change_id,
+            "source_task_or_operation_id": self.source_task_or_operation_id,
+            "source_attempt_id": self.source_attempt_id,
+            "requirement_id": self.requirement_id,
+            "dependency_semantic_digest": self.dependency_semantic_digest,
+            "accepted_output_contract_ref": self.accepted_output_contract_ref,
+            "artifact_logical_ref": self.artifact_logical_ref,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class DependencyArtifactOutputRouteV1:
+    """Fresh route result; the path is a retrieval locator, never authority."""
+
+    key: CanonicalArtifactOutputRouteKeyV1
+    artifact_route_digest: str
+    path: Path
+    product_root: Path
+    effective_planning_root: Path
+
+
+def _guard_dependency_artifact_route(
+    product_root: Path, effective_planning_root: Path, route: Path
+) -> None:
+    """Reject escapes and any existing symlink/non-directory route component."""
+    for boundary in (product_root, effective_planning_root):
+        try:
+            route.relative_to(boundary)
+        except ValueError as exc:
+            raise WorkspaceError("dependency artifact route escapes its validated root") from exc
+    try:
+        effective_planning_root.relative_to(product_root)
+    except ValueError as exc:
+        raise WorkspaceError("effective planning root escapes the product root") from exc
+
+    relative = route.relative_to(product_root)
+    cursor = product_root
+    parts = relative.parts
+    for index, part in enumerate(parts):
+        cursor = cursor / part
+        try:
+            info = cursor.lstat()
+        except FileNotFoundError:
+            continue
+        except OSError as exc:
+            raise WorkspaceError("cannot inspect dependency artifact route") from exc
+        if stat.S_ISLNK(info.st_mode):
+            raise WorkspaceError("dependency artifact route contains a symlink alias")
+        final = index == len(parts) - 1
+        if final:
+            if not stat.S_ISREG(info.st_mode):
+                raise WorkspaceError("dependency artifact route terminal object is not a regular file")
+        elif not stat.S_ISDIR(info.st_mode):
+            raise WorkspaceError("dependency artifact route parent is not a directory")
+
+
+def resolve_dependency_artifact_output_route(
+    product_root: str | Path,
+) -> DependencyArtifactOutputRouteV1:
+    """Derive the sole contained artifact-output route from live owner facts.
+
+    This accepts only the consumer root. It reads the current effective policy,
+    then locally imports and calls the canonical dependency resolver for T-02
+    so workspace owns route derivation while dependency_admission remains the
+    sole owner of current governance and requirement semantics. The fixed T-01/A1
+    to T-02/A1 requirement supplies all route-key facts; caller paths, route
+    keys, and requirements are never accepted. Every existing route component
+    is checked with ``lstat``: symlinks, escapes, non-directory parents, and a
+    non-regular terminal object fail closed. A missing terminal file is valid
+    route metadata and is rejected later by capture when bytes are required.
+    The logical ref is opaque, and neither route digest nor path enters any
+    semantic identity or persisted schema.
+    """
+    try:
+        root = Path(product_root).expanduser().resolve(strict=True)
+    except (OSError, RuntimeError) as exc:
+        raise WorkspaceError("dependency route product root cannot be resolved") from exc
+    if not root.is_dir():
+        raise WorkspaceError("dependency route product root must be a directory")
+    policy = load_effective_policy(root)["project_policy"]
+    planning_ref = policy.get("planning_root")
+    if not isinstance(planning_ref, str) or not planning_ref:
+        raise WorkspaceError("effective planning root is unresolved")
+    effective_root = (root / Path(*planning_ref.split("/"))).resolve(strict=False)
+    try:
+        effective_root.relative_to(root)
+    except ValueError as exc:
+        raise WorkspaceError("effective planning root escapes the product root") from exc
+
+    try:
+        # Local import is required because dependency_admission owns governance
+        # and imports this module's effective-policy owner.
+        from .dependency_admission import resolve_dependency
+
+        resolution = resolve_dependency(root, "T-02")
+    except Exception as exc:
+        if isinstance(exc, WorkspaceError):
+            raise
+        raise WorkspaceError("current dependent requirement cannot be resolved") from exc
+    requirement = resolution.requirement
+    if (
+        resolution.task_id != "T-02"
+        or resolution.dependency_classification != "DEPENDENCY_EDGE_MEMBER"
+        or requirement.get("dependency_classification") != "DEPENDENCY_EDGE_MEMBER"
+        or requirement.get("change_id") != resolution.change_id
+        or requirement.get("source_task_or_operation_id") != "T-01"
+        or requirement.get("source_attempt_id") != f"{resolution.change_id}/T-01/A1"
+        or requirement.get("successor_task_or_operation_id") != "T-02"
+        or requirement.get("successor_attempt_id") != f"{resolution.change_id}/T-02/A1"
+        or not isinstance(requirement.get("accepted_output_contract_ref"), str)
+        or not requirement.get("accepted_output_contract_ref")
+        or not isinstance(requirement.get("produced_artifact_logical_ref"), str)
+        or not requirement.get("produced_artifact_logical_ref")
+    ):
+        raise WorkspaceError("current requirement does not bind the exact dependent T-01/A1 -> T-02/A1 edge")
+    # Re-read the existing policy owner after governance resolution. A root
+    # change during derivation cannot silently combine two different roots.
+    policy_after = load_effective_policy(root)["project_policy"]
+    planning_ref_after = policy_after.get("planning_root")
+    if planning_ref_after != planning_ref:
+        raise WorkspaceError("effective planning root changed during route derivation")
+    key = CanonicalArtifactOutputRouteKeyV1(
+        change_id=resolution.change_id,
+        source_attempt_id=requirement["source_attempt_id"],
+        requirement_id=requirement["requirement_id"],
+        dependency_semantic_digest=requirement["dependency_semantic_digest"],
+        accepted_output_contract_ref=requirement["accepted_output_contract_ref"],
+        artifact_logical_ref=requirement["produced_artifact_logical_ref"],
+    )
+    try:
+        encoded = json.dumps(
+            key.to_mapping(), sort_keys=True, ensure_ascii=False,
+            separators=(",", ":"), allow_nan=False,
+        ).encode("utf-8", errors="strict")
+    except (TypeError, ValueError, UnicodeEncodeError) as exc:
+        raise WorkspaceError("canonical artifact route key is not finite UTF-8 JSON") from exc
+    digest = hashlib.sha256(encoded).hexdigest()
+    route = effective_root / "changes" / "active" / ".planning-lite" / "artifact-output-v1" / f"{digest}.bin"
+    _guard_dependency_artifact_route(root, effective_root, route)
+    return DependencyArtifactOutputRouteV1(key, digest, route, root, effective_root)
+
+
+def _ensure_artifact_output_parent(route: DependencyArtifactOutputRouteV1) -> None:
+    """Create only canonical route parents, checking every existing component."""
+    try:
+        relative = route.path.parent.relative_to(route.product_root)
+    except ValueError as exc:
+        raise WorkspaceError("canonical artifact output parent escapes the product root") from exc
+    cursor = route.product_root
+    root_info = cursor.lstat()
+    if stat.S_ISLNK(root_info.st_mode) or not stat.S_ISDIR(root_info.st_mode):
+        raise WorkspaceError("artifact output product root is not a real directory")
+    for part in relative.parts:
+        cursor = cursor / part
+        try:
+            info = cursor.lstat()
+        except FileNotFoundError:
+            try:
+                cursor.mkdir()
+            except FileExistsError:
+                pass
+            info = cursor.lstat()
+        if stat.S_ISLNK(info.st_mode) or not stat.S_ISDIR(info.st_mode):
+            raise WorkspaceError("canonical artifact output parent contains a symlink or non-directory")
+
+
+def _read_exact_artifact_output(route: DependencyArtifactOutputRouteV1) -> bytes:
+    """Reread only the exact current regular-file route without following aliases."""
+    _guard_dependency_artifact_route(route.product_root, route.effective_planning_root, route.path)
+    before = route.path.lstat()
+    if stat.S_ISLNK(before.st_mode) or not stat.S_ISREG(before.st_mode):
+        raise WorkspaceError("canonical artifact output target is not a regular file")
+    raw = route.path.read_bytes()
+    after = route.path.lstat()
+    if (
+        stat.S_ISLNK(after.st_mode)
+        or not stat.S_ISREG(after.st_mode)
+        or (before.st_dev, before.st_ino) != (after.st_dev, after.st_ino)
+    ):
+        raise WorkspaceError("canonical artifact output target changed during readback")
+    return raw
+
+
+def publish_governed_artifact_output(product_root: str | Path, exact_raw_bytes: bytes) -> str:
+    """Publish actual governed producer bytes through the one canonical route.
+
+    The caller supplies only the consumer root and exact output bytes; current
+    governance and the fixed edge derive the route. The publisher enforces
+    containment and regular-file/symlink guards, stages only in the destination
+    directory, and installs with no-clobber linking. It independently hashes
+    and strictly rereads the final bytes. Identical bytes may be reused;
+    same-route different bytes fail closed without overwrite or fallback.
+    The returned digest is a verified content fact, not authority or route
+    identity, and is outside every persisted semantic schema.
+    """
+    if type(exact_raw_bytes) is not bytes:
+        raise WorkspaceError("governed artifact output must be exact bytes")
+    try:
+        route = resolve_dependency_artifact_output_route(product_root)
+        _ensure_artifact_output_parent(route)
+        route = resolve_dependency_artifact_output_route(route.product_root)
+        raw_digest = hashlib.sha256(exact_raw_bytes).hexdigest()
+        if route.path.exists() or route.path.is_symlink():
+            existing = _read_exact_artifact_output(route)
+            if existing != exact_raw_bytes or hashlib.sha256(existing).hexdigest() != raw_digest:
+                raise WorkspaceError("canonical artifact output already contains conflicting immutable bytes")
+        else:
+            staged: Path | None = None
+            try:
+                with tempfile.NamedTemporaryFile(
+                    mode="wb", dir=route.path.parent, prefix=".governed-artifact-", suffix=".tmp", delete=False
+                ) as handle:
+                    staged = Path(handle.name)
+                    handle.write(exact_raw_bytes)
+                    handle.flush()
+                    os.fsync(handle.fileno())
+                try:
+                    os.link(staged, route.path)
+                except FileExistsError:
+                    pass
+            finally:
+                if staged is not None:
+                    staged.unlink(missing_ok=True)
+        verified_route = resolve_dependency_artifact_output_route(route.product_root)
+        if verified_route.key != route.key or verified_route.path != route.path:
+            raise WorkspaceError("canonical artifact route changed during publication")
+        verified = _read_exact_artifact_output(verified_route)
+        if verified != exact_raw_bytes or hashlib.sha256(verified).hexdigest() != raw_digest:
+            raise WorkspaceError("published governed artifact failed exact-byte readback")
+        return raw_digest
+    except WorkspaceError:
+        raise
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise WorkspaceError("governed artifact output publication failed closed") from exc
 
 
 def update_project_policy(

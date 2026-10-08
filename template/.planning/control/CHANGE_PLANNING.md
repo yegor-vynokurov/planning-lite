@@ -50,6 +50,15 @@ contract semantics.
 
 Only explicit user approval changes `plan.md` to `Approved`. After approval, transition to `Readiness / In progress` and set the next gate to readiness audit.
 
+For a dependency-aware Plan, place the exact Plan dependency contract under
+`## Dependency contracts`. At that same existing approval transition, compute
+the canonical Plan, ordered task, amendments, fixed T-01 -> T-02 projection,
+and approval digests, then fill the two digest metadata fields in `plan.md`.
+Use the exact canonical schemas and exclusions in the managed Plan template.
+The final amendments reconciliation receipt is generated from those current
+values. Digest calculation and receipt refresh document approved governance;
+neither replaces the existing explicit Plan approval or readiness gate.
+
 Do not hide uncertainty, compatibility work, blocking edges, or recovery behavior inside generic implementation tasks.
 
 ## Deterministic Operation Guidance binding

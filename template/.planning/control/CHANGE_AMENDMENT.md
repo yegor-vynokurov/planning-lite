@@ -25,4 +25,20 @@ Any change to the protected elements above is a scope amendment. Stop affected e
 5. Synchronize only affected proposal, specification, requirements, plan, tasks, context, recommendations, or decisions.
 6. For a scope amendment, obtain approval, reapprove the plan, and rerun `CHANGE_READINESS.md` before resuming execution.
 
+For dependency-aware Changes, use stable unique amendment IDs in governance
+order and record each exact changed projection field with complete canonical
+before/after JSON values. Keep implementation-detail versus Scope approval
+requirements above; dependency materiality is derived separately for the
+dependent edge and each independent task, not selected in a row by a caller.
+Reconcile authorized changes into the current Plan/task semantics at the
+existing Plan approval or authorized amendment/reconciliation transition,
+recompute the existing Plan and fixed-edge
+digests, and regenerate the final seven-field receipt. A material edit and a
+material reversion both remain in the affected projection's ordered effect
+history. A fully evidenced unrelated effect may be outside another task's
+projection while changing general Plan provenance. Missing IDs, legacy prose
+effects, incomplete before/after chains, unresolved values, or a stale receipt
+block resolution until governed bring-forward is complete. Refreshing a digest
+or receipt never retroactively approves an amendment or authorizes execution.
+
 Do not use an amendment to conceal unrelated scope or retroactively legitimize unauthorized work.

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import hashlib
+import json
 from pathlib import Path
 import subprocess
 
@@ -9,6 +11,8 @@ import yaml
 import planning_lite.workspace as workspace
 from planning_lite.cli import PlanningLiteError, _registration_preview, build_parser, command_register
 from planning_lite.workspace import (
+    CanonicalArtifactOutputRouteKeyV1,
+    DependencyArtifactOutputRouteV1,
     WorkspaceError,
     inspect_project,
     load_effective_policy,
@@ -20,8 +24,24 @@ from planning_lite.workspace import (
     save_registry,
     local_operational_root,
     local_route,
+    resolve_dependency_artifact_output_route,
+    publish_governed_artifact_output,
     update_project_policy,
 )
+
+
+def _governed_route_root(tmp_path: Path, planning_root: str = ".planning") -> Path:
+    # Reuse the existing complete governance fixture so route tests exercise
+    # the canonical dependency resolver rather than a test-only route source.
+    from test_dependency_admission import _write_fixture
+
+    root = tmp_path / "route-consumer"
+    _write_fixture(root, planning_root=planning_root)
+    if planning_root != ".planning":
+        config = root / ".planning" / "CONFIG.yml"
+        config.parent.mkdir(parents=True, exist_ok=True)
+        config.write_text(f"project_policy:\n  planning_root: {planning_root}\n", encoding="utf-8", newline="\n")
+    return root
 
 
 def _consumer(root: Path, *, config: dict | None = None) -> Path:
@@ -336,3 +356,132 @@ def test_register_dry_run_and_apply_require_split_topology(tmp_path: Path) -> No
             command_register(args)
         assert (root / ".planning/CONFIG.yml").read_bytes() == config_before
         assert not (home / "registry" / "projects.yml").exists()
+
+
+@pytest.mark.parametrize("planning_root", [".planning", "managed-planning", "managed[1]-planning"])
+def test_dependency_artifact_route_has_exact_key_digest_and_effective_root(
+    tmp_path: Path, planning_root: str
+) -> None:
+    root = _governed_route_root(tmp_path, planning_root)
+    route = resolve_dependency_artifact_output_route(root)
+
+    assert isinstance(route, DependencyArtifactOutputRouteV1)
+    assert isinstance(route.key, CanonicalArtifactOutputRouteKeyV1)
+    mapping = route.key.to_mapping()
+    assert set(mapping) == {
+        "schema_version", "change_id", "source_task_or_operation_id", "source_attempt_id",
+        "requirement_id", "dependency_semantic_digest", "accepted_output_contract_ref",
+        "artifact_logical_ref",
+    }
+    assert mapping["schema_version"] == 1 and type(mapping["schema_version"]) is int
+    assert mapping["source_task_or_operation_id"] == "T-01"
+    assert mapping["source_attempt_id"] == f'{mapping["change_id"]}/T-01/A1'
+    assert mapping["artifact_logical_ref"] == "artifact:build"
+    assert route.artifact_route_digest == hashlib.sha256(
+        json.dumps(mapping, sort_keys=True, ensure_ascii=False, separators=(",", ":"), allow_nan=False).encode("utf-8")
+    ).hexdigest()
+    assert route.effective_planning_root == root / planning_root
+    assert route.path == (
+        root / planning_root / "changes" / "active" / ".planning-lite"
+        / "artifact-output-v1" / f"{route.artifact_route_digest}.bin"
+    )
+    assert route.path.is_relative_to(route.effective_planning_root)
+    assert route.path.is_relative_to(root)
+    assert not route.path.exists()  # derivation is valid before T-07 publication
+    with pytest.raises(WorkspaceError, match="integer 1"):
+        CanonicalArtifactOutputRouteKeyV1(
+            mapping["change_id"], mapping["source_attempt_id"], mapping["requirement_id"],
+            mapping["dependency_semantic_digest"], mapping["accepted_output_contract_ref"],
+            mapping["artifact_logical_ref"], schema_version=True,
+        )
+
+
+def test_dependency_artifact_route_rejects_caller_selected_authority(tmp_path: Path) -> None:
+    root = _governed_route_root(tmp_path)
+    with pytest.raises(TypeError):
+        resolve_dependency_artifact_output_route(root, path=tmp_path / "substitute")  # type: ignore[call-arg]
+    with pytest.raises(TypeError):
+        resolve_dependency_artifact_output_route(root, requirement={})  # type: ignore[call-arg]
+
+
+def test_dependency_artifact_route_never_falls_back_from_custom_root(tmp_path: Path) -> None:
+    from test_dependency_admission import _write_fixture
+
+    root = _governed_route_root(tmp_path, "managed-planning")
+    _write_fixture(root, planning_root=".planning", change_id="CHG-DEFAULT-DECOY-002")
+    (root / "managed-planning" / "ACTIVE.md").unlink()
+    with pytest.raises(WorkspaceError, match="current dependent requirement"):
+        resolve_dependency_artifact_output_route(root)
+
+
+def test_dependency_artifact_route_fails_closed_for_symlink_and_nonregular_terminal(
+    tmp_path: Path,
+) -> None:
+    root = _governed_route_root(tmp_path)
+    route = resolve_dependency_artifact_output_route(root)
+    route.path.parent.parent.mkdir(parents=True, exist_ok=True)
+    outside = tmp_path / "outside-artifacts"
+    outside.mkdir()
+    try:
+        route.path.parent.symlink_to(outside, target_is_directory=True)
+    except (OSError, NotImplementedError) as exc:
+        pytest.skip(f"directory symlinks are unavailable: {exc}")
+    with pytest.raises(WorkspaceError, match="symlink"):
+        resolve_dependency_artifact_output_route(root)
+
+    route.path.parent.unlink()
+    route.path.parent.mkdir()
+    route.path.mkdir()
+    with pytest.raises(WorkspaceError, match="terminal object"):
+        resolve_dependency_artifact_output_route(root)
+
+
+def test_governed_artifact_publisher_is_contained_immutable_and_byte_verified(
+    tmp_path: Path,
+) -> None:
+    root = _governed_route_root(tmp_path)
+    route = resolve_dependency_artifact_output_route(root)
+    payload = b"exact producer bytes\x00\xff"
+    expected_digest = hashlib.sha256(payload).hexdigest()
+
+    assert publish_governed_artifact_output(root, payload) == expected_digest
+    assert route.path.read_bytes() == payload
+    assert publish_governed_artifact_output(root, payload) == expected_digest
+    assert route.path.read_bytes() == payload
+    with pytest.raises(WorkspaceError, match="conflicting immutable bytes"):
+        publish_governed_artifact_output(root, b"different producer bytes")
+    assert route.path.read_bytes() == payload
+
+
+def test_governed_artifact_publisher_rejects_unsafe_parent_and_final_target(
+    tmp_path: Path,
+) -> None:
+    blocked = _governed_route_root(tmp_path / "blocked")
+    blocked_route = resolve_dependency_artifact_output_route(blocked)
+    blocked_route.path.parent.parent.mkdir(parents=True, exist_ok=True)
+    blocked_route.path.parent.write_bytes(b"not a directory")
+    with pytest.raises(WorkspaceError):
+        publish_governed_artifact_output(blocked, b"payload")
+
+    nonregular = _governed_route_root(tmp_path / "nonregular")
+    nonregular_route = resolve_dependency_artifact_output_route(nonregular)
+    nonregular_route.path.parent.mkdir(parents=True, exist_ok=True)
+    nonregular_route.path.mkdir()
+    with pytest.raises(WorkspaceError, match="terminal object"):
+        publish_governed_artifact_output(nonregular, b"payload")
+
+
+def test_governed_artifact_publisher_rejects_symlink_final_target(tmp_path: Path) -> None:
+    root = _governed_route_root(tmp_path / "symlink-final")
+    route = resolve_dependency_artifact_output_route(root)
+    route.path.parent.mkdir(parents=True, exist_ok=True)
+    outside = tmp_path / "outside-payload.bin"
+    outside.write_bytes(b"outside bytes stay unchanged")
+    try:
+        route.path.symlink_to(outside)
+    except (OSError, NotImplementedError) as exc:
+        pytest.skip(f"file symlinks are unavailable: {exc}")
+
+    with pytest.raises(WorkspaceError):
+        publish_governed_artifact_output(root, b"governed payload")
+    assert outside.read_bytes() == b"outside bytes stay unchanged"

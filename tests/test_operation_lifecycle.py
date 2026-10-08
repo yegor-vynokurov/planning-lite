@@ -12,6 +12,7 @@ from planning_lite.attempt_evaluation import (
     AttemptRecordV1,
     CandidateIdentityV1,
     EvidenceApplicabilityV1,
+    EvidenceSupersessionV1,
     FindingV1,
     IdentityRefV1,
     VerifierContractV1,
@@ -27,8 +28,11 @@ from planning_lite.attempt_runtime import (
 from planning_lite.context import OperationDepthObservationV1
 from planning_lite.execution_guidance import select_operation_guidance
 from planning_lite.governed_executor import (
+    EvidenceContentInputV1,
     GovernedExecutionCompletionV1,
+    GovernedExecutionDependencyInputV1,
     GovernedExecutionResultV1,
+    invoke_governed_operation,
     prepare_governed_operation,
 )
 from planning_lite.project_spine import capture_project_spine_snapshot
@@ -562,3 +566,482 @@ def test_lifecycle_false_done_and_next_gate_boundaries() -> None:
     result = lifecycle.GovernedLifecycleResultV1("COMPLETED_WITH_FACTS", "CHG/T/A1", downstream={"status_projection": "AVAILABLE"})
     assert "next_gate" not in result.to_mapping()
     assert result.disposition != "PASSING"
+
+
+def test_public_t07_source_to_successor_bytes_use_one_satisfied_pl08_pass(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Exercise public endpoint Preparation/claim and the byte-identical successor seam."""
+    import hashlib
+
+    from planning_lite import dependency_admission as dependency_owner
+    from planning_lite.attempt_evaluation import EvidenceApplicabilityV1
+    from planning_lite.attempt_runtime import (
+        AttemptEnvelopeV2,
+        claim_attempt,
+        prepare_attempt,
+    )
+    from planning_lite.authorization import issue_preparation_authorization
+    from planning_lite.dependency_admission import resolve_evidence_content, resolve_dependency
+    from planning_lite.workspace import resolve_dependency_artifact_output_route
+
+    change_id = "CHG-TEST-DEPENDENCY-001"
+    from test_dependency_admission import _write_fixture
+
+    _write_fixture(tmp_path, change_id=change_id)
+    planning = tmp_path / ".planning"
+    (planning / "framework").mkdir(parents=True, exist_ok=True)
+    (planning / "project").mkdir(parents=True, exist_ok=True)
+    (planning / "framework" / "defaults.yml").write_text(
+        "schema_version: 1\nproject_policy:\n"
+        "  schema_version: 1\n  project_id: demo\n  planning_root: .planning\n"
+        "  agents_root: .agents\n  forbidden_read_paths: []\n"
+        "  secret_storage: prohibited\n",
+        encoding="utf-8",
+    )
+    (planning / "CONFIG.yml").write_text("{}\n", encoding="utf-8")
+    (planning / "project" / "CURRENT_STATE.md").write_text(
+        "- Project: `Demo`\n- Direction: `Bounded dependency byte flow`\n",
+        encoding="utf-8",
+    )
+    context_dir = planning / "changes" / "active" / change_id
+    (context_dir / "context.md").write_text(
+        "# Active context\n\n- Approved outcome: `produce and consume exact bytes`\n",
+        encoding="utf-8",
+    )
+    (planning / "ACTIVE.md").write_text(
+        "# Active state\n\n## Active change\n\n"
+        f"- Change: `{change_id}`\n- Change status: `Active`\n"
+        "- Lifecycle stage: `Implementation`\n- Stage status: `In progress`\n"
+        "- Current task: `T-01`\n- Last verified checkpoint: `checkpoint-0`\n"
+        "- Next gate: `Central Candidate Review Gate`\n"
+        "- Next permitted action: `EXECUTE_AUTHORIZED_TASK`\n"
+        "- Implementation authorized: `Yes`\n"
+        f"- Active context packet: `.planning/changes/active/{change_id}/context.md`\n\n"
+        "## Blocking decision\n\n- `None`\n",
+        encoding="utf-8",
+    )
+    requirement = resolve_dependency(tmp_path, "T-01").requirement
+
+    # Both endpoint authorities exist before either public A1 is occupied.
+    source_auth = issue_preparation_authorization(
+        tmp_path, change_id, "T-01", "decision:source-preparation"
+    )
+    successor_auth = issue_preparation_authorization(
+        tmp_path, change_id, "T-02", "decision:successor-preparation"
+    )
+    head = "a" * 40
+    preparation = {
+        "acceptance_contract_ref": requirement["acceptance_contract_ref"],
+        "candidate_identity": {"kind": "GIT_COMMIT", "head": head, "dirty_manifest": []},
+        "baseline_refs": [{"ref": "HEAD", "identity": head}],
+        "operation_guidance_ref": "EXECUTE_AUTHORIZED_TASK",
+        "verifier_contract_refs": [
+            {"contract_id": "build", "contract_version_or_ref": "v1"}
+        ],
+    }
+    source_prepared = prepare_attempt(
+        tmp_path,
+        {
+            **preparation,
+            "change_id": change_id,
+            "task_or_operation_id": "T-01",
+            "authorization_ref": source_auth,
+        },
+    )
+    assert source_prepared.attempt_id == f"{change_id}/T-01/A1"
+    assert resolve_dependency(tmp_path, "T-01").requirement == resolve_dependency(
+        tmp_path, "T-02"
+    ).requirement
+
+    guidance = _guidance()
+    payload = {"operation": "produce exact governed bytes"}
+    source_envelope = prepare_governed_operation(source_prepared.attempt, guidance, payload)
+    verifier_contract = VerifierContractV1(
+        requirement["acceptance_contract_ref"],
+        "build",
+        "v1",
+        True,
+        "AUTOMATED_TEST",
+        "All required checks pass",
+        ("evidence-content:build",),
+        "Block on missing or non-pass evidence",
+    )
+    acceptance_contract = AcceptanceContractV1(
+        requirement["acceptance_contract_ref"], (verifier_contract,)
+    )
+    applicability = EvidenceApplicabilityV1(
+        source_prepared.attempt.attempt_id,
+        source_prepared.attempt.candidate_identity,
+        requirement["acceptance_contract_ref"],
+        "build",
+        "v1",
+        requirement["evaluation_scope_ref"],
+        input_baseline_refs=source_prepared.attempt.baseline_refs,
+    )
+    evidence = VerifierEvidenceV1(
+        "evidence:build:pass",
+        source_prepared.attempt.attempt_id,
+        source_prepared.attempt.candidate_identity,
+        "build",
+        "v1",
+        "PASS",
+        ("evidence-content:build",),
+        applicability,
+        ("claim:build",),
+    )
+    artifact_bytes = b"the exact producer bytes\x00\xff"
+    evidence_bytes = b"actual invocation-associated Class-B evidence"
+    completion = GovernedExecutionCompletionV1(
+        attempt_id=source_envelope.attempt_id,
+        execution_invocation_id=source_envelope.execution_invocation_id,
+        envelope_digest=source_envelope.envelope_digest,
+        operation_id=source_envelope.operation_id,
+        task_or_operation_id="T-01",
+        result_id="result:source:1",
+        execution_status="COMPLETED",
+        fact_refs=("claim:build",),
+        artifact_refs=(requirement["produced_artifact_logical_ref"],),
+        acceptance_contract_ref=requirement["acceptance_contract_ref"],
+        acceptance_contract=acceptance_contract,
+        verifier_contracts=(verifier_contract,),
+        verifier_evidence=(evidence,),
+        evaluation_scope_ref=requirement["evaluation_scope_ref"],
+        evaluation_id="evaluation:source:1",
+        receipt_id="receipt:source:1",
+        artifact_output_bytes=artifact_bytes,
+        evidence_content_inputs=(EvidenceContentInputV1("evidence-content:build", evidence_bytes),),
+    )
+    source_snapshot = capture_project_spine_snapshot(tmp_path)
+
+    order: list[str] = []
+    evaluator_calls: list[object] = []
+    invocation_inputs: list[GovernedExecutionDependencyInputV1 | None] = []
+    real_evaluate = lifecycle.evaluate_technical
+
+    def evaluate_once(**kwargs: object):
+        result = real_evaluate(**kwargs)
+        evaluator_calls.append(result)
+        order.append("pl08-satisfied" if result.outcome == "SATISFIED" else "pl08-other")
+        return result
+
+    monkeypatch.setattr(lifecycle, "evaluate_technical", evaluate_once)
+    real_artifact_publish = lifecycle.publish_governed_artifact_output
+
+    def publish_artifact(*args: object, **kwargs: object):
+        assert evaluator_calls and evaluator_calls[-1].outcome == "SATISFIED"
+        order.append("artifact-publication")
+        return real_artifact_publish(*args, **kwargs)
+
+    monkeypatch.setattr(lifecycle, "publish_governed_artifact_output", publish_artifact)
+    real_evidence_publish = dependency_owner.publish_evidence_content
+
+    def publish_evidence(*args: object, **kwargs: object):
+        assert evaluator_calls and evaluator_calls[-1].outcome == "SATISFIED"
+        order.append("class-b-publication")
+        return real_evidence_publish(*args, **kwargs)
+
+    monkeypatch.setattr(dependency_owner, "publish_evidence_content", publish_evidence)
+    real_capture = dependency_owner.capture_dependency_acceptance_proof
+
+    def capture_proof(*args: object, **kwargs: object):
+        order.append("proof-capture")
+        return real_capture(*args, **kwargs)
+
+    monkeypatch.setattr(dependency_owner, "capture_dependency_acceptance_proof", capture_proof)
+    real_install = lifecycle.publish_dependency_acceptance_proof
+
+    def install_current(*args: object, **kwargs: object):
+        order.append("proof-current-trigger-a")
+        return real_install(*args, **kwargs)
+
+    monkeypatch.setattr(lifecycle, "publish_dependency_acceptance_proof", install_current)
+    publication_errors: list[str] = []
+    real_source_publication = lifecycle._publish_satisfied_source_outputs
+
+    def observe_source_publication(*args: object, **kwargs: object):
+        try:
+            return real_source_publication(*args, **kwargs)
+        except Exception as exc:
+            publication_errors.append(f"{type(exc).__name__}: {exc}")
+            raise
+
+    monkeypatch.setattr(lifecycle, "_publish_satisfied_source_outputs", observe_source_publication)
+    monkeypatch.setattr(
+        lifecycle,
+        "_receipt_context",
+        lambda target, **kwargs: ("demo", kwargs["receipt_path"], True),
+    )
+
+    def collect_receipt(receipt: object, *, attempt_id: str, execution_invocation_id: str, **kwargs: object):
+        order.append("receipt")
+        return {
+            "schema_version": 2,
+            "receipt_id": "receipt:source:1",
+            "attempt_id": attempt_id,
+            "execution_invocation_id": execution_invocation_id,
+            "planning_lite_ref": "planning-lite:test",
+            "model_id": "model:test",
+            "agent_role": "PARENT",
+            "invocation_index": 0,
+            "runtime_source": "t07-test-host",
+        }
+
+    monkeypatch.setattr(lifecycle, "collect_governed_receipt", collect_receipt)
+    real_terminalize = lifecycle.terminalize_attempt
+
+    def terminalize(*args: object, **kwargs: object):
+        order.append("terminal-completed")
+        return real_terminalize(*args, **kwargs)
+
+    monkeypatch.setattr(lifecycle, "terminalize_attempt", terminalize)
+    real_invoke = lifecycle.invoke_governed_operation
+
+    def observe_invocation(*args: object, **kwargs: object):
+        invocation_inputs.append(kwargs.get("dependency_input"))
+        order.append(f"invoke-{kwargs.get('dependency_input') is not None}")
+        return real_invoke(*args, **kwargs)
+
+    monkeypatch.setattr(lifecycle, "invoke_governed_operation", observe_invocation)
+
+    source_result = lifecycle.execute_governed_operation(
+        tmp_path,
+        source_prepared.attempt_id,
+        target_root=tmp_path,
+        pre_execution_project_spine_snapshot=source_snapshot,
+        guidance=guidance,
+        bounded_payload=payload,
+        completion=completion,
+        receipt={"schema_version": 2, "receipt_id": "receipt:source:1"},
+        receipt_path=tmp_path / "receipts.jsonl",
+        registered_project_id="demo",
+        telemetry_enabled=True,
+    )
+    assert source_result.completed, (source_result.to_mapping(), publication_errors)
+    assert source_result.technical_evaluation.outcome == "SATISFIED"
+    assert source_result.downstream["dependency_admission_trigger_a"]["outcome"] == "DEFERRED_SUCCESSOR_NOT_PREPARED"
+    assert len(evaluator_calls) == 1
+    assert invocation_inputs == [None]
+    assert order.index("invoke-False") < order.index("receipt")
+    assert order.index("receipt") < order.index("terminal-completed")
+    assert order.index("terminal-completed") < order.index("pl08-satisfied")
+    assert order.index("pl08-satisfied") < order.index("artifact-publication")
+    assert order.index("artifact-publication") < order.index("class-b-publication")
+    assert order.index("class-b-publication") < order.index("proof-capture")
+    assert order.index("proof-capture") < order.index("proof-current-trigger-a")
+
+    route = resolve_dependency_artifact_output_route(tmp_path)
+    assert route.path.read_bytes() == artifact_bytes
+    assert resolve_evidence_content(tmp_path, "evidence-content:build").exact_raw_bytes == evidence_bytes
+    successor_prepared = prepare_attempt(
+        tmp_path,
+        {
+            **preparation,
+            "change_id": change_id,
+            "task_or_operation_id": "T-02",
+            "authorization_ref": successor_auth,
+        },
+    )
+    assert successor_prepared.attempt_id == f"{change_id}/T-02/A1"
+    assert successor_prepared.attempt.dependency_admission is not None
+    successor_claim = claim_attempt(tmp_path, successor_prepared.attempt_id)
+    assert isinstance(successor_claim, AttemptEnvelopeV2)
+    assert successor_claim.runtime_state == "IN_FLIGHT"
+    dependency_input = lifecycle._fresh_successor_dependency_input(tmp_path, successor_claim)
+    assert type(dependency_input) is GovernedExecutionDependencyInputV1
+    assert dependency_input.required_input_logical_ref == requirement["required_successor_input_logical_ref"]
+    assert dependency_input.exact_raw_bytes == artifact_bytes
+    assert hashlib.sha256(dependency_input.exact_raw_bytes).hexdigest() == hashlib.sha256(artifact_bytes).hexdigest()
+
+    successor_envelope = prepare_governed_operation(
+        successor_prepared.attempt, guidance, {"operation": "consume exact bytes"}
+    )
+    successor_completion = GovernedExecutionCompletionV1(
+        attempt_id=successor_envelope.attempt_id,
+        execution_invocation_id=successor_envelope.execution_invocation_id,
+        envelope_digest=successor_envelope.envelope_digest,
+        operation_id=successor_envelope.operation_id,
+        task_or_operation_id="T-02",
+        result_id="result:successor:1",
+        execution_status="COMPLETED",
+    )
+    successor_execution = lifecycle.invoke_governed_operation(
+        successor_prepared.attempt,
+        guidance,
+        {"operation": "consume exact bytes"},
+        successor_completion,
+        dependency_input=dependency_input,
+    )
+    assert successor_execution.accepted
+    assert invocation_inputs[1] is dependency_input
+    assert invocation_inputs[1].exact_raw_bytes == artifact_bytes
+
+    # On a fresh independent consumer, mutate the canonical artifact only
+    # after the public T-02 D11 claim. Lifecycle must stop before its executor
+    # and evaluator while leaving that already-successful claim IN_FLIGHT.
+    negative_root = tmp_path / "post-claim-negative"
+    _write_fixture(negative_root, change_id=change_id)
+    negative_planning = negative_root / ".planning"
+    (negative_planning / "framework").mkdir(parents=True, exist_ok=True)
+    (negative_planning / "project").mkdir(parents=True, exist_ok=True)
+    (negative_planning / "framework" / "defaults.yml").write_text(
+        "schema_version: 1\nproject_policy:\n"
+        "  schema_version: 1\n  project_id: demo\n  planning_root: .planning\n"
+        "  agents_root: .agents\n  forbidden_read_paths: []\n"
+        "  secret_storage: prohibited\n",
+        encoding="utf-8",
+    )
+    (negative_planning / "CONFIG.yml").write_text("{}\n", encoding="utf-8")
+    (negative_planning / "project" / "CURRENT_STATE.md").write_text(
+        "- Project: `Demo`\n- Direction: `Bounded dependency byte flow`\n",
+        encoding="utf-8",
+    )
+    negative_context = negative_planning / "changes" / "active" / change_id / "context.md"
+    negative_context.write_text(
+        "# Active context\n\n- Approved outcome: `produce and consume exact bytes`\n",
+        encoding="utf-8",
+    )
+    negative_active = (negative_planning / "ACTIVE.md")
+    negative_active.write_text(
+        "# Active state\n\n## Active change\n\n"
+        f"- Change: `{change_id}`\n- Change status: `Active`\n"
+        "- Lifecycle stage: `Implementation`\n- Stage status: `In progress`\n"
+        "- Current task: `T-01`\n- Last verified checkpoint: `checkpoint-0`\n"
+        "- Next gate: `Central Candidate Review Gate`\n"
+        "- Next permitted action: `EXECUTE_AUTHORIZED_TASK`\n"
+        "- Implementation authorized: `Yes`\n"
+        f"- Active context packet: `.planning/changes/active/{change_id}/context.md`\n\n"
+        "## Blocking decision\n\n- `None`\n",
+        encoding="utf-8",
+    )
+    negative_source_auth = issue_preparation_authorization(
+        negative_root, change_id, "T-01", "decision:negative-source"
+    )
+    negative_successor_auth = issue_preparation_authorization(
+        negative_root, change_id, "T-02", "decision:negative-successor"
+    )
+    negative_source = prepare_attempt(
+        negative_root,
+        {
+            **preparation,
+            "change_id": change_id,
+            "task_or_operation_id": "T-01",
+            "authorization_ref": negative_source_auth,
+        },
+    )
+    negative_snapshot = capture_project_spine_snapshot(negative_root)
+    negative_source_result = lifecycle.execute_governed_operation(
+        negative_root,
+        negative_source.attempt_id,
+        target_root=negative_root,
+        pre_execution_project_spine_snapshot=negative_snapshot,
+        guidance=guidance,
+        bounded_payload=payload,
+        completion=completion,
+        receipt={"schema_version": 2, "receipt_id": "receipt:source:1"},
+        receipt_path=negative_root / "receipts.jsonl",
+        registered_project_id="demo",
+        telemetry_enabled=True,
+    )
+    assert negative_source_result.completed
+    negative_successor = prepare_attempt(
+        negative_root,
+        {
+            **preparation,
+            "change_id": change_id,
+            "task_or_operation_id": "T-02",
+            "authorization_ref": negative_successor_auth,
+        },
+    )
+    negative_snapshot = capture_project_spine_snapshot(negative_root)
+    calls_before_invalid_input = len(invocation_inputs)
+    evaluations_before_invalid_input = len(evaluator_calls)
+    real_route_resolver = lifecycle.resolve_dependency_artifact_output_route
+
+    def mutate_after_claim(target: object):
+        route_value = real_route_resolver(target)
+        route_value.path.write_bytes(b"changed after D11 claim")
+        return route_value
+
+    monkeypatch.setattr(lifecycle, "resolve_dependency_artifact_output_route", mutate_after_claim)
+    stopped = lifecycle.execute_governed_operation(
+        negative_root,
+        negative_successor.attempt_id,
+        target_root=negative_root,
+        pre_execution_project_spine_snapshot=negative_snapshot,
+        guidance=guidance,
+        bounded_payload={"operation": "consume exact bytes"},
+        completion=None,
+        receipt=None,
+        receipt_path=negative_root / "receipts.jsonl",
+        registered_project_id="demo",
+        telemetry_enabled=True,
+    )
+    assert stopped.disposition == "STOPPED_FAIL_CLOSED"
+    assert stopped.first_broken_seam == "SUCCESSOR_DEPENDENCY_INPUT"
+    assert stopped.reason_code == "DEPENDENCY_INPUT_INVALID"
+    assert stopped.execution is None and stopped.receipt is None
+    assert stopped.observed_result is None and stopped.technical_evaluation is None
+    assert stopped.terminal_attempt is None
+    assert len(invocation_inputs) == calls_before_invalid_input
+    assert len(evaluator_calls) == evaluations_before_invalid_input
+    from planning_lite.attempt_runtime import lookup_attempt
+
+    assert lookup_attempt(negative_root, negative_successor.attempt_id).runtime_state == "IN_FLIGHT"
+    negative_source_row = lookup_attempt(negative_root, negative_source.attempt_id).envelope
+    assert negative_source_row.dependency_edge_control["proof_head"]["state"] == "CURRENT"
+
+
+def test_t07_class_b_inputs_require_exact_refs_and_allow_class_a_only() -> None:
+    """Lifecycle needs bytes only for external Class-B refs, exactly once each."""
+    completion = _completion(_attempt())
+    evidence = completion.verifier_evidence[0]
+    first_class_a = replace(evidence, evidence_refs=())
+    second_class_a = replace(evidence, evidence_id="E-2", evidence_refs=())
+    class_a_only = replace(
+        completion,
+        verifier_evidence=(first_class_a, second_class_a),
+        supersession=(
+            EvidenceSupersessionV1(
+                "E-1", "E-2", "SCOPE-OTHER", ("FACT-1",), "Captured Class-A mapping pair."
+            ),
+        ),
+    )
+    assert lifecycle._required_class_b_evidence_refs(class_a_only) == frozenset()
+    assert lifecycle._exact_class_b_inputs(class_a_only) == {}
+
+    class_b = replace(
+        completion,
+        verifier_evidence=(replace(evidence, evidence_refs=("external:a", "external:b")),),
+    )
+    assert lifecycle._required_class_b_evidence_refs(class_b) == frozenset({"external:a", "external:b"})
+    exact_inputs = (
+        EvidenceContentInputV1("external:a", b"a bytes"),
+        EvidenceContentInputV1("external:b", b"b bytes"),
+    )
+    joined = lifecycle._exact_class_b_inputs(replace(class_b, evidence_content_inputs=exact_inputs))
+    assert joined["external:a"].exact_raw_bytes == b"a bytes"
+    assert joined["external:b"].exact_raw_bytes == b"b bytes"
+
+    invalid_inputs = (
+        (),
+        (EvidenceContentInputV1("external:a", b"a bytes"),),
+        (
+            EvidenceContentInputV1("external:a", b"a bytes"),
+            EvidenceContentInputV1("external:b", b"b bytes"),
+            EvidenceContentInputV1("external:unrelated", b"other bytes"),
+        ),
+        (
+            EvidenceContentInputV1("external:a", b"a bytes"),
+            EvidenceContentInputV1("external:a", b"a bytes"),
+            EvidenceContentInputV1("external:b", b"b bytes"),
+        ),
+        (
+            EvidenceContentInputV1("external:a", b"a bytes"),
+            EvidenceContentInputV1("external:a", b"conflicting bytes"),
+            EvidenceContentInputV1("external:b", b"b bytes"),
+        ),
+    )
+    for inputs in invalid_inputs:
+        with pytest.raises(ValueError):
+            lifecycle._exact_class_b_inputs(replace(class_b, evidence_content_inputs=inputs))

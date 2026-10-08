@@ -59,6 +59,17 @@ Do not copy plans or progress history into `.planning/ACTIVE.md`.
 - A scope amendment returns the change to `Planning`, then requires renewed `Readiness`.
 - A checkpoint preserves the current stage. It never advances or closes a change.
 
+For a dependency-aware Change, compute or refresh the approved Plan digests and
+final amendments reconciliation receipt only within the existing Plan approval
+or authorized amendment/reconciliation transition. Recompute current Plan,
+task, amendments, and projection semantics there; retain every governed
+projection-relative effect in amendment order, including reversions. A
+complete unrelated effect can preserve another task's unchanged requirement
+even when general Plan provenance changes. Missing or unresolved effect
+history and mismatched receipt data fail closed. Digests identify semantics;
+receipt reconciliation records current governance. Neither creates approval,
+Preparation authority, or a new lifecycle gate.
+
 ## Legacy normalization
 
 An installed project may have an older `.planning/ACTIVE.md` without these fields.

@@ -24,12 +24,26 @@ from planning_lite.attempt_runtime import (
     AdmissibilityOutcome,
     LookupOutcome,
     attempt_store_path,
+    attempt_store_v2_path,
     check_activation_admissibility,
     claim_attempt,
     lookup_attempt,
+    decode_attempt_store_v2,
 )
-from planning_lite.authorization import issue_preparation_authorization, issue_recovery_authorization
+from planning_lite.authorization import (
+    AuthorizationAction,
+    AuthorizationRecordV2,
+    PreparationScopeV2,
+    decode_authorization_record,
+    issue_preparation_authorization,
+    issue_recovery_authorization,
+    resolve_authorization,
+    ResolutionOutcome,
+    authorization_store_path,
+)
+from planning_lite.dependency_admission import resolve_dependency
 from planning_lite.cli import main
+from test_authorization import _governed_target
 from planning_lite.project_spine import (
     PostEvaluationCheckpointV1,
     capture_project_spine_snapshot,
@@ -856,12 +870,58 @@ def test_validator_has_no_authority_or_filesystem_surface() -> None:
         assert "event store" not in carrier_text
 
 
-def test_attempt_access_seam_is_wired_traversable(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+@pytest.mark.parametrize(
+    "continue_to_runtime",
+    [pytest.param(False, id="t02-preparation-v2"), pytest.param(True, id="t03-system-runtime")],
+)
+def test_attempt_access_seam_is_wired_traversable(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str], continue_to_runtime: bool
+) -> None:
+    """Carry accepted T-02 V2 Preparation through T-03 storage and Recovery.
+
+    The first parameter remains the T-02 governance-only boundary. The second
+    proves the exact immutable binding reaches the side-by-side V2 row and its
+    independent lifecycle, while the later executor seam remains WIRING_GAP.
+    """
     change_id = "CHG-PL-V39-09-AUTHORITATIVE-ATTEMPT-RUNTIME-ACCESS-001"
     task_id = "T-08"
     head = "a" * 40
-    authorization = issue_preparation_authorization(tmp_path, change_id, task_id, "OWNER-DECISION")
-    payload = tmp_path / "preparation.json"
+    target = _governed_target(
+        tmp_path,
+        change_id=change_id,
+        task_ids=(task_id,),
+        planning_root="managed-planning" if not continue_to_runtime else ".planning",
+    )
+    authorization = issue_preparation_authorization(target, change_id, task_id, "OWNER-DECISION")
+    record_path = authorization_store_path(target) / f"{authorization}.json"
+    record = decode_authorization_record(record_path.read_bytes())
+    assert isinstance(record, AuthorizationRecordV2)
+    current = resolve_dependency(target, task_id)
+    if not continue_to_runtime:
+        assert current.plan_ref == (
+            f"managed-planning/changes/active/{change_id}/plan.md"
+        )
+    assert record.scope == PreparationScopeV2(
+        change_id,
+        task_id,
+        current.plan_ref,
+        current.tasks_ref,
+        current.approved_plan_digest,
+        current.dependency_semantic_digest,
+        current.requirement["requirement_id"],
+        "NOT_APPLICABLE",
+        None,
+    )
+    assert resolve_authorization(
+        target,
+        authorization,
+        AuthorizationAction.PREPARATION,
+        record.scope,
+    ).outcome is ResolutionOutcome.AUTHORIZED
+    if not continue_to_runtime:
+        return
+
+    payload = target / "preparation.json"
     payload.write_text(
         json.dumps(
             {
@@ -875,23 +935,40 @@ def test_attempt_access_seam_is_wired_traversable(tmp_path: Path, capsys: pytest
         ),
         encoding="utf-8",
     )
-    assert main(["attempt-prepare", str(tmp_path), "--input", str(payload)]) == 0
+    assert main(["attempt-prepare", str(target), "--input", str(payload)]) == 0
     attempt_id = capsys.readouterr().out.strip()
-    assert lookup_attempt(tmp_path, attempt_id).outcome is LookupOutcome.FOUND
-    assert check_activation_admissibility(tmp_path, attempt_id).outcome is AdmissibilityOutcome.ADMISSIBLE
-    assert claim_attempt(tmp_path, attempt_id).runtime_state == "IN_FLIGHT"
-    recovery = issue_recovery_authorization(tmp_path, attempt_id, "OWNER-RECOVERY")
+    assert lookup_attempt(target, attempt_id).outcome is LookupOutcome.FOUND
+    v1_store = attempt_store_path(target)
+    v2_store = attempt_store_v2_path(target)
+    assert not v1_store.exists()
+    decoded = decode_attempt_store_v2(v2_store.read_bytes())
+    assert len(decoded.attempts) == 1
+    stored = decoded.attempts[0]
+    assert stored.attempt_id == attempt_id
+    assert stored.attempt.preparation_binding.authorization_ref == authorization
+    assert stored.attempt.preparation_binding.plan_ref == record.scope.plan_ref
+    assert stored.attempt.preparation_binding.tasks_ref == record.scope.tasks_ref
+    assert stored.attempt.preparation_binding.approved_plan_digest == record.scope.approved_plan_digest
+    assert stored.attempt.preparation_binding.dependency_semantic_digest == record.scope.dependency_semantic_digest
+    assert stored.attempt.preparation_binding.requirement_id == record.scope.requirement_id
+    assert stored.attempt.preparation_binding.dependency_classification == "NOT_APPLICABLE"
+    assert stored.attempt.preparation_binding.expected_attempt_id is None
+    assert check_activation_admissibility(target, attempt_id).outcome is AdmissibilityOutcome.ADMISSIBLE
+    assert claim_attempt(target, attempt_id).runtime_state == "IN_FLIGHT"
+    recovery = issue_recovery_authorization(target, attempt_id, "OWNER-RECOVERY")
     assert main(
         [
             "attempt-resolve-interrupted",
-            str(tmp_path),
+            str(target),
             attempt_id,
             "--authorization-ref",
             recovery,
         ]
     ) == 0
     capsys.readouterr()
-    assert json.loads(attempt_store_path(tmp_path).read_text(encoding="utf-8"))["attempts"][0]["runtime_state"] == "TERMINAL"
+    terminal = decode_attempt_store_v2(v2_store.read_bytes()).by_id(attempt_id)
+    assert terminal is not None and terminal.runtime_state == "TERMINAL"
+    assert terminal.recovery_authorization_ref == recovery
 
     projection = check_critical_journey_smoke(
         _journey(

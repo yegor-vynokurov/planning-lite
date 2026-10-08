@@ -36,6 +36,7 @@ _skip_if_exists:
   - .planning/changes/active/**
   - .planning/changes/completed/**
   - .planning/decisions/INDEX.md
+  - .planning/decisions/ADR-*.md
   - .planning/drift/QUICK_CHANGES.md
   - .planning/drift/reviews/*.md
   - .planning/recommendations/INDEX.md
