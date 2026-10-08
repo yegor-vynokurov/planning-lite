@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 4.4.0 - 2026-10-08
+
 - Add a bounded read-only consumer `planning-lite resume` projection with
   authority-first selection, exact expansion guards, freshness outcomes, and
   in-memory HandoffV1 validation; no context store or consumer writes are
